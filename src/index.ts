@@ -50,6 +50,14 @@ class EmblemVaultSDK {
         return metadata;
     }
 
+    async fetchVaultsOfType(vaultType: string, address: string): Promise<any> {
+        genericGuard(vaultType, "string", "vaultType");
+        genericGuard(address, "string", "address");
+        let url = `${this.baseUrl}/myvaults/${address}?vaultType=${vaultType}`;
+        let vaults = await fetchData(url, this.apiKey);
+        return vaults;
+    }
+
 }
 
 declare global {

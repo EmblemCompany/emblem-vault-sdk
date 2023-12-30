@@ -47,6 +47,13 @@ describe('EmblemVaultSDK', () => {
             expect(metadata).toBeInstanceOf(Object);
             expect(metadata.name).toEqual("Patrick's Birthday Vault");
         });
+
+        test('should fetch vaults of type', async () => {
+            const sdk = new EmblemVaultSDK(apiKey);
+            const vaults = await sdk.fetchVaultsOfType("created", TEST_ADDRESS);
+            expect(vaults).toBeInstanceOf(Array);
+            expect(vaults.length).toBeGreaterThanOrEqual(3);
+        });
     });    
     
     describe('Vault Creation', () => {
@@ -109,8 +116,7 @@ const mocks = {
         }, 
         "targetAsset": { 
             "name": "Loading...", 
-            "image": "https://emblem.finance/ordinals.png", 
-            "ownedImage": ""
+            "image": "https://emblem.finance/ordinals.png"
         }
     }
 }

@@ -41,6 +41,12 @@ const tokenId = 'YOUR_TOKEN_ID'; // replace with your actual token id
 sdk.fetchMetadata(tokenId).then(metadata => {
     console.log(metadata);
 });
+
+// Fetch Vaults of type ____ owned by ____
+const TEST_ADDRESS = "0x9dE9ffB62c159A10cbcC19BdAc7962e9C19a1baa"
+sdk.fetchVaultsOfType("created", TEST_ADDRESS).then(vaults => {
+    console.log(vaults);
+});
 ```
 
 ## Simple Html Demo
