@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Emblem Vault SDK Browser Test</title>
+    <style>
+        input, select, button {
+            padding: 10px;
+            margin: 5px;
+        }
+        #tokenImage{
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Testing Emblem Vault SDK in the Browser</h1>
+    <script src="../dist/bundle.js"></script>
+    <script>
+        const sdk = new EmblemVaultSDK('demo');
+        sdk.fetchCuratedContracts(false).then(curatedContracts => {
+            window.curatedContracts = curatedContracts;
+            generateDropdown(curatedContracts);
+        });
+
+        function generateDropdown(curatedContracts) {
+            const selectElement = function () { return document.getElementById('contractSelect') }
+            let hide = document.getElementById('hideNotMintableCheckbox').checked
+            while (selectElement().firstChild) {
+                selectElement().removeChild(selectElement().firstChild);
+            }
+            const defaultOptionElement = document.createElement('option');
+            defaultOptionElement.value = '0';
+            defaultOptionElement.text = 'Select contract';
+            selectElement().appendChild(defaultOptionElement);
+            curatedContracts.forEach((contract, index) => {                
+                if (!hide || (hide && contract.mintable)) {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = index.toString();
+                    optionElement.text = contract.name;
+                    selectElement().appendChild(optionElement);
+                }
+            });
+            selectElement().style.display = 'block';
+        }
+        
+        async function createVault() {
+            let vault = await sdk.createCuratedVault(window.template)
+            window.vault = vault;
+            console.log("--------- Vault Details ---------");
+            console.log(vault)
+            document.getElementById('tokenId').value = vault.tokenId;
+            getMetadata();
+        }
+
+        function selectContract(index) {
+            let contract = window.curatedContracts[index];
+            let template = contract.generateCreateTemplate(contract)
+            console.log("--------- Contract Details ---------");
+            console.log(contract);
+            console.log("---------- Create Template ----------");
+            console.log(template);
+            console.log("--------- Populated Template ---------");
+            template.toAddress = document.getElementById('ethAddress').value;
+            template.fromAddress = document.getElementById('ethAddress').value;
+            console.log(template);
+            window.contract = contract;
+            window.template = template;
+        }
+
+        async function getMetadata() {
+            let metadata = await sdk.fetchMetadata(document.getElementById('tokenId').value)
+            console.log("--------- Metadata ---------");
+            console.log(metadata);            
+            if (!window.contract) {
+                window.contract = window.curatedContracts.find(contract => contract.name == metadata.targetContract.name)  
+            } 
+            window.address = window.contract.address(metadata.addresses)
+            window.vaultBody = contract.generateVaultBody(metadata, metadata.values, contract, ()=>{})
+            document.getElementById('depositAddress').textContent = window.address;
+            document.getElementById('tokenImage').src = window.vaultBody.image;
+            document.getElementById('tokenName').textContent = window.vaultBody.name;
+            document.getElementById('tokenDescription').textContent = window.vaultBody.description;
+            document.getElementById('tokenLink').href = `https://emblem.finance/nft2?id=${metadata.tokenId}`;
+            document.getElementById('vaultDetails').style.display = 'block';
+        }
+
+        document.body.addEventListener('change', (event) => {
+            if (event.target.tagName.toLowerCase() === 'select' && event.target.value != '0') {
+                selectContract(event.target.value);
+            }
+        });
+    </script>
+
+
+    <input type="text" id="ethAddress" placeholder="Enter ETH Address" oninput="localStorage.setItem('ethAddress', this.value)" value="">
+
+    <input type="checkbox" id="hideNotMintableCheckbox" checked onchange="generateDropdown(window.curatedContracts)">
+    <label for="hideNotMintableCheckbox">Hide Not Mintable</label>
+
+    <select id="contractSelect" style="display: none;"></select>
+    
+
+    <button id="createButton" onclick="createVault()">Create</button>
+
+    <hr>
+
+    <input type="text" id="tokenId" placeholder="Enter Token ID">
+
+    <button id="getMeta" onclick="getMetadata()">Get Metadata</button>
+
+
+    <div id="vaultDetails" style="display: none;">
+        <div><b>Deposit Address:</b> <span id="depositAddress"></span></div>
+        <div><b>Name:</b><span id="tokenName"></span></div>
+        <img id="tokenImage" src="" alt="Token Image">        
+        <div><b>Description:</b><span id="tokenDescription"></span></div>
+        <div><b>Link to Vault:</b><a href="" id="tokenLink" target="_blank">View on Emblem Vault</a></div>
+    </div>
+
+
+    
+    <script>document.getElementById('ethAddress').value = localStorage.getItem('ethAddress');</script>
+</body>
+</html>

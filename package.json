@@ -1,0 +1,35 @@
+{
+  "name": "emblem-vault-sdk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "bump:major": "node ./script/bump.js major",
+    "bump:minor": "node ./script/bump.js minor",
+    "bump:patch": "node ./script/bump.js patch",
+    "test": "npm run build && jest",
+    "test:node": "JEST_ENV=node jest",
+    "test:browser": "JEST_ENV=browser jest",
+    "test:all": "npm run test:node && npm run test:browser",
+    "build": "tsc && npm run postbuild",
+    "postbuild": "node ./script/version.js",
+    "bundle": "npm run build && browserify build/index.js -o dist/bundle.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^29.5.11",
+    "browserify": "^17.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "tsify": "^5.0.2",
+    "typescript": "^5.3.3",
+    "jest-puppeteer": "^9.0.2",
+    "puppeteer": "^21.6.1"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.6"
+  }
+}
