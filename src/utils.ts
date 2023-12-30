@@ -424,6 +424,8 @@ export function generateTemplate(record: any) {
 
 export function templateGuard(input: { [x: string]: any; hasOwnProperty: (arg0: string) => any; }) {
     if (!input) throw new Error(`No template provided`);
+    if (!input.fromAddress || input.fromAddress == "") throw new Error(`No fromAddress provided`);
+    if (!input.toAddress || input.toAddress == "") throw new Error(`No toAddress provided`);
     for (const key in input) {
         if (input.hasOwnProperty(key)) {
             const value = input[key];
