@@ -45,7 +45,7 @@ sdk.fetchMetadata(tokenId).then(metadata => {
 
 ## Simple Html Demo
 
-<a href="./demos/index.html">Simple HTML Demo</a>
+<a href="https://emblemcompany.github.io/emblem-vault-sdk/">Simple HTML Demo</a>
 
 
 
