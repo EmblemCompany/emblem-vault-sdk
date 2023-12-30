@@ -364,7 +364,7 @@ export function generateTemplate(record: any) {
                         balanceDescription = '1';
                     }
                 } else {
-                    if (balance && balance[0].balance) {
+                    if (balance && balance.length > 0 && balance[0].balance) {
                         balanceDescription = balance[0].balance;
                     } else if (balance) {
                         balanceDescription = '1';
@@ -399,7 +399,7 @@ export function generateTemplate(record: any) {
                     name: _this.loadTypes.includes('detailed') ? { type: "user-provided"}: _this.loadTypes.includes('select')? { type: "selection-provided"}: "Loading...",
                     image: _this.loadTypes.includes('detailed') ? { type: "user-provided"}: _this.loadTypes.includes('select')? { type: "selection-provided"}: _this.loading(),
                     description: _this.loadTypes.includes('detailed') ? { type: "user-provided"}: null,
-                    ownedImage: _this.loadTypes.includes('detailed') ? { type: "user-provided"}: "",
+                    ownedImage: _this.loadTypes.includes('detailed') ? { type: "user-provided"}: null,
                     projectName: _this.loadTypes.includes('select')? _this.name: null
                 }
             }
@@ -424,8 +424,6 @@ export function generateTemplate(record: any) {
 
 export function templateGuard(input: { [x: string]: any; hasOwnProperty: (arg0: string) => any; }) {
     if (!input) throw new Error(`No template provided`);
-    if (!input.fromAddress || input.fromAddress == "") throw new Error(`No fromAddress provided`);
-    if (!input.toAddress || input.toAddress == "") throw new Error(`No toAddress provided`);
     for (const key in input) {
         if (input.hasOwnProperty(key)) {
             const value = input[key];
@@ -443,6 +441,8 @@ export function templateGuard(input: { [x: string]: any; hasOwnProperty: (arg0: 
                 } catch (e: any) {
                     errors.push(e.message);
                 }
+            } else if (value == "") {
+                errors.push(`'${key}' is a required field`);
             }
             if (errors.length > 0) {
                 throw new Error(errors.join(", "));

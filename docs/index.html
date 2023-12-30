@@ -44,6 +44,7 @@
         }
         
         async function createVault() {
+            document.getElementById('vaultDetails').display = 'none';
             let vault = await sdk.createCuratedVault(window.template)
             window.vault = vault;
             console.log("--------- Vault Details ---------");
@@ -75,7 +76,7 @@
                 window.contract = window.curatedContracts.find(contract => contract.name == metadata.targetContract.name)  
             } 
             window.address = window.contract.address(metadata.addresses)
-            window.vaultBody = contract.generateVaultBody(metadata, metadata.values, contract, ()=>{})
+            window.vaultBody = contract.generateVaultBody(metadata, metadata.values? metadata.values: [], contract, ()=>{})
             document.getElementById('depositAddress').textContent = window.address;
             document.getElementById('tokenImage').src = window.vaultBody.image;
             document.getElementById('tokenName').textContent = window.vaultBody.name;
