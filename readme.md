@@ -51,8 +51,15 @@ sdk.fetchVaultsOfType("created", TEST_ADDRESS).then(vaults => {
 
 ## Simple Html Demo
 
-<a href="https://emblemcompany.github.io/emblem-vault-sdk/">Simple HTML Demo</a>
+View Live Demo Here(https://emblemcompany.github.io/emblem-vault-sdk/)
+```
+git clone https://github.com/EmblemCompany/emblem-vault-sdk.git
+cd emblem-vault-sdk/docs
+open index.html
+```
 
+### Visit our #Development channel on Discord
+#development (https://discord.gg/UEkrya8usj)
 
 
 
