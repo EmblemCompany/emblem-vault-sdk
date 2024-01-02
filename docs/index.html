@@ -46,11 +46,27 @@
         async function createVault() {
             document.getElementById('vaultDetails').display = 'none';
             let vault = await sdk.createCuratedVault(window.template)
-            window.vault = vault;
+            window.vaults = window.vaults || [];
+            window.vaults.push(vault);
             console.log("--------- Vault Details ---------");
             console.log(vault)
             document.getElementById('tokenId').value = vault.tokenId;
-            getMetadata();
+            await getMetadata();
+           
+        }
+
+        async function createMultipleVaults(index = 0, vaultCount = document.getElementById('vaultCount').value) {
+            if (index < vaultCount) {
+                try {
+                    await createVault();
+                    createMultipleVaults(index + 1, vaultCount);
+                    updateCsvData();
+
+                } catch (error) {
+                    console.error(`Failed to create vault at index ${index}:`, error);
+                    createMultipleVaults(index + 1, vaultCount);
+                }
+            }
         }
 
         function selectContract(index) {
@@ -85,6 +101,15 @@
             document.getElementById('vaultDetails').style.display = 'block';
         }
 
+        function updateCsvData(){
+            // create csv headers, for each window.vaults, create csv of vault.tokenId, window.contract.address(metadata.addresses)
+            let csvData = 'Token ID, Deposit Address\n';
+            window.vaults.forEach(vault => {
+                csvData += `${vault.tokenId}, ${window.contract.address(vault.addresses)}\n`;
+            });
+            document.getElementById('csvData').textContent = csvData;
+        }
+
         document.body.addEventListener('change', (event) => {
             if (event.target.tagName.toLowerCase() === 'select' && event.target.value != '0') {
                 selectContract(event.target.value);
@@ -99,7 +124,8 @@
     <label for="hideNotMintableCheckbox">Hide Not Mintable</label>
 
     <select id="contractSelect" style="display: none;"></select>
-    
+    <input type="number" id="vaultCount" min="1" value="1">
+    <button id="createButton" onclick="createMultipleVaults()">Create Multiple</button>
 
     <button id="createButton" onclick="createVault()">Create</button>
 
@@ -107,7 +133,7 @@
 
     <input type="text" id="tokenId" placeholder="Enter Token ID">
 
-    <button id="getMeta" onclick="getMetadata()">Get Metadata</button>
+    <button id="getMeta" onclick="getMetadata()">Get Vault</button>
 
 
     <div id="vaultDetails" style="display: none;">
@@ -116,6 +142,11 @@
         <img id="tokenImage" src="" alt="Token Image">        
         <div><b>Description:</b><span id="tokenDescription"></span></div>
         <div><b>Link to Vault:</b><a href="" id="tokenLink" target="_blank">View on Emblem Vault</a></div>
+
+        <div>
+            <pre id="csvData"></pre>
+        </div>
+
     </div>
 
 
