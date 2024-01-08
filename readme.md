@@ -47,6 +47,30 @@ const TEST_ADDRESS = "0x9dE9ffB62c159A10cbcC19BdAc7962e9C19a1baa"
 sdk.fetchVaultsOfType("created", TEST_ADDRESS).then(vaults => {
     console.log(vaults);
 });
+
+// Get all projects that contain Asset Metadata
+projects = sdk.getAllProjects()
+// [
+//     "Emblem Test",
+//     "Age of Chains",
+//     "Age of Rust",
+//     "..."
+// ]
+
+// Get asset metadata
+const projectName = projects[1]; // valid item from getAllProjects() above
+assets = sdk.getAssetMetadata(projectName)
+console.log(assets)
+// [
+//     {
+//     "image":"ELECTRUMCARD.jpg",
+//     "projectName":"Age of Chains",
+//     "projectLogo":"age-of-chains.jpg",
+//     "projectSite":"https://www.ageofchains.com/",
+//     "assetName":"ELECTRUMCARD"
+//     },...
+// ]
+
 ```
 
 ## Simple Html Demo

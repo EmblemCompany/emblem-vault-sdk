@@ -1,6 +1,6 @@
 import { MetaData } from "./types";
 import metadataJson from './curated/metadata.json';
-const NFT_DATA: any = metadataJson
+export const NFT_DATA: any = metadataJson
 
 export const pad = (num: string | any[], size: number) => {
     if (!num) return null;
@@ -22,6 +22,18 @@ export const evaluateFacts = (allowed: boolean, facts: { eval: any; msg: string 
     }
     return allowed
 }
+
+export const metadataObj2Arr = (data: any) => Object.keys(data).map(key => ({
+    ...data[key],
+    assetName: key
+}));
+
+export const metadataAllProjects = (projects: any[]) => projects.reduce((unique: any[], item: any) => {
+    if (!unique.includes(item.projectName)) {
+      unique.push(item.projectName);
+    }
+    return unique;
+  }, []);
 
 export const fetchData = async (url: string, apiKey: string, method: string = 'GET', body: any = null) => {
     const fetch = typeof window !== 'undefined' && typeof window.fetch === 'function' ? window.fetch : require('node-fetch');

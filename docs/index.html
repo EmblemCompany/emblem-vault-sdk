@@ -29,7 +29,7 @@
                 selectElement().removeChild(selectElement().firstChild);
             }
             const defaultOptionElement = document.createElement('option');
-            defaultOptionElement.value = '0';
+            defaultOptionElement.value = '-1';
             defaultOptionElement.text = 'Select contract';
             selectElement().appendChild(defaultOptionElement);
             curatedContracts.forEach((contract, index) => {                
@@ -42,6 +42,29 @@
             });
             selectElement().style.display = 'block';
         }
+
+        function generateAssetDropdown(curatedContract) {
+            const selectElement = function () { return document.getElementById('vaultAssetSelect') }
+            // let hide = document.getElementById('hideNotMintableCheckbox').checked
+            while (selectElement().firstChild) {
+                selectElement().removeChild(selectElement().firstChild);
+            }
+            const defaultOptionElement = document.createElement('option');
+            defaultOptionElement.value = '0';
+            defaultOptionElement.text = 'Select asset';
+            selectElement().appendChild(defaultOptionElement);
+            let assets = sdk.getAssetMetadata(curatedContract.name)
+            window.assets = assets
+            assets.forEach((contract, index) => {                
+                // if (!hide || (hide && contract.mintable)) {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = index.toString();
+                    optionElement.text = assets[index].assetName;
+                    selectElement().appendChild(optionElement);
+                // }
+            });
+            selectElement().style.display = 'block';
+        }
         
         async function createVault() {
             document.getElementById('vaultDetails').display = 'none';
@@ -51,8 +74,7 @@
             console.log("--------- Vault Details ---------");
             console.log(vault)
             document.getElementById('tokenId').value = vault.tokenId;
-            await getMetadata();
-           
+            await getMetadata();           
         }
 
         async function createMultipleVaults(index = 0, vaultCount = document.getElementById('vaultCount').value) {
@@ -72,16 +94,33 @@
         function selectContract(index) {
             let contract = window.curatedContracts[index];
             let template = contract.generateCreateTemplate(contract)
+            template.toAddress = document.getElementById('ethAddress').value;
+            template.fromAddress = document.getElementById('ethAddress').value;
+            window.contract = contract;
+            window.template = template;
+            
             console.log("--------- Contract Details ---------");
             console.log(contract);
             console.log("---------- Create Template ----------");
             console.log(template);
-            console.log("--------- Populated Template ---------");
-            template.toAddress = document.getElementById('ethAddress').value;
-            template.fromAddress = document.getElementById('ethAddress').value;
+            console.log("--------- Populated Template ---------");            
             console.log(template);
-            window.contract = contract;
-            window.template = template;
+
+            
+            if (contract.loadTypes.includes('select')) {
+                generateAssetDropdown(contract);
+            } else {
+                document.getElementById('vaultAssetSelect').style.display = 'none';
+            }
+        }
+
+        function selectAsset(index) {
+            console.log("--------- Asset Details ---------");   
+            console.log(window.assets[index]);
+            template.targetAsset.name = window.assets[index].assetName;
+            template.targetAsset.image = window.assets[index].image;
+            console.log("--------- Populated Template ---------");
+            console.log(template);
         }
 
         async function getMetadata() {
@@ -111,8 +150,11 @@
         }
 
         document.body.addEventListener('change', (event) => {
-            if (event.target.tagName.toLowerCase() === 'select' && event.target.value != '0') {
+            if (event.target.id === 'contractSelect' && event.target.value != '-1') {
                 selectContract(event.target.value);
+            }
+            if (event.target.id === 'vaultAssetSelect' && event.target.value != '-1') {
+                selectAsset(event.target.value);
             }
         });
     </script>
@@ -124,10 +166,11 @@
     <label for="hideNotMintableCheckbox">Hide Not Mintable</label>
 
     <select id="contractSelect" style="display: none;"></select>
-    <input type="number" id="vaultCount" min="1" value="1">
-    <button id="createButton" onclick="createMultipleVaults()">Create Multiple</button>
 
-    <button id="createButton" onclick="createVault()">Create</button>
+    <select id="vaultAssetSelect" style="display: none;"></select>
+
+    <input type="number" id="vaultCount" min="1" value="1">
+    <button id="createButton" onclick="createMultipleVaults()">Create</button>
 
     <hr>
 

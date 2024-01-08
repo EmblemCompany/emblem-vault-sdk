@@ -1,6 +1,6 @@
 {
   "name": "emblem-vault-sdk",
-  "version": "1.2.2",
+  "version": "1.3.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -13,7 +13,8 @@
     "test:all": "npm run test:node && npm run test:browser",
     "build": "tsc && npm run postbuild",
     "postbuild": "node ./script/version.js",
-    "bundle": "npm run build && browserify build/index.js -o dist/bundle.js && cp dist/bundle.js docs/bundle.js"
+    "bundle": "npm run build && browserify build/index.js -o dist/bundle.js && cp dist/bundle.js docs/bundle.js",
+    "watch": "onchange 'src/*.ts' -- npm run bundle"
   },
   "keywords": [],
   "author": "",

@@ -1,5 +1,5 @@
 import { Collection, CuratedCollectionsResponse, MetaData, Vault } from './types';
-import { COIN_TO_NETWORK, evaluateFacts, fetchData, generateTemplate, genericGuard, pad, templateGuard } from './utils';
+import { COIN_TO_NETWORK, NFT_DATA, evaluateFacts, fetchData, generateTemplate, genericGuard, metadataAllProjects, metadataObj2Arr, pad, templateGuard } from './utils';
 
 const SDK_VERSION = '__SDK_VERSION__'; 
 class EmblemVaultSDK {
@@ -18,6 +18,25 @@ class EmblemVaultSDK {
         // Implementation goes here
     }
 
+    // ** Asset Metadata **
+    //
+    getAssetMetadata(projectName: string, strict: boolean = false) {
+        genericGuard(projectName, "string", "projectName");
+        const NFT_DATA_ARR = metadataObj2Arr(NFT_DATA)
+        let filtered = strict ? 
+            NFT_DATA_ARR.filter(item => item.projectName === projectName) :
+            NFT_DATA_ARR.filter(item => item.projectName.toLowerCase() === projectName.toLowerCase());
+        return filtered
+    }
+
+    getAllProjects() {
+        const NFT_DATA_ARR = metadataObj2Arr(NFT_DATA)
+        const projects = metadataAllProjects(NFT_DATA_ARR)
+        return projects
+    }
+
+    // ** Curated **
+    //
     async fetchCuratedContracts(hideUnMintable: boolean = false): Promise<CuratedCollectionsResponse> {
         let url = `${this.baseUrl}/curated`;
         let data = await fetchData(url, this.apiKey);
