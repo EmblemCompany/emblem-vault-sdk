@@ -49,8 +49,13 @@ class EmblemVaultSDK {
             // Map over the sorted data and generate a template for each item
             .map((item: any) => {
                 const template = generateTemplate(item);
+                Object.keys(template).forEach(key => {
+                    if (key != 'id' && key != 'created_at' && key != 'contracts' && key != 'imageHandler' && key != 'placeholderImages' && key != 'loadingImages' )
+                    item[key] = template[key];
+                });
                 // Return a new object that combines the properties of the item and the template
-                return { ...item, ...template }; 
+                // return { ...item, ...template };  
+                return item;
             });
         return data
     }

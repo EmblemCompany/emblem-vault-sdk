@@ -11,6 +11,7 @@ npm i emblem-vault-sdk
 ## Getting Started
 ```
 const EmblemVaultSDK = require('emblem-vault-sdk');
+// import EmblemVaultSDK from 'emblem-vault-sdk'
 const apiKey = 'YOUR_API_KEY'; // replace with your actual API key
 
 const sdk = new EmblemVaultSDK(apiKey);

@@ -26,7 +26,7 @@
         function generateDropdown(curatedContracts) {
             const selectElement = function () { return document.getElementById('contractSelect') }
             let hide = document.getElementById('hideNotMintableCheckbox').checked
-            while (selectElement().firstChild) {
+            while (selectElement().firstChild) { 
                 selectElement().removeChild(selectElement().firstChild);
             }
             const defaultOptionElement = document.createElement('option');
