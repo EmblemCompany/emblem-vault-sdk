@@ -33,7 +33,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const utils_1 = require("./utils");
-const SDK_VERSION = '1.4.2';
+const SDK_VERSION = '1.4.4';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -64,7 +64,7 @@ class EmblemVaultSDK {
     }
     // ** Curated **
     //
-    fetchCuratedContractsz(hideUnMintable = false, overrideFunc = false) {
+    fetchCuratedContracts(hideUnMintable = false, overrideFunc = false) {
         return __awaiter(this, void 0, void 0, function* () {
             let url = `${this.baseUrl}/curated`;
             // Fetch using URL or override function
