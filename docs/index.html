@@ -16,7 +16,8 @@
     <h1>Testing Emblem Vault SDK in the Browser</h1>
     <script src="./bundle.js"></script>
     <script>
-        const sdk = new EmblemVaultSDK('demo');
+        const sdk = new EmblemVaultSDK('demo');        
+
         sdk.fetchCuratedContracts(false).then(curatedContracts => {
             window.curatedContracts = curatedContracts;
             generateDropdown(curatedContracts);
@@ -160,6 +161,19 @@
     </script>
 
 
+    <button id="connectButton" onclick="connectWeb3()">Connect to Web3</button>
+
+    <script>
+        async function connectWeb3() {
+            sdk.loadWeb3().then(async (web3) => {
+                console.log('Web3 loaded');                
+                let accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                document.getElementById('ethAddress').value = accounts[0];
+            }).catch(error => {
+                console.error('Failed to load Web3:', error);
+            });        
+        }
+    </script>
     <input type="text" id="ethAddress" placeholder="Enter ETH Address" oninput="localStorage.setItem('ethAddress', this.value)" value="">
 
     <input type="checkbox" id="hideNotMintableCheckbox" checked onchange="generateDropdown(window.curatedContracts)">

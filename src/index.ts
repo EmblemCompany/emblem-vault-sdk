@@ -77,11 +77,40 @@ class EmblemVaultSDK {
         return vaults;
     }
 
+    // ** Web3 **
+    //
+    // Function to load web3 dynamically and attach it to the window object
+    async loadWeb3() {
+        try {
+            // Dynamically import the Web3 module
+            const { default: Web3 } = await import('web3');
+
+            // Check if MetaMask (window.ethereum) is available
+            if (window.ethereum) {                
+
+                // Initialize Web3 with MetaMask's provider
+                const web3 = new Web3(window.ethereum);
+
+                // Attach Web3 to the window object
+                window.web3 = web3;
+
+                return web3;
+            } else {
+                console.error('MetaMask is not installed!');
+            }
+        } catch (error) {
+            console.error('Error loading Web3 or connecting to MetaMask', error);
+        }
+    }
+
+
 }
 
 declare global {
     interface Window {
         EmblemVaultSDK: any;
+        web3: any;
+        ethereum: any
     }
 }
 
