@@ -37,7 +37,7 @@ class EmblemVaultSDK {
 
     // ** Curated **
     //
-    async fetchCuratedContracts(hideUnMintable: boolean = false, overrideFunc: Function | boolean = false): Promise<CuratedCollectionsResponse> {
+    async fetchCuratedContractsz(hideUnMintable: boolean = false, overrideFunc: Function | boolean = false): Promise<CuratedCollectionsResponse> {
         let url = `${this.baseUrl}/curated`;
         // Fetch using URL or override function
         let data = typeof overrideFunc === 'function' ? await overrideFunc() : await fetchData(url, this.apiKey);

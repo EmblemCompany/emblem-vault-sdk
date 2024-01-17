@@ -7,7 +7,7 @@
     "strict": true,                                      /* Enable all strict type-checking options. */
     "skipLibCheck": true,                                /* Skip type checking all .d.ts files. */
     "resolveJsonModule": true,                           /* Include this to allow importing of .json files. */
-    "outDir": "./build"                                  /* Redirect output structure to the directory. */
+    "outDir": "./dist"                                  /* Redirect output structure to the directory. */
   },
   "exclude": ["**/*.test.ts"]
 }
