@@ -37,10 +37,10 @@ class EmblemVaultSDK {
 
     // ** Curated **
     //
-    async fetchCuratedContracts(hideUnMintable: boolean = false): Promise<CuratedCollectionsResponse> {
+    async fetchCuratedContracts(hideUnMintable: boolean = false, overrideFunc: Function | boolean = false): Promise<CuratedCollectionsResponse> {
         let url = `${this.baseUrl}/curated`;
-        let data = await fetchData(url, this.apiKey);
-
+        // Fetch using URL or override function
+        let data = typeof overrideFunc === 'function' ? await overrideFunc() : await fetchData(url, this.apiKey);
         // Filter out collections that are not mintable
         data = hideUnMintable? data.filter((collection: Collection) => collection.mintable): data;
         
@@ -50,7 +50,7 @@ class EmblemVaultSDK {
             .map((item: any) => {
                 const template = generateTemplate(item);
                 // Return a new object that combines the properties of the item and the template
-                return { ...item, ...template };
+                return { ...item, ...template }; 
             });
         return data
     }
