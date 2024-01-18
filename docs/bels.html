@@ -54,7 +54,7 @@
             let vaultData = await sdk.createCuratedVault(embelsTemplate, updateLogCallback);
             if (vaultData.tokenId) {
                 sdk.performMintChain(web3, vaultData.tokenId, embelsTemplate.targetContract.name, updateLogCallback).then(result => {
-                    updateLogCallback('Minting success',result)
+                    updateLogCallback('Minting success',  'tokenId: ' + vaultData.tokenId)
                 })
                 .catch(error => {
                     updateLogCallback('',error.message)

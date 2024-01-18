@@ -76,10 +76,12 @@ class EmblemVaultSDK {
         return vaultCreationResponse.data
     }
 
-    async fetchMetadata(tokenId: string): Promise<MetaData> {
+    async fetchMetadata(tokenId: string, callback: any = null): Promise<MetaData> {
         genericGuard(tokenId, "string", "tokenId");
+        if (callback) { callback('getting Metadata')}  
         let url = `${this.baseUrl}/meta/${tokenId}`;
         let metadata = await fetchData(url, this.apiKey);
+        if (callback) { callback('received Metadata', metadata.tokenId)}  
         return metadata;
     }
 
@@ -151,7 +153,7 @@ class EmblemVaultSDK {
         let quoteContract = await getQuoteContractObject(web3);
         const accounts = await web3.eth.getAccounts();
         let quote = BigNumber.from(await quoteContract.methods.quoteExternalPrice(accounts[0], amount.toString()).call());
-        if (callback) { callback(`quote`, quote)}
+        if (callback) { callback(`quote`, quote.toString())}
         return quote
     }
 
@@ -160,7 +162,8 @@ class EmblemVaultSDK {
         const accounts = await web3.eth.getAccounts();
         let handlerContract = await getHandlerContract(web3);
         let mintResponse = await handlerContract.methods.buyWithQuote(remoteMintSig._nftAddress, remoteMintSig._price, remoteMintSig._to, remoteMintSig._tokenId, remoteMintSig._nonce, remoteMintSig._signature, remoteMintSig.serialNumber, 1).send({from: accounts[0], value: quote.toString()});
-        if (callback) { callback('Mint Complete', mintResponse)}
+        if (callback) { callback('Mint Complete')}
+        await this.fetchMetadata(remoteMintSig._tokenId);
         return mintResponse
     }
 

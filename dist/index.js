@@ -34,7 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
-const SDK_VERSION = '1.6.0';
+const SDK_VERSION = '1.6.1';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -109,11 +109,17 @@ class EmblemVaultSDK {
             return vaultCreationResponse.data;
         });
     }
-    fetchMetadata(tokenId) {
+    fetchMetadata(tokenId, callback = null) {
         return __awaiter(this, void 0, void 0, function* () {
             (0, utils_1.genericGuard)(tokenId, "string", "tokenId");
+            if (callback) {
+                callback('getting Metadata');
+            }
             let url = `${this.baseUrl}/meta/${tokenId}`;
             let metadata = yield (0, utils_1.fetchData)(url, this.apiKey);
+            if (callback) {
+                callback('received Metadata', metadata.tokenId);
+            }
             return metadata;
         });
     }
@@ -201,7 +207,7 @@ class EmblemVaultSDK {
             const accounts = yield web3.eth.getAccounts();
             let quote = bignumber_1.BigNumber.from(yield quoteContract.methods.quoteExternalPrice(accounts[0], amount.toString()).call());
             if (callback) {
-                callback(`quote`, quote);
+                callback(`quote`, quote.toString());
             }
             return quote;
         });
@@ -215,8 +221,9 @@ class EmblemVaultSDK {
             let handlerContract = yield (0, utils_1.getHandlerContract)(web3);
             let mintResponse = yield handlerContract.methods.buyWithQuote(remoteMintSig._nftAddress, remoteMintSig._price, remoteMintSig._to, remoteMintSig._tokenId, remoteMintSig._nonce, remoteMintSig._signature, remoteMintSig.serialNumber, 1).send({ from: accounts[0], value: quote.toString() });
             if (callback) {
-                callback('Mint Complete', mintResponse);
+                callback('Mint Complete');
             }
+            yield this.fetchMetadata(remoteMintSig._tokenId);
             return mintResponse;
         });
     }
