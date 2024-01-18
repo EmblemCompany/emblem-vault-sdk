@@ -14,6 +14,29 @@
 </head>
 <body>
     <h1>Testing Emblem Vault SDK in the Browser</h1>
+    <!-- <script src='https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js'></script>
+    <script>
+        window.addEventListener('load', function () {
+        // Check if web3 is available
+        if (typeof window.ethereum !== 'undefined') {
+            
+            // Use the browser injected Ethereum provider
+            web3 = new Web3(window.ethereum);
+
+            // Request access to the user's MetaMask account
+            window.ethereum.enable();
+
+            // Get the user's accounts
+            web3.eth.getAccounts().then(function (accounts) {
+            // Show the first account
+            console.log('Connected with MetaMask account: ' + accounts[0]);
+            });
+        } else {
+            // If web3 is not available, give instructions to install MetaMask
+            console.log('Please install MetaMask to connect with the Ethereum network');
+        }
+    });
+    </script> -->
     <script src="./bundle.js"></script>
     <script>
         const sdk = new EmblemVaultSDK('demo');        

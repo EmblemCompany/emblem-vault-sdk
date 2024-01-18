@@ -12,8 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.COIN_TO_NETWORK = exports.genericGuard = exports.templateGuard = exports.generateTemplate = exports.generateImageTemplate = exports.generateAttributeTemplate = exports.fetchData = exports.metadataAllProjects = exports.metadataObj2Arr = exports.evaluateFacts = exports.pad = exports.NFT_DATA = void 0;
+exports.COIN_TO_NETWORK = exports.getHandlerContract = exports.getQuoteContractObject = exports.genericGuard = exports.templateGuard = exports.generateTemplate = exports.generateImageTemplate = exports.generateAttributeTemplate = exports.fetchData = exports.metadataAllProjects = exports.metadataObj2Arr = exports.evaluateFacts = exports.pad = exports.NFT_DATA = void 0;
 const metadata_json_1 = __importDefault(require("./curated/metadata.json"));
+const abi_json_1 = __importDefault(require("./abi/abi.json"));
 exports.NFT_DATA = metadata_json_1.default;
 const pad = (num, size) => {
     if (!num)
@@ -509,6 +510,22 @@ function genericGuard(input, type, key) {
         throw new Error(`Invalid ${key} provided`);
 }
 exports.genericGuard = genericGuard;
+function getQuoteContractObject(web3) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let contractAddress = '0xE5dec92911c78069d727a67C85936EDDbc9B02Cf';
+        const quoteContract = new web3.eth.Contract(abi_json_1.default.quote, contractAddress);
+        return quoteContract;
+    });
+}
+exports.getQuoteContractObject = getQuoteContractObject;
+function getHandlerContract(web3) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let contractAddress = '0x23859b51117dbFBcdEf5b757028B18d7759a4460';
+        const handlerContract = new web3.eth.Contract(abi_json_1.default.handler, contractAddress);
+        return handlerContract;
+    });
+}
+exports.getHandlerContract = getHandlerContract;
 exports.COIN_TO_NETWORK = {
     'xcp': 'BTC',
     'ordinalsbtc': 'BTC',

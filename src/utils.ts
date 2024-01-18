@@ -1,5 +1,6 @@
 import { MetaData } from "./types";
 import metadataJson from './curated/metadata.json';
+import abi from './abi/abi.json';
 export const NFT_DATA: any = metadataJson
 
 export const pad = (num: string | any[], size: number) => {
@@ -471,6 +472,18 @@ export function templateGuard(input: { [x: string]: any; hasOwnProperty: (arg0: 
 export function genericGuard(input: any, type: string, key: string) {
     if (!input) throw new Error(`No ${key} provided`);
     if (typeof input !== type) throw new Error(`Invalid ${key} provided`);
+}
+
+export async function getQuoteContractObject(web3: any) {
+    let contractAddress = '0xE5dec92911c78069d727a67C85936EDDbc9B02Cf'
+    const quoteContract = new web3.eth.Contract(abi.quote, contractAddress);
+    return quoteContract
+}
+
+export async function getHandlerContract(web3: any) {
+    let contractAddress = '0x23859b51117dbFBcdEf5b757028B18d7759a4460'
+    const handlerContract = new web3.eth.Contract(abi.handler, contractAddress);
+    return handlerContract
 }
 
 export const COIN_TO_NETWORK: any = {

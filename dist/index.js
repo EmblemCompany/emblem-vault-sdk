@@ -32,8 +32,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
-const SDK_VERSION = '1.5.0';
+const SDK_VERSION = '1.6.0';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -87,11 +88,24 @@ class EmblemVaultSDK {
             return data;
         });
     }
-    createCuratedVault(template) {
+    fetchCuratedContractByName(name) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let contracts = yield this.fetchCuratedContracts();
+            let contract = contracts.find((contract) => contract.name === name);
+            return contract || null;
+        });
+    }
+    createCuratedVault(template, callback = null) {
         return __awaiter(this, void 0, void 0, function* () {
             (0, utils_1.templateGuard)(template);
             let url = `${this.baseUrl}/create-curated`;
+            if (callback) {
+                callback(`creating Vault for user`, template.toAddress);
+            }
             let vaultCreationResponse = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', template);
+            if (callback) {
+                callback(`created Vault tokenId`, vaultCreationResponse.data.tokenId);
+            }
             return vaultCreationResponse.data;
         });
     }
@@ -122,6 +136,7 @@ class EmblemVaultSDK {
                 const { default: Web3 } = yield Promise.resolve().then(() => __importStar(require('web3')));
                 // Check if MetaMask (window.ethereum) is available
                 if (window.ethereum) {
+                    yield window.ethereum.request({ method: 'eth_requestAccounts' });
                     // Initialize Web3 with MetaMask's provider
                     const web3 = new Web3(window.ethereum);
                     // Attach Web3 to the window object
@@ -137,6 +152,72 @@ class EmblemVaultSDK {
                 console.error('Error loading Web3 or connecting to MetaMask', error);
                 return undefined;
             }
+        });
+    }
+    performMintChain(web3, tokenId, collectionName, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let collection = yield this.fetchCuratedContractByName(collectionName);
+            let mintRequestSig = yield this.requestLocalMintSignature(web3, tokenId, callback);
+            let remoteMintSig = yield this.requestRemoteMintSignature(web3, tokenId, mintRequestSig, callback);
+            let quote = yield this.getQuote(web3, collection ? collection.price : 2000000000, callback);
+            let mintResponse = yield this.performMint(web3, quote, remoteMintSig, callback);
+            return { mintResponse };
+        });
+    }
+    requestLocalMintSignature(web3, tokenId, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (callback) {
+                callback('requesting User Mint Signature');
+            }
+            const message = `Curated Minting: ${tokenId.toString()}`;
+            const accounts = yield web3.eth.getAccounts();
+            const signature = yield web3.eth.personal.sign(message, accounts[0], '');
+            if (callback) {
+                callback(`signature`, signature);
+            }
+            return signature;
+        });
+    }
+    requestRemoteMintSignature(web3, tokenId, signature, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (callback) {
+                callback('requesting Remote Mint signature');
+            }
+            const chainId = yield web3.eth.getChainId();
+            let url = `${this.baseUrl}/mint-curated`;
+            let remoteMintResponse = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { method: 'buyWithQuote', tokenId: tokenId, signature: signature, chainId: chainId.toString() });
+            if (callback) {
+                callback(`remote Mint signature`, remoteMintResponse);
+            }
+            return remoteMintResponse;
+        });
+    }
+    getQuote(web3, amount, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (callback) {
+                callback('requesting Quote');
+            }
+            let quoteContract = yield (0, utils_1.getQuoteContractObject)(web3);
+            const accounts = yield web3.eth.getAccounts();
+            let quote = bignumber_1.BigNumber.from(yield quoteContract.methods.quoteExternalPrice(accounts[0], amount.toString()).call());
+            if (callback) {
+                callback(`quote`, quote);
+            }
+            return quote;
+        });
+    }
+    performMint(web3, quote, remoteMintSig, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (callback) {
+                callback('performing Mint');
+            }
+            const accounts = yield web3.eth.getAccounts();
+            let handlerContract = yield (0, utils_1.getHandlerContract)(web3);
+            let mintResponse = yield handlerContract.methods.buyWithQuote(remoteMintSig._nftAddress, remoteMintSig._price, remoteMintSig._to, remoteMintSig._tokenId, remoteMintSig._nonce, remoteMintSig._signature, remoteMintSig.serialNumber, 1).send({ from: accounts[0], value: quote.toString() });
+            if (callback) {
+                callback('Mint Complete', mintResponse);
+            }
+            return mintResponse;
         });
     }
 }

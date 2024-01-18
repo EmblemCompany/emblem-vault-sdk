@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Embels</title>
+    <style>
+        input, select, button {
+            padding: 10px;
+            margin: 5px;
+        }
+        #tokenImage{
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Embels Emblem Steps</h1>
+    <script src="./bundle.js"></script>
+    <script>
+        const sdk = new EmblemVaultSDK('demo');
+        let embelsTemplate = {
+            "fromAddress": null,
+            "toAddress": null,
+            "chainId":1,
+            "experimental":true,
+            "targetContract":{
+                "1":"0x25e6CfD042294a716FF60603ca01e92555cA9426",
+                "name":"Embels",
+                "description":"EmBells is a collection of 10,000 Bellinals from the Bellscoin blockchain. Art is created by Viva La Vandal and this collection is curated by Emblem Vault."
+            },
+            "targetAsset":{
+                "name":"Inscribing...",
+                "image":"https://emblem.finance/embells.png"
+            }
+        }
+        let defaultAccount = null;
+    </script>
+
+
+    <button id="connectButton" onclick="connectWeb3()">Start Vaulting</button>
+
+    <script>
+        async function connectWeb3() {
+            if (!defaultAccount) {
+                await sdk.loadWeb3()
+                defaultAccount = await web3.eth.getAccounts().then(accounts => accounts[0])
+            }
+            await performCreateAndMint();
+        }
+
+        async function performCreateAndMint() {
+            clearLog(); 
+            embelsTemplate.toAddress = defaultAccount;
+            embelsTemplate.fromAddress = defaultAccount;
+            let vaultData = await sdk.createCuratedVault(embelsTemplate, updateLogCallback);
+            if (vaultData.tokenId) {
+                sdk.performMintChain(web3, vaultData.tokenId, embelsTemplate.targetContract.name, updateLogCallback).then(result => {
+                    updateLogCallback('Minting success',result)
+                })
+                .catch(error => {
+                    updateLogCallback('',error.message)
+                });
+            }            
+        }
+
+        function updateLogCallback(action, result){
+            document.getElementById('log').innerHTML += '\r\n' + action + ' ' + (result ? JSON.stringify(result) : '');
+        }
+        function clearLog(){
+            document.getElementById('log').innerHTML = '';
+        }
+    </script>
+    <pre id="log"></pre>
+</body>
+</html>

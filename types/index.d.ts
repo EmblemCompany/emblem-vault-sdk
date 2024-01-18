@@ -1,4 +1,5 @@
-import { CuratedCollectionsResponse, MetaData, Vault } from './types';
+import { BigNumber } from '@ethersproject/bignumber';
+import { Collection, CuratedCollectionsResponse, MetaData, Vault } from './types';
 declare class EmblemVaultSDK {
     private apiKey;
     private baseUrl;
@@ -7,10 +8,18 @@ declare class EmblemVaultSDK {
     getAssetMetadata(projectName: string, strict?: boolean): any[];
     getAllProjects(): any[];
     fetchCuratedContracts(hideUnMintable?: boolean, overrideFunc?: Function | boolean): Promise<CuratedCollectionsResponse>;
-    createCuratedVault(template: any): Promise<Vault>;
+    fetchCuratedContractByName(name: string): Promise<Collection | null>;
+    createCuratedVault(template: any, callback?: any): Promise<Vault>;
     fetchMetadata(tokenId: string): Promise<MetaData>;
     fetchVaultsOfType(vaultType: string, address: string): Promise<any>;
     loadWeb3(): Promise<any | undefined>;
+    performMintChain(web3: any, tokenId: string, collectionName: string, callback?: any): Promise<{
+        mintResponse: any;
+    }>;
+    requestLocalMintSignature(web3: any, tokenId: string, callback?: any): Promise<any>;
+    requestRemoteMintSignature(web3: any, tokenId: string, signature: string, callback?: any): Promise<any>;
+    getQuote(web3: any, amount: number, callback?: any): Promise<BigNumber>;
+    performMint(web3: any, quote: any, remoteMintSig: any, callback?: any): Promise<any>;
 }
 declare global {
     interface Window {
