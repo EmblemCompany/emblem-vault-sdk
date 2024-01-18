@@ -33,7 +33,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const utils_1 = require("./utils");
-const SDK_VERSION = '1.4.7';
+const SDK_VERSION = '1.4.8';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -130,10 +130,12 @@ class EmblemVaultSDK {
                 }
                 else {
                     console.error('MetaMask is not installed!');
+                    return undefined;
                 }
             }
             catch (error) {
                 console.error('Error loading Web3 or connecting to MetaMask', error);
+                return undefined;
             }
         });
     }

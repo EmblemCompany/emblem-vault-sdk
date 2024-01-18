@@ -10,7 +10,7 @@ declare class EmblemVaultSDK {
     createCuratedVault(template: any): Promise<Vault>;
     fetchMetadata(tokenId: string): Promise<MetaData>;
     fetchVaultsOfType(vaultType: string, address: string): Promise<any>;
-    loadWeb3(): Promise<import("web3").default<import("web3-eth").RegisteredSubscription> | undefined>;
+    loadWeb3(): Promise<any | undefined>;
 }
 declare global {
     interface Window {
