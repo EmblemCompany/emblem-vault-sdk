@@ -16,7 +16,9 @@
     <h1>Embels Emblem Steps</h1>
     <script src="./bundle.js"></script>
     <script>
-        const sdk = new EmblemVaultSDK('demo');
+        const sdk = new EmblemVaultSDK('demo'); // Instantiate SDK
+
+        // Template used for creating vaults
         let embelsTemplate = {
             "fromAddress": null,
             "toAddress": null,
@@ -40,19 +42,23 @@
 
     <script>
         async function connectWeb3() {
-            if (!defaultAccount) {
+            if (!defaultAccount) { // Only load web3 if not already loaded
                 await sdk.loadWeb3()
                 defaultAccount = await web3.eth.getAccounts().then(accounts => accounts[0])
             }
-            await performCreateAndMint();
+            await performCreateAndMint(); // Create and mint a vault
         }
 
         async function performCreateAndMint() {
             clearLog(); 
+            // populate the template
             embelsTemplate.toAddress = defaultAccount;
             embelsTemplate.fromAddress = defaultAccount;
+
+            // Create a vault
             let vaultData = await sdk.createCuratedVault(embelsTemplate, updateLogCallback);
             if (vaultData.tokenId) {
+                // Perform Mint steps
                 sdk.performMintChain(web3, vaultData.tokenId, embelsTemplate.targetContract.name, updateLogCallback).then(result => {
                     updateLogCallback('Minting success',  'tokenId: ' + vaultData.tokenId)
                 })
