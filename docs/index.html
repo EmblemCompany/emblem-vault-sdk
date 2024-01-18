@@ -167,8 +167,9 @@
         async function connectWeb3() {
             sdk.loadWeb3().then(async (web3) => {
                 console.log('Web3 loaded');                
-                let accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                let accounts = await web3.eth.getAccounts();
                 document.getElementById('ethAddress').value = accounts[0];
+                localStorage.setItem('ethAddress', accounts[0])
             }).catch(error => {
                 console.error('Failed to load Web3:', error);
             });        
