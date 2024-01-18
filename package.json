@@ -1,6 +1,6 @@
 {
   "name": "emblem-vault-sdk",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "description": "Emble Vault Software Development Kit",
   "main": "dist/index.js",
   "scripts": {
@@ -16,7 +16,7 @@
     "bundle": "npm run build && browserify dist/index.js -o dist/bundle.js && cp dist/bundle.js docs/bundle.js",
     "watch": "onchange 'src/*.ts' -- npm run bundle"
   },
-  "types": "dist/index.d.ts",
+  "types": "types/index.d.ts",
   "keywords": [],
   "author": "",
   "license": "MIT",
