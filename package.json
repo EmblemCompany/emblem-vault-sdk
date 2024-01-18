@@ -1,7 +1,7 @@
 {
   "name": "emblem-vault-sdk",
-  "version": "1.4.4",
-  "description": "",
+  "version": "1.4.6",
+  "description": "Emble Vault Software Development Kit",
   "main": "dist/index.js",
   "scripts": {
     "bump:major": "node ./script/bump.js major",
@@ -11,11 +11,12 @@
     "test:node": "JEST_ENV=node jest",
     "test:browser": "JEST_ENV=browser jest",
     "test:all": "npm run test:node && npm run test:browser",
-    "build": "tsc && npm run postbuild",
-    "postbuild": "node ./script/version.js",
+    "build": "tsc",
+    "postbuild": "node ./script/version.js && mv dist/index.d.ts types/index.d.ts && mv dist/types.d.ts types/types.d.ts && mv dist/utils.d.ts types/utils.d.ts",
     "bundle": "npm run build && browserify dist/index.js -o dist/bundle.js && cp dist/bundle.js docs/bundle.js",
     "watch": "onchange 'src/*.ts' -- npm run bundle"
   },
+  "types": "dist/index.d.ts",
   "keywords": [],
   "author": "",
   "license": "MIT",
