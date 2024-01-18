@@ -246,6 +246,9 @@ function generateTemplate(record) {
             else if (recordName == "Namecoin") {
                 allowed = data && record.nativeAssets.includes(data[0].coin) ? true : false;
             }
+            else if (recordName == "Embels") {
+                allowed = true;
+            }
             else { // XCP
                 allowed = data[0].project == _this.name && data[0].balance == 1;
             }
@@ -285,6 +288,9 @@ function generateTemplate(record) {
             }
             else if (recordName == "Namecoin") {
                 allowedName = asset ? true : false;
+            }
+            else if (recordName == "Embels") {
+                allowedName = true;
             }
             else { // XCP
                 let curatedItemFound = exports.NFT_DATA[asset];
@@ -415,7 +421,8 @@ function generateTemplate(record) {
                         balanceDescription = '1';
                     }
                 }
-                nameAndImage.description = nameAndImage.description + `This vault contains ${balanceDescription} ${nameAndImage.assetName} ${nameAndImage.explorer} .\n\n${_this.description}`;
+                let descriptionContents = balanceDescription ? `This vault contains ${balanceDescription} ${nameAndImage.assetName} ${nameAndImage.explorer}.` : '';
+                nameAndImage.description = nameAndImage.description + `${descriptionContents}\n\n${_this.description}`;
             }
             let viewOnEmblemFinanceLink = '';
             if (_this.collectionType === "ERC1155") {

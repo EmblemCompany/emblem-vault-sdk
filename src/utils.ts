@@ -219,6 +219,8 @@ export function generateTemplate(record: any) {
                 allowed = data[0].name == "Bel" && data[0].balance > 0 && Number.isInteger(data[0].balance)
             } else if (recordName == "Namecoin") {
                 allowed = data && record.nativeAssets.includes(data[0].coin) ? true: false
+            } else if (recordName == "Embels"){
+                allowed = true
             } else { // XCP
                 allowed = data[0].project == _this.name && data[0].balance == 1;
             }
@@ -250,6 +252,8 @@ export function generateTemplate(record: any) {
                 allowedName = asset == "Bel" ? true : false
             } else if (recordName == "Namecoin") {
                 allowedName = asset? true: false
+            } else if (recordName == "Embels"){
+                allowedName = true
             } else { // XCP
                 let curatedItemFound = NFT_DATA[asset];
                 allowedName = asset && curatedItemFound ? true : false;
@@ -382,7 +386,8 @@ export function generateTemplate(record: any) {
                         balanceDescription = '1';
                     }
                 }
-                nameAndImage.description = nameAndImage.description + `This vault contains ${balanceDescription} ${nameAndImage.assetName} ${nameAndImage.explorer} .\n\n${_this.description}`;
+                let descriptionContents = balanceDescription ? `This vault contains ${balanceDescription} ${nameAndImage.assetName} ${nameAndImage.explorer}.`: ''
+                nameAndImage.description = nameAndImage.description + `${descriptionContents}\n\n${_this.description}`;
             }
 
             let viewOnEmblemFinanceLink = '';
