@@ -34,7 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
-const SDK_VERSION = '1.6.2';
+const SDK_VERSION = '1.7.0';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -225,6 +225,11 @@ class EmblemVaultSDK {
             }
             yield this.fetchMetadata(remoteMintSig._tokenId);
             return mintResponse;
+        });
+    }
+    contentTypeReport(url) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield (0, utils_1.checkContentType)(url);
         });
     }
 }

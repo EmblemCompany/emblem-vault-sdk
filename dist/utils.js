@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.COIN_TO_NETWORK = exports.getHandlerContract = exports.getQuoteContractObject = exports.genericGuard = exports.templateGuard = exports.generateTemplate = exports.generateImageTemplate = exports.generateAttributeTemplate = exports.fetchData = exports.metadataAllProjects = exports.metadataObj2Arr = exports.evaluateFacts = exports.pad = exports.NFT_DATA = void 0;
+exports.COIN_TO_NETWORK = exports.checkContentType = exports.getHandlerContract = exports.getQuoteContractObject = exports.genericGuard = exports.templateGuard = exports.generateTemplate = exports.generateImageTemplate = exports.generateAttributeTemplate = exports.fetchData = exports.metadataAllProjects = exports.metadataObj2Arr = exports.evaluateFacts = exports.pad = exports.NFT_DATA = void 0;
 const metadata_json_1 = __importDefault(require("./curated/metadata.json"));
 const abi_json_1 = __importDefault(require("./abi/abi.json"));
 exports.NFT_DATA = metadata_json_1.default;
@@ -526,6 +526,52 @@ function getHandlerContract(web3) {
     });
 }
 exports.getHandlerContract = getHandlerContract;
+function checkContentType(url) {
+    return new Promise((resolve, reject) => {
+        let returnVal = {};
+        fetch(url, { method: 'HEAD' })
+            .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            if (response.status === 200) {
+                const contentType = response.headers.get('content-type');
+                let extension = getFileExtensionFromMimeType(contentType);
+                returnVal.valid = true;
+                returnVal.contentType = contentType;
+                returnVal.extension = extension;
+                returnVal.embed = !isValidDirect(extension);
+                console.log('Content-Type:', contentType);
+                resolve(returnVal);
+            }
+            else {
+                resolve(returnVal);
+            }
+        })
+            .catch(error => {
+            console.error('Error while fetching URL:', error);
+            reject(error);
+        });
+    });
+}
+exports.checkContentType = checkContentType;
+function isValidDirect(extension) {
+    switch (extension) {
+        case '.png':
+        case '.jpg':
+        case '.jpeg':
+        case '.gif':
+        case '.webp':
+        case '.tif':
+        case '.tiff':
+            return true;
+        default:
+            return false;
+    }
+}
+function getFileExtensionFromMimeType(mimeType) {
+    return mimeType ? mimeToExtensionMap[mimeType] : ''; // return an empty string if no match
+}
 exports.COIN_TO_NETWORK = {
     'xcp': 'BTC',
     'ordinalsbtc': 'BTC',
@@ -535,4 +581,53 @@ exports.COIN_TO_NETWORK = {
     'oxbt': 'TAP',
     'bel': 'Bel',
     'nmc': 'Namecoin'
+};
+const mimeToExtensionMap = {
+    // Image formats
+    "image/png": ".png",
+    "image/jpeg": ".jpg",
+    "image/jpe": ".jpe",
+    "image/gif": ".gif",
+    "image/webp": ".webp",
+    "image/heif": ".heif",
+    "image/bmp": ".bmp",
+    "image/tiff": ".tiff",
+    "image/tif": ".tif",
+    "image/x-icon": ".ico",
+    "image/svg+xml": ".svg",
+    "image/heic": ".heic",
+    "image/avif": ".avif",
+    "image/apng": ".apng",
+    "image/jp2": ".jp2",
+    "image/jxr": ".jxr",
+    "image/astc": ".astc",
+    "image/jxl": ".jxl",
+    "image/x-jng": ".jng",
+    "image/x-ms-bmp": ".bmp",
+    "image/x-png": ".png",
+    "image/x-xbitmap": ".xbm",
+    "image/x-xpixmap": ".xpm",
+    "image/x-rgb": ".rgb",
+    "image/x-portable-anymap": ".pnm",
+    "image/x-portable-bitmap": ".pbm",
+    "image/x-portable-graymap": ".pgm",
+    "image/x-portable-pixmap": ".ppm",
+    // Video formats
+    "video/mp4": ".mp4",
+    "video/x-m4v": ".m4v",
+    "video/3gpp": ".3gp",
+    "video/3gpp2": ".3g2",
+    "video/webm": ".webm",
+    "video/ogg": ".ogv",
+    "video/x-msvideo": ".avi",
+    "video/ms-asf": ".asf",
+    "video/x-ms-wmv": ".wmv",
+    "video/mpeg": ".mpeg",
+    "video/quicktime": ".mov",
+    "video/x-flv": ".flv",
+    "video/x-matroska": ".mkv",
+    "video/h264": ".h264",
+    "video/h265": ".h265",
+    "video/vnd.dlna.mpeg-tts": ".ts"
+    // Add more mappings if needed
 };

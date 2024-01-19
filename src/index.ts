@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Collection, CuratedCollectionsResponse, MetaData, Vault } from './types';
-import { COIN_TO_NETWORK, NFT_DATA, evaluateFacts, fetchData, generateTemplate, genericGuard, getHandlerContract, getQuoteContractObject, metadataAllProjects, metadataObj2Arr, pad, templateGuard } from './utils';
+import { COIN_TO_NETWORK, NFT_DATA, checkContentType, evaluateFacts, fetchData, generateTemplate, genericGuard, getHandlerContract, getQuoteContractObject, metadataAllProjects, metadataObj2Arr, pad, templateGuard } from './utils';
 
 const SDK_VERSION = '__SDK_VERSION__'; 
 class EmblemVaultSDK {
@@ -165,6 +165,10 @@ class EmblemVaultSDK {
         if (callback) { callback('Mint Complete')}
         await this.fetchMetadata(remoteMintSig._tokenId);
         return mintResponse
+    }
+
+    async contentTypeReport(url: string) {
+        return await checkContentType(url)
     }
 
 
