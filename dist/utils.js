@@ -250,8 +250,11 @@ function generateTemplate(record) {
             else if (recordName == "Embels") {
                 allowed = true;
             }
-            else if (recordName == "BitcoinOrdinals ") {
-                allowed = data && data[0].coin == "ordinalsbtc";
+            else if (_this.vaultCollectionType && _this.vaultCollectionType == "protocol") {
+                allowed = data && data[0].coin == _this.collectionChain;
+            }
+            else if (_this.vaultCollectionType && _this.vaultCollectionType == "collection") {
+                allowed = data && data[0].coin == _this.collectionChain && data[0].project == _this.name;
             }
             else { // XCP
                 allowed = data[0].project == _this.name && data[0].balance == 1;
@@ -296,7 +299,7 @@ function generateTemplate(record) {
             else if (recordName == "Embels") {
                 allowedName = true;
             }
-            else if (recordName == "BitcoinOrdinals") {
+            else if (recordName == "BitcoinOrdinals" || recordName == "BitcoinPunks" || recordName == "filthyFiat" || recordName == "Megapunks" || recordName == "TwelveFold" || recordName == "Bitcoin DeGods" || recordName == "Bitcoin Frogs" || recordName == "Ordinal Maxi Biz" || recordName == "NodeMonkes" || recordName == "Bitmap" || recordName == "Ordinal Punks" || recordName == "Bitcoin Rocks" || recordName == "OnChainMonkey (OCM) Dimentions") {
                 allowedName = true;
             }
             else { // XCP
