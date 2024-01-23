@@ -250,6 +250,9 @@ function generateTemplate(record) {
             else if (recordName == "Embels") {
                 allowed = true;
             }
+            else if (recordName == "BitcoinOrdinals ") {
+                allowed = data && data[0].coin == "ordinalsbtc";
+            }
             else { // XCP
                 allowed = data[0].project == _this.name && data[0].balance == 1;
             }
@@ -291,6 +294,9 @@ function generateTemplate(record) {
                 allowedName = asset ? true : false;
             }
             else if (recordName == "Embels") {
+                allowedName = true;
+            }
+            else if (recordName == "BitcoinOrdinals") {
                 allowedName = true;
             }
             else { // XCP
@@ -532,9 +538,9 @@ function checkContentType(url) {
         fetch(url, { method: 'HEAD' })
             .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                returnVal.valid = false;
             }
-            if (response.status === 200) {
+            else if (response.status === 200) {
                 const contentType = response.headers.get('content-type');
                 let extension = getFileExtensionFromMimeType(contentType);
                 returnVal.valid = true;
@@ -542,11 +548,8 @@ function checkContentType(url) {
                 returnVal.extension = extension;
                 returnVal.embed = !isValidDirect(extension);
                 console.log('Content-Type:', contentType);
-                resolve(returnVal);
             }
-            else {
-                resolve(returnVal);
-            }
+            resolve(returnVal);
         })
             .catch(error => {
             console.error('Error while fetching URL:', error);

@@ -1,6 +1,6 @@
 {
   "name": "emblem-vault-sdk",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "Emble Vault Software Development Kit",
   "main": "dist/index.js",
   "scripts": {
