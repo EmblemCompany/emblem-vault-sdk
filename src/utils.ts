@@ -223,9 +223,9 @@ export function generateTemplate(record: any) {
             } else if (recordName == "Embels"){
                 allowed = true
             } else if (_this.vaultCollectionType && _this.vaultCollectionType == "protocol") {
-                allowed =  data && data[0].coin ==_this.collectionChain
+                allowed =  data && data[0].coin.toLowerCase() ==_this.collectionChain.toLowerCase()
             } else if (_this.vaultCollectionType && _this.vaultCollectionType == "collection" ) {
-                allowed =  data && data[0].coin == _this.collectionChain && data[0].project ==  _this.name
+                allowed =  data && data[0].coin.toLowerCase() == _this.collectionChain.toLowerCase() && data[0].project ==  _this.name
             } else { // XCP
                 allowed = data[0].project == _this.name && data[0].balance == 1;
             }
