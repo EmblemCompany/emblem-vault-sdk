@@ -49,7 +49,6 @@ const metadataAllProjects = (projects) => projects.reduce((unique, item) => {
 }, []);
 exports.metadataAllProjects = metadataAllProjects;
 const fetchData = (url, apiKey, method = 'GET', body = null) => __awaiter(void 0, void 0, void 0, function* () {
-    const fetch = typeof window !== 'undefined' && typeof window.fetch === 'function' ? window.fetch : require('node-fetch');
     const options = {
         method: method,
         headers: { 'x-api-key': apiKey },
