@@ -30,6 +30,10 @@ class EmblemVaultSDK {
         return filtered
     }
 
+    getAllAssetMetadata() {
+        return metadataObj2Arr(NFT_DATA)
+    }
+
     getAllProjects() {
         const NFT_DATA_ARR = metadataObj2Arr(NFT_DATA)
         const projects = metadataAllProjects(NFT_DATA_ARR)

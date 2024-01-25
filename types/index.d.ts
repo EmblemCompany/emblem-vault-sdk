@@ -6,6 +6,7 @@ declare class EmblemVaultSDK {
     constructor(apiKey: string, baseUrl?: string);
     generateUploadUrl(): void;
     getAssetMetadata(projectName: string, strict?: boolean): any[];
+    getAllAssetMetadata(): any[];
     getAllProjects(): any[];
     fetchCuratedContracts(hideUnMintable?: boolean, overrideFunc?: Function | boolean): Promise<CuratedCollectionsResponse>;
     fetchCuratedContractByName(name: string): Promise<Collection | null>;

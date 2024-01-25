@@ -34,7 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
-const SDK_VERSION = '1.7.4';
+const SDK_VERSION = '1.7.5';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -57,6 +57,9 @@ class EmblemVaultSDK {
             NFT_DATA_ARR.filter(item => item.projectName === projectName) :
             NFT_DATA_ARR.filter(item => item.projectName.toLowerCase() === projectName.toLowerCase());
         return filtered;
+    }
+    getAllAssetMetadata() {
+        return (0, utils_1.metadataObj2Arr)(utils_1.NFT_DATA);
     }
     getAllProjects() {
         const NFT_DATA_ARR = (0, utils_1.metadataObj2Arr)(utils_1.NFT_DATA);
