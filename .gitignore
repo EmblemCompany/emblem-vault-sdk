@@ -5,3 +5,6 @@ package-lock.json
 .vscode
 .env
 build
+.DS_Store
+.idea
+.nvmrc
