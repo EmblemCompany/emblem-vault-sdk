@@ -34,7 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
-const SDK_VERSION = '1.7.8';
+const SDK_VERSION = '1.7.9';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -91,9 +91,9 @@ class EmblemVaultSDK {
             return data;
         });
     }
-    fetchCuratedContractByName(name) {
+    fetchCuratedContractByName(name, contracts = false) {
         return __awaiter(this, void 0, void 0, function* () {
-            let contracts = yield this.fetchCuratedContracts();
+            !contracts ? contracts = yield this.fetchCuratedContracts() : null;
             let contract = contracts.find((contract) => contract.name === name);
             return contract || null;
         });
@@ -133,6 +133,116 @@ class EmblemVaultSDK {
             let url = `${this.baseUrl}/myvaults/${address}?vaultType=${vaultType}`;
             let vaults = yield (0, utils_1.fetchData)(url, this.apiKey);
             return vaults;
+        });
+    }
+    generateJumpReport(address, hideUnMintable = false) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let vaultType = "unclaimed";
+            let curated = yield this.fetchCuratedContracts();
+            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                try {
+                    let map = {};
+                    let vaults = yield this.fetchVaultsOfType(vaultType, address);
+                    for (let vaultIndex = 0; vaultIndex < vaults.length; vaultIndex++) {
+                        let item = vaults[vaultIndex];
+                        let balances = item.ownership.balances || [];
+                        if (item.targetContract) {
+                            let vaultTargetContract = yield this.fetchCuratedContractByName(item.targetContract.name, curated);
+                            let to = [];
+                            for (let contractIndex = 0; contractIndex < curated.length; contractIndex++) {
+                                let contract = curated[contractIndex];
+                                let allowed = contract.allowed(balances, vaultTargetContract);
+                                if (allowed && vaultTargetContract.name != contract.name) {
+                                    to.push(contract.name);
+                                }
+                            }
+                            if (!hideUnMintable || to.length > 0) {
+                                map[item.tokenId] = { from: item.targetContract.name, to: to };
+                            }
+                        }
+                        else if (!hideUnMintable) {
+                            map[item.tokenId] = { from: "legacy", to: [] };
+                        }
+                    }
+                    // Resolve the promise with the map
+                    resolve(map);
+                }
+                catch (error) {
+                    // Reject the promise in case of any error
+                    reject(error);
+                }
+            }));
+        });
+    }
+    generateMintReport(address, hideUnMintable = false) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let vaults = yield this.fetchVaultsOfType("created", address);
+            let curated = yield this.fetchCuratedContracts();
+            let map = {};
+            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                try {
+                    vaults.forEach((vault) => __awaiter(this, void 0, void 0, function* () {
+                        if (vault.targetContract) {
+                            let targetVault = yield this.fetchCuratedContractByName(vault.targetContract.name, curated);
+                            let balance = vault.balances && vault.balances.length > 0 ? vault.balances : [];
+                            let allowed = targetVault.allowed(balance, targetVault);
+                            if (allowed || !hideUnMintable) {
+                                map[vault.tokenId] = { to: vault.targetContract.name, mintable: allowed };
+                            }
+                        }
+                        else {
+                            if (!hideUnMintable) {
+                                map[vault.tokenId] = { to: "legacy", mintable: false };
+                            }
+                        }
+                    }));
+                    // Resolve the promise with the map
+                    resolve(map);
+                }
+                catch (error) {
+                    // Reject the promise in case of any error
+                    reject(error);
+                }
+            }));
+        });
+    }
+    generateMigrateReport(address, hideUnMintable = false) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let vaultType = "unclaimed";
+            let curated = yield this.fetchCuratedContracts();
+            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                try {
+                    let map = {};
+                    let vaults = yield this.fetchVaultsOfType(vaultType, address);
+                    for (let vaultIndex = 0; vaultIndex < vaults.length; vaultIndex++) {
+                        let item = vaults[vaultIndex];
+                        let balances = item.ownership.balances || [];
+                        if (!item.targetContract) {
+                            // let vaultTargetContract: any = await this.fetchCuratedContractByName(item.targetContract.name, curated);
+                            let to = [];
+                            for (let contractIndex = 0; contractIndex < curated.length; contractIndex++) {
+                                let contract = curated[contractIndex];
+                                let allowed = contract.allowed(balances, contract);
+                                if (allowed) {
+                                    to.push(contract.name);
+                                }
+                            }
+                            if (!hideUnMintable || to.length > 0) {
+                                map[item.tokenId] = { from: "legacy", to: to };
+                            }
+                        }
+                        else if (!hideUnMintable) {
+                            map[item.tokenId] = { from: item.targetContract.name, to: [] };
+                        }
+                    }
+                    // Resolve the promise with the map
+                    resolve(map);
+                }
+                catch (error) {
+                    // Reject the promise in case of any error
+                    reject(error);
+                }
+            }));
         });
     }
     // ** Web3 **

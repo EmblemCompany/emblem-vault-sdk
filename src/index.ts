@@ -65,8 +65,8 @@ class EmblemVaultSDK {
         return data
     }
 
-    async fetchCuratedContractByName(name: string): Promise<Collection | null> {
-        let contracts = await this.fetchCuratedContracts();
+    async fetchCuratedContractByName(name: string, contracts: any = false): Promise<Collection | null> {
+        !contracts ? contracts = await this.fetchCuratedContracts(): null
         let contract = contracts.find((contract: Collection) => contract.name === name);
         return contract || null;
     }
@@ -96,6 +96,111 @@ class EmblemVaultSDK {
         let vaults = await fetchData(url, this.apiKey);
         return vaults;
     }
+
+    async generateJumpReport(address: string, hideUnMintable: boolean = false) {
+        let vaultType = "unclaimed"
+        let curated = await this.fetchCuratedContracts();
+        return new Promise(async (resolve, reject) => {
+            try {
+                let map: { [key: string]: any } = {};
+                let vaults = await this.fetchVaultsOfType(vaultType, address);
+                for (let vaultIndex = 0; vaultIndex < vaults.length; vaultIndex++) {
+                    let item = vaults[vaultIndex];
+                    let balances = item.ownership.balances || [];                        
+                    if (item.targetContract) {
+                        let vaultTargetContract: any = await this.fetchCuratedContractByName(item.targetContract.name, curated);
+                        let to = [];
+                        for (let contractIndex = 0; contractIndex < curated.length; contractIndex++) {                            
+                            let contract: any = curated[contractIndex];
+                            let allowed = contract.allowed(balances, vaultTargetContract);    
+                            if (allowed && vaultTargetContract.name != contract.name) {
+                                to.push(contract.name);
+                            }
+                        }
+                        if (!hideUnMintable || to.length > 0) {
+                            map[item.tokenId] = { from: item.targetContract.name, to: to };
+                        }
+                    } else if (!hideUnMintable) {
+                        map[item.tokenId] = { from: "legacy", to: [] };
+                    }
+                }
+    
+                // Resolve the promise with the map
+                resolve(map);
+            } catch (error) {
+                // Reject the promise in case of any error
+                reject(error);
+            }
+        });
+    }
+
+    async generateMintReport(address: string, hideUnMintable: boolean = false) {
+        let vaults = await this.fetchVaultsOfType("created", address)
+        let curated = await this.fetchCuratedContracts();
+        let map: { [key: string]: any } = {};
+        return new Promise(async (resolve, reject) => {
+            try {
+                vaults.forEach(async (vault: any) => {
+                    if (vault.targetContract) {                        
+                        let targetVault: any = await this.fetchCuratedContractByName(vault.targetContract.name, curated);
+                        let balance = vault.balances && vault.balances.length > 0 ? vault.balances : []
+                        let allowed = targetVault.allowed(balance, targetVault)
+                        if (allowed || !hideUnMintable) {
+                            map[vault.tokenId] = { to: vault.targetContract.name, mintable: allowed};
+                        }
+                    } else {
+                        if (!hideUnMintable) {
+                            map[vault.tokenId] = { to: "legacy", mintable: false };
+                        }
+                    }
+                })
+                // Resolve the promise with the map
+                resolve(map);
+            } catch (error) {
+                // Reject the promise in case of any error
+                reject(error);
+            }
+        });
+    }
+
+    async generateMigrateReport(address: string, hideUnMintable: boolean = false) {
+        let vaultType = "unclaimed"
+        let curated = await this.fetchCuratedContracts();
+        return new Promise(async (resolve, reject) => {
+            try {
+                let map: { [key: string]: any } = {};
+                let vaults = await this.fetchVaultsOfType(vaultType, address);
+                for (let vaultIndex = 0; vaultIndex < vaults.length; vaultIndex++) {
+                    let item = vaults[vaultIndex];
+                    let balances = item.ownership.balances || [];                        
+                    if (!item.targetContract) {
+                        // let vaultTargetContract: any = await this.fetchCuratedContractByName(item.targetContract.name, curated);
+                        let to = [];
+                        for (let contractIndex = 0; contractIndex < curated.length; contractIndex++) {                            
+                            let contract: any = curated[contractIndex];
+                            let allowed = contract.allowed(balances, contract);    
+                            if (allowed) {
+                                to.push(contract.name);
+                            }
+                        }
+                        if (!hideUnMintable || to.length > 0) {
+                            map[item.tokenId] = { from: "legacy", to: to };
+                        }
+                    } else if (!hideUnMintable) {
+                        map[item.tokenId] = { from: item.targetContract.name, to: [] };
+                    }
+                }
+    
+                // Resolve the promise with the map
+                resolve(map);
+            } catch (error) {
+                // Reject the promise in case of any error
+                reject(error);
+            }
+        });
+    }
+    
+    
 
     // ** Web3 **
     //

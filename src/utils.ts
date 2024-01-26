@@ -194,39 +194,46 @@ export function generateTemplate(record: any) {
         allowed: (data: any[], _this: any, msgCallback: any = null) => {
             let allowed = false
             if (recordName == "Cursed Ordinal") {
-                allowed = data ? data[0].content_type != "application/json" : false
+                allowed = data && data.length > 0 ? data[0].content_type != "application/json" && data[0].coin == "cursedordinalsbtc" : false
+            } else if (recordName == "BitcoinOrdinals") {
+                data = _this.filterNativeBalances({balances: data}, _this)
+                allowed = data && data.length > 0 && data[0].coin == _this.collectionChain.toLowerCase()
             } else if (recordName == "Ethscription") {
-                allowed = data ? true : false
+                allowed = data && data.length > 0 && data[0].coin == recordName.toLowerCase()? true : false
             } else if (recordName == "$OXBT" || recordName == "$ORDI") {
-                if (data[0].balance == balanceQty) {
+                if (data && data.length > 0 && data[0].balance == balanceQty) {
                     msgCallback ? msgCallback("") : null
                     allowed = true
-                } else if (data[0].balance != balanceQty && msgCallback) {
+                } else if (data && data.length > 0 && data[0].balance != balanceQty && msgCallback) {
                     msgCallback ? msgCallback(`Load vault with exactly ${balanceQty} ${recordName}`) : null
                     allowed = false
                 }
             } else if (recordName == "Counterparty") {
                 let facts = [
                     { eval: record.nativeAssets.includes(data[0]?.coin), msg: `Vaults should only contain assets native to ${recordName}` },
-                    { eval: data.length == 1, msg: `Vaults should only contain a single item` }
+                    { eval: data.length == 1, msg: `Vaults should only contain a single item` },
+                    // { eval: data[0].projectName && data[0].projectName == recordName, msg: `Vaults should only contain a single item` }
                 ]
                 allowed = evaluateFacts(allowed, facts, msgCallback)
             } else if (recordName == "Stamps") {
-                allowed = record.nativeAssets.includes(data[0].coin) && (recordName.toLowerCase() == data[0].project.toLowerCase() || data[0].project.toLowerCase() == "stampunks")
+                allowed = data && data.length > 0 && data[0].project && record.nativeAssets.includes(data[0].coin) && (recordName.toLowerCase() == data[0].project.toLowerCase() || data[0].project.toLowerCase() == "stampunks")
             } else if (recordName == "EmblemOpen") {
-                allowed = data ? true : false
+                allowed = data && data.length > 0 ? true : false
             } else if (recordName == "Bells") {
-                allowed = data[0].name == "Bel" && data[0].balance > 0 && Number.isInteger(data[0].balance)
+                allowed = data && data.length > 0 && data[0].name == "Bel" && data[0].balance > 0 && Number.isInteger(data[0].balance)
             } else if (recordName == "Namecoin") {
-                allowed = data && record.nativeAssets.includes(data[0].coin) ? true: false
-            } else if (recordName == "Embels"){
-                allowed = true
-            } else if (_this.vaultCollectionType && _this.vaultCollectionType == "protocol") {
-                allowed =  data && data[0].coin.toLowerCase() ==_this.collectionChain.toLowerCase()
+                allowed = data && data.length > 0 && record.nativeAssets.includes(data[0].coin) ? true: false
+            } else if (recordName == "Embels") {
+                allowed = _this.name.toLowerCase() == recordName.toLowerCase()
+                if (allowed && data && data.length > 0 && data[0].coin) {
+                    allowed = _this.nativeAssets.includes(data[0].coin)
+                }
+            } else if (_this.vaultCollectionType && _this.vaultCollectionType == "protocol") {                
+                allowed =  data && data.length > 0 && data[0].coin.toLowerCase() == _this.collectionChain.toLowerCase()  && data[0].project  && data[0].project ==  recordName
             } else if (_this.vaultCollectionType && _this.vaultCollectionType == "collection" ) {
-                allowed =  data && data[0].coin.toLowerCase() == _this.collectionChain.toLowerCase() && data[0].project ==  _this.name
+                allowed =  data && data.length > 0 &&  data[0].coin.toLowerCase() == _this.collectionChain.toLowerCase() && data[0].project ==  recordName
             } else { // XCP
-                allowed = data[0].project == _this.name && data[0].balance == 1;
+                allowed = data && data.length > 0 && data[0].project == _this.name && data[0].balance == 1;
             }
             return allowed
         },

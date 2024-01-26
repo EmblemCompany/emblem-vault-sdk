@@ -9,10 +9,13 @@ declare class EmblemVaultSDK {
     getAllAssetMetadata(): any[];
     getAllProjects(): any[];
     fetchCuratedContracts(hideUnMintable?: boolean, overrideFunc?: Function | boolean): Promise<CuratedCollectionsResponse>;
-    fetchCuratedContractByName(name: string): Promise<Collection | null>;
+    fetchCuratedContractByName(name: string, contracts?: any): Promise<Collection | null>;
     createCuratedVault(template: any, callback?: any): Promise<Vault>;
     fetchMetadata(tokenId: string, callback?: any): Promise<MetaData>;
     fetchVaultsOfType(vaultType: string, address: string): Promise<any>;
+    generateJumpReport(address: string, hideUnMintable?: boolean): Promise<unknown>;
+    generateMintReport(address: string, hideUnMintable?: boolean): Promise<unknown>;
+    generateMigrateReport(address: string, hideUnMintable?: boolean): Promise<unknown>;
     loadWeb3(): Promise<any | undefined>;
     performMintChain(web3: any, tokenId: string, collectionName: string, callback?: any): Promise<{
         mintResponse: any;
