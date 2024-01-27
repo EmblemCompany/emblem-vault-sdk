@@ -544,27 +544,31 @@ function getHandlerContract(web3) {
 exports.getHandlerContract = getHandlerContract;
 function checkContentType(url) {
     return new Promise((resolve, reject) => {
-        let returnVal = {};
-        fetch(url, { method: 'HEAD' })
-            .then(response => {
-            if (!response.ok) {
-                returnVal.valid = false;
-            }
-            else if (response.status === 200) {
-                const contentType = response.headers.get('content-type');
-                let extension = getFileExtensionFromMimeType(contentType);
-                returnVal.valid = true;
-                returnVal.contentType = contentType;
-                returnVal.extension = extension;
-                returnVal.embed = !isValidDirect(extension);
-                console.log('Content-Type:', contentType);
-            }
-            resolve(returnVal);
-        })
-            .catch(error => {
-            console.error('Error while fetching URL:', error);
-            reject(error);
-        });
+        let returnVal = { valid: false };
+        try {
+            fetch(url, { method: 'HEAD' })
+                .then(response => {
+                if (!response.ok) {
+                    returnVal.valid = false;
+                }
+                else if (response.status === 200) {
+                    const contentType = response.headers.get('content-type');
+                    let extension = getFileExtensionFromMimeType(contentType);
+                    returnVal.valid = true;
+                    returnVal.contentType = contentType;
+                    returnVal.extension = extension;
+                    returnVal.embed = !isValidDirect(extension);
+                    console.log('Content-Type:', contentType);
+                }
+                resolve(returnVal);
+            })
+                .catch(error => {
+                console.error('Error while fetching URL:', error);
+                resolve(returnVal);
+            });
+        }
+        catch (error) {
+        }
     });
 }
 exports.checkContentType = checkContentType;
