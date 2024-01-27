@@ -1,6 +1,6 @@
 {
   "name": "emblem-vault-sdk",
-  "version": "1.7.12",
+  "version": "1.7.13",
   "description": "Emblem Vault Software Development Kit",
   "main": "dist/index.js",
   "scripts": {
@@ -36,6 +36,6 @@
     "web3": "^4.4.0"
   },
   "engines": {
-    "node": ">=20.11.0"
+    "node": ">=20.5.1"
   }
 }
