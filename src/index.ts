@@ -279,8 +279,6 @@ class EmblemVaultSDK {
     async contentTypeReport(url: string) {
         return await checkContentType(url)
     }
-
-
 }
 
 declare global {
