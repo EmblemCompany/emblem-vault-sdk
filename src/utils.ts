@@ -228,7 +228,7 @@ export function generateTemplate(record: any) {
                 if (allowed && data && data.length > 0 && data[0].coin) {
                     allowed = _this.nativeAssets.includes(data[0].coin)
                 }
-            } else if (_this.vaultCollectionType && _this.vaultCollectionType == "protocol") {                
+            } else if (_this.vaultCollectionType && _this.vaultCollectionType == "protocol") {
                 allowed =  data && data.length > 0 && data[0].coin.toLowerCase() == _this.collectionChain.toLowerCase()  && data[0].project  && data[0].project ==  recordName
             } else if (_this.vaultCollectionType && _this.vaultCollectionType == "collection" ) {
                 allowed =  data && data.length > 0 &&  data[0].coin.toLowerCase() == _this.collectionChain.toLowerCase() && data[0].project ==  recordName
@@ -502,31 +502,27 @@ export function checkContentType(url: string) {
     return new Promise((resolve, reject) => {
         // Making a HTTP HEAD request to get only the headers
         type ReturnVal = { valid?: boolean, contentType?: string | null, extension?: string, embed?: boolean };
-        let returnVal: ReturnVal = {valid: false};
-        try {
-            fetch(url, { method: 'HEAD' })
-                .then(response => {
-                    if (!response.ok) {
-                        returnVal.valid = false                    
-                    } 
-                    else if (response.status === 200) {
-                        const contentType = response.headers.get('content-type');
-                        let extension = getFileExtensionFromMimeType(contentType)
-                        returnVal.valid = true
-                        returnVal.contentType = contentType
-                        returnVal.extension = extension 
-                        returnVal.embed = !isValidDirect(extension)
-                        console.log('Content-Type:', contentType);
-                    } 
-                    resolve(returnVal);
-                })
-                .catch(error => {
-                    console.error('Error while fetching URL:', error);
-                    resolve(returnVal);
-                });
-            } catch (error) {
-
-            }
+        let returnVal: ReturnVal = {};
+        fetch(url, { method: 'HEAD' })
+            .then(response => {
+                if (!response.ok) {
+                    returnVal.valid = false                    
+                } 
+                else if (response.status === 200) {
+                    const contentType = response.headers.get('content-type');
+                    let extension = getFileExtensionFromMimeType(contentType)
+                    returnVal.valid = true
+                    returnVal.contentType = contentType
+                    returnVal.extension = extension
+                    returnVal.embed = !isValidDirect(extension)
+                }
+                resolve(returnVal);
+            })
+            .catch(error => {
+                console.error('Error while fetching URL:', error);
+                returnVal.valid = false
+                resolve(returnVal);
+            });
     });
 }
 
