@@ -55,6 +55,19 @@ describe('EmblemVaultSDK', () => {
             // todo: test for a non-zero value address
             expect(vaults.length).toBeGreaterThanOrEqual(0);
         });
+
+        test('should report image as valid', async () => {
+            const sdk = new EmblemVaultSDK(apiKey);
+            const report: any = await sdk.contentTypeReport("https://emblem.finance/stamps.png");
+            expect(report.valid).toBeTruthy();
+            expect(report.contentType).toEqual("image/png");
+        });
+
+        test('should report invalid URL as invalid image', async () => {
+            const sdk = new EmblemVaultSDK(apiKey);
+            const report: any = await sdk.contentTypeReport("https://invalid/image.png");
+            expect(report.valid).toBeFalsy();
+        });
     });    
     
     describe('Vault Creation', () => {
