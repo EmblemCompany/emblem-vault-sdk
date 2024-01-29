@@ -502,27 +502,31 @@ export function checkContentType(url: string) {
     return new Promise((resolve, reject) => {
         // Making a HTTP HEAD request to get only the headers
         type ReturnVal = { valid?: boolean, contentType?: string | null, extension?: string, embed?: boolean };
-        let returnVal: ReturnVal = {};
-        fetch(url, { method: 'HEAD' })
-            .then(response => {
-                if (!response.ok) {
-                    returnVal.valid = false                    
-                } 
-                else if (response.status === 200) {
-                    const contentType = response.headers.get('content-type');
-                    let extension = getFileExtensionFromMimeType(contentType)
-                    returnVal.valid = true
-                    returnVal.contentType = contentType
-                    returnVal.extension = extension
-                    returnVal.embed = !isValidDirect(extension)
-                }
-                resolve(returnVal);
-            })
-            .catch(error => {
-                console.error('Error while fetching URL:', error);
-                returnVal.valid = false
-                resolve(returnVal);
-            });
+        let returnVal: ReturnVal = { valid: false};
+        try {
+            fetch(url, { method: 'HEAD' })
+                .then(response => {
+                    if (!response.ok) {
+                        returnVal.valid = false
+                    }
+                    else if (response.status === 200) {
+                        const contentType = response.headers.get('content-type');
+                        let extension = getFileExtensionFromMimeType(contentType)
+                        returnVal.valid = true
+                        returnVal.contentType = contentType
+                        returnVal.extension = extension
+                        returnVal.embed = !isValidDirect(extension)
+                    }
+                    resolve(returnVal);
+                })
+                .catch(error => {
+                    console.error(`Error while fetching URL: ${url}`, error);
+                    resolve(returnVal);
+                });
+        } catch(error) {
+            console.error(`Error while checking content type for URL: ${url}`, error);
+            return returnVal
+        }
     });
 }
 
