@@ -12,7 +12,7 @@
     "test:browser": "JEST_ENV=browser jest",
     "test:all": "npm run test:node && npm run test:browser",
     "build": "tsc",
-    "postbuild": "node ./script/version.js && mv dist/index.d.ts types/index.d.ts && mv dist/types.d.ts types/types.d.ts && mv dist/utils.d.ts types/utils.d.ts",
+    "postbuild": "node ./script/version.js && find dist -name '*.d.ts' -exec mv {} types \\;",
     "bundle": "npm run build && browserify dist/index.js -o dist/bundle.js && cp dist/bundle.js docs/bundle.js",
     "watch": "onchange 'src/*.ts' -- npm run bundle"
   },

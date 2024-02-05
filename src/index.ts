@@ -1,6 +1,8 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Collection, CuratedCollectionsResponse, MetaData, Vault } from './types';
 import { COIN_TO_NETWORK, NFT_DATA, checkContentType, evaluateFacts, fetchData, generateTemplate, genericGuard, getHandlerContract, getQuoteContractObject, metadataAllProjects, metadataObj2Arr, pad, templateGuard } from './utils';
+import { getSignedJWT } from './apis/SigApi';
+import { getTorusKey } from './services/torus';
 
 const SDK_VERSION = '__SDK_VERSION__'; 
 class EmblemVaultSDK {
@@ -278,6 +280,11 @@ class EmblemVaultSDK {
 
     async contentTypeReport(url: string) {
         return await checkContentType(url)
+    }
+
+    async getVaultKeys(signature: string, tokenId: string, chainId: number): Promise<string> {
+        const signedJWT = await getSignedJWT(signature, tokenId, chainId)
+        return getTorusKey(tokenId, signedJWT)
     }
 }
 

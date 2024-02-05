@@ -34,6 +34,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
+const SigApi_1 = require("./apis/SigApi");
+const torus_1 = require("./services/torus");
 const SDK_VERSION = '1.7.13';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
@@ -343,6 +345,12 @@ class EmblemVaultSDK {
     contentTypeReport(url) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield (0, utils_1.checkContentType)(url);
+        });
+    }
+    getVaultKeys(signature, tokenId, chainId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const signedJWT = yield (0, SigApi_1.getSignedJWT)(signature, tokenId, chainId);
+            return (0, torus_1.getTorusKey)(tokenId, signedJWT);
         });
     }
 }

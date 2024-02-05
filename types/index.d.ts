@@ -25,6 +25,7 @@ declare class EmblemVaultSDK {
     getQuote(web3: any, amount: number, callback?: any): Promise<BigNumber>;
     performMint(web3: any, quote: any, remoteMintSig: any, callback?: any): Promise<any>;
     contentTypeReport(url: string): Promise<unknown>;
+    getVaultKeys(signature: string, tokenId: string, chainId: number): Promise<string>;
 }
 declare global {
     interface Window {
