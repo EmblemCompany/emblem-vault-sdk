@@ -33,6 +33,8 @@
   },
   "dependencies": {
     "@ethersproject/bignumber": "^5.7.0",
+    "@toruslabs/fetch-node-details": "^13.1.1",
+    "@toruslabs/torus.js": "^12.1.1",
     "web3": "^4.4.0"
   },
   "engines": {
