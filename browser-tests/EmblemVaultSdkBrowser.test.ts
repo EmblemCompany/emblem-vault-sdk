@@ -12,7 +12,7 @@ describe('EmblemVaultSDK Browser Tests', () => {
     // Execute SDK methods in the page context
     const contracts = await page.evaluate(async () => {
       const sdk = new EmblemVaultSDK('valid_api_key');
-      return await sdk.fetchCuratedContracts();
+      return sdk.fetchCuratedContracts();
     });
 
     expect(contracts).toBeInstanceOf(Array);
