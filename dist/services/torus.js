@@ -17,21 +17,21 @@ const fetch_node_details_1 = __importDefault(require("@toruslabs/fetch-node-deta
 const torus_js_1 = __importDefault(require("@toruslabs/torus.js"));
 const appConstants_1 = require("../constants/appConstants");
 const getTorusKey = (tokenId, signedJwt) => __awaiter(void 0, void 0, void 0, function* () {
-    const fetchNodeDetails = new fetch_node_details_1.default({ network: 'mainnet' });
+    const fetchNodeDetails = new fetch_node_details_1.default({ network: "mainnet" });
     const torusUtils = new torus_js_1.default({
         clientId: appConstants_1.WEB3_AUTH_DASHBOARD_CLIENT_ID,
         enableOneKey: true,
-        network: 'mainnet',
+        network: "sapphire_mainnet",
     });
     const { torusNodeEndpoints, //
     torusIndexes, } = yield fetchNodeDetails.getNodeDetails({
-        verifier: 'tor-us-signer-vercel',
+        verifier: "tor-us-signer-vercel",
         verifierId: tokenId,
     });
     // @TEST
-    const { finalKeyData: { privKey }, } = yield torusUtils.retrieveShares(torusNodeEndpoints, torusIndexes, 'tor-us-signer-vercel', { verifier_id: tokenId }, signedJwt);
+    const { finalKeyData: { privKey }, } = yield torusUtils.retrieveShares(torusNodeEndpoints, torusIndexes, "tor-us-signer-vercel", { verifier_id: tokenId }, signedJwt);
     if (!privKey)
-        throw new Error('No private key found');
+        throw new Error("No private key found");
     return privKey;
 });
 exports.getTorusKey = getTorusKey;
