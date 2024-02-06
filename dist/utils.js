@@ -558,16 +558,17 @@ function checkContentType(url) {
                     returnVal.contentType = contentType;
                     returnVal.extension = extension;
                     returnVal.embed = !isValidDirect(extension);
-                    console.log('Content-Type:', contentType);
                 }
                 resolve(returnVal);
             })
                 .catch(error => {
-                console.error('Error while fetching URL:', error);
+                console.error(`Error while fetching URL: ${url}`, error);
                 resolve(returnVal);
             });
         }
         catch (error) {
+            console.error(`Error while checking content type for URL: ${url}`, error);
+            return returnVal;
         }
     });
 }
