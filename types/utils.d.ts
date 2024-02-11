@@ -17,5 +17,6 @@ export declare function templateGuard(input: {
 export declare function genericGuard(input: any, type: string, key: string): void;
 export declare function getQuoteContractObject(web3: any): Promise<any>;
 export declare function getHandlerContract(web3: any): Promise<any>;
+export declare function getLegacyContract(web3: any): Promise<any>;
 export declare function checkContentType(url: string): Promise<unknown>;
 export declare const COIN_TO_NETWORK: any;

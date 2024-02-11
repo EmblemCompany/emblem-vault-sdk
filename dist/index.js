@@ -34,7 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
-const SDK_VERSION = '1.7.13';
+const SDK_VERSION = '1.7.14';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -343,6 +343,26 @@ class EmblemVaultSDK {
     contentTypeReport(url) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield (0, utils_1.checkContentType)(url);
+        });
+    }
+    legacyBalanceFromContractByAddress(web3, address) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let legacyContract = yield (0, utils_1.getLegacyContract)(web3);
+            let balance = yield legacyContract.methods.getOwnerNFTCount(address).call();
+            let tokenIds = [];
+            for (let index = 0; index < balance; index++) {
+                let tokenId = yield legacyContract.methods.tokenOfOwnerByIndex(address, index).call();
+                tokenIds.push(Number(tokenId));
+            }
+            return tokenIds;
+        });
+    }
+    refreshLegacyOwnership(web3, address) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let myLegacy = yield this.legacyBalanceFromContractByAddress(web3, address);
+            myLegacy.forEach((item) => __awaiter(this, void 0, void 0, function* () {
+                let meta = yield this.fetchMetadata(item.toString());
+            }));
         });
     }
 }

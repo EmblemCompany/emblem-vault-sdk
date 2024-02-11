@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.COIN_TO_NETWORK = exports.checkContentType = exports.getHandlerContract = exports.getQuoteContractObject = exports.genericGuard = exports.templateGuard = exports.generateTemplate = exports.generateImageTemplate = exports.generateAttributeTemplate = exports.fetchData = exports.metadataAllProjects = exports.metadataObj2Arr = exports.evaluateFacts = exports.pad = exports.NFT_DATA = void 0;
+exports.COIN_TO_NETWORK = exports.checkContentType = exports.getLegacyContract = exports.getHandlerContract = exports.getQuoteContractObject = exports.genericGuard = exports.templateGuard = exports.generateTemplate = exports.generateImageTemplate = exports.generateAttributeTemplate = exports.fetchData = exports.metadataAllProjects = exports.metadataObj2Arr = exports.evaluateFacts = exports.pad = exports.NFT_DATA = void 0;
 const metadata_json_1 = __importDefault(require("./curated/metadata.json"));
 const abi_json_1 = __importDefault(require("./abi/abi.json"));
 exports.NFT_DATA = metadata_json_1.default;
@@ -542,6 +542,14 @@ function getHandlerContract(web3) {
     });
 }
 exports.getHandlerContract = getHandlerContract;
+function getLegacyContract(web3) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let contractAddress = '0x82c7a8f707110f5fbb16184a5933e9f78a34c6ab';
+        const handlerContract = new web3.eth.Contract(abi_json_1.default.legacy, contractAddress);
+        return handlerContract;
+    });
+}
+exports.getLegacyContract = getLegacyContract;
 function checkContentType(url) {
     return new Promise((resolve, reject) => {
         let returnVal = { valid: false };

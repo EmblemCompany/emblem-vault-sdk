@@ -25,6 +25,8 @@ declare class EmblemVaultSDK {
     getQuote(web3: any, amount: number, callback?: any): Promise<BigNumber>;
     performMint(web3: any, quote: any, remoteMintSig: any, callback?: any): Promise<any>;
     contentTypeReport(url: string): Promise<unknown>;
+    legacyBalanceFromContractByAddress(web3: any, address: string): Promise<number[]>;
+    refreshLegacyOwnership(web3: any, address: string): Promise<void>;
 }
 declare global {
     interface Window {

@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Collection, CuratedCollectionsResponse, MetaData, Vault } from './types';
-import { COIN_TO_NETWORK, NFT_DATA, checkContentType, evaluateFacts, fetchData, generateTemplate, genericGuard, getHandlerContract, getQuoteContractObject, metadataAllProjects, metadataObj2Arr, pad, templateGuard } from './utils';
+import { COIN_TO_NETWORK, NFT_DATA, checkContentType, evaluateFacts, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, metadataAllProjects, metadataObj2Arr, pad, templateGuard } from './utils';
 
 const SDK_VERSION = '__SDK_VERSION__'; 
 class EmblemVaultSDK {
@@ -278,6 +278,24 @@ class EmblemVaultSDK {
 
     async contentTypeReport(url: string) {
         return await checkContentType(url)
+    }
+
+    async legacyBalanceFromContractByAddress(web3: any, address: string) {
+        let legacyContract =await getLegacyContract(web3)
+        let balance = await legacyContract.methods.getOwnerNFTCount(address).call();
+        let tokenIds = []
+        for (let index = 0; index < balance; index++) {
+            let tokenId = await legacyContract.methods.tokenOfOwnerByIndex(address, index).call();
+            tokenIds.push(Number(tokenId))
+        }
+        return tokenIds
+    }
+
+    async refreshLegacyOwnership(web3: any, address: string) {
+        let myLegacy = await this.legacyBalanceFromContractByAddress(web3, address)
+        myLegacy.forEach(async item=>{
+            let meta = await this.fetchMetadata(item.toString())
+        })
     }
 }
 

@@ -498,6 +498,12 @@ export async function getHandlerContract(web3: any) {
     return handlerContract
 }
 
+export async function getLegacyContract(web3: any) {
+    let contractAddress = '0x82c7a8f707110f5fbb16184a5933e9f78a34c6ab'
+    const handlerContract = new web3.eth.Contract(abi.legacy, contractAddress);
+    return handlerContract
+}
+
 export function checkContentType(url: string) {
     return new Promise((resolve, reject) => {
         // Making a HTTP HEAD request to get only the headers
