@@ -257,6 +257,9 @@ function generateTemplate(record) {
                     allowed = _this.nativeAssets.includes(data[0].coin);
                 }
             }
+            else if (recordName == "Bitcoin DeGods") {
+                allowed = data && data.length > 0 && data[0].coin == "ordinalsbtc" && data[0].balance == 1 && data[0].project == "DeGods";
+            }
             else if (_this.vaultCollectionType && _this.vaultCollectionType == "protocol") {
                 allowed = data && data.length > 0 && data[0].coin.toLowerCase() == _this.collectionChain.toLowerCase() && data[0].project && data[0].project == recordName;
             }
