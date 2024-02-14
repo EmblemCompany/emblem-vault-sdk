@@ -3,6 +3,8 @@ import { Collection, CuratedCollectionsResponse, MetaData, Vault } from './types
 declare class EmblemVaultSDK {
     private apiKey;
     private baseUrl;
+    private v3Url;
+    private v1Url;
     constructor(apiKey: string, baseUrl?: string);
     generateUploadUrl(): void;
     getAssetMetadata(projectName: string, strict?: boolean): any[];
@@ -12,6 +14,7 @@ declare class EmblemVaultSDK {
     fetchCuratedContractByName(name: string, contracts?: any): Promise<Collection | null>;
     createCuratedVault(template: any, callback?: any): Promise<Vault>;
     fetchMetadata(tokenId: string, callback?: any): Promise<MetaData>;
+    refreshBalance(tokenId: string, callback?: any): Promise<MetaData>;
     fetchVaultsOfType(vaultType: string, address: string): Promise<any>;
     generateJumpReport(address: string, hideUnMintable?: boolean): Promise<unknown>;
     generateMintReport(address: string, hideUnMintable?: boolean): Promise<unknown>;

@@ -5,13 +5,17 @@ import { COIN_TO_NETWORK, NFT_DATA, checkContentType, evaluateFacts, fetchData, 
 const SDK_VERSION = '__SDK_VERSION__'; 
 class EmblemVaultSDK {
     private baseUrl: string;
+    private v3Url: string;
+    private v1Url: string;
 
     constructor(private apiKey: string, baseUrl?: string) {
         console.log('EmblemVaultSDK version:', SDK_VERSION)
         if (!apiKey) {
             throw new Error('API key is required');
         }
+        this.v1Url = 'https://api2.emblemvault.io';
         this.baseUrl = baseUrl || 'https://v2.emblemvault.io';
+        this.v3Url = 'https://emblemvault-io-v3-6156a7b1ac82.herokuapp.com';
     }
 
     // Example method structure
@@ -87,6 +91,15 @@ class EmblemVaultSDK {
         let metadata = await fetchData(url, this.apiKey);
         if (callback) { callback('received Metadata', metadata.tokenId)}  
         return metadata;
+    }
+
+    async refreshBalance(tokenId: string, callback: any = null): Promise<MetaData> {
+        genericGuard(tokenId, "string", "tokenId");
+        if (callback) { callback('refreshing Balance')}  
+        let url = `${this.v1Url}/vault/balance/${tokenId}?live=true`;
+        let balance = await fetchData(url, this.apiKey);
+        if (callback) { callback('received Balance', balance.balances)}
+        return balance?.balances || [];
     }
 
     async fetchVaultsOfType(vaultType: string, address: string): Promise<any> {
@@ -199,8 +212,6 @@ class EmblemVaultSDK {
             }
         });
     }
-    
-    
 
     // ** Web3 **
     //

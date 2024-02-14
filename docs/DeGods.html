@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DeGods        
+    </title>
+    <style>
+        input, select, button {
+            padding: 10px;
+            margin: 5px;
+        }
+        #tokenImage{
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Vault it</h1>
+    <script src="./bundle.js"></script>
+    <script>
+        const sdk = new EmblemVaultSDK('demo'); // Instantiate SDK
+
+        // Template used for creating vaults
+        let contractTemplate = {
+            "fromAddress": null,
+            "toAddress": null,
+            "chainId":1,
+            "experimental":true,
+            "targetContract":{
+                "1":"0x345eF9d7E75aEEb979053AA41BB6330683353B7b",
+                "name":"Bitcoin DeGods",
+                "description":"Bitcoin DeGods is a collection of 535 Bitcoin Ordinals inscribed in the 77236 to 77770 range. This collection is curated by Emblem Vault. "
+            },
+            "targetAsset":{
+                "image":"https://emblem.finance/btcdegods.jpg",
+                "name":"Loading...",
+                "xtra": "anything else you need here"
+            }
+        }
+        let defaultAccount, vaultBalance, vaultData;
+    </script>
+
+
+    <button id="step1Button" onclick="Step1()">Step 1 (Create Vault)</button>
+    <button id="step2Button" onclick="Step2()" disabled>Step 2 (Refresh Vault)</button>
+    <button id="step3Button" onclick="Step3()" disabled>Step 3 (Validate Mintability)</button>
+    <script>
+        async function Step1() {
+            if (!defaultAccount) { // Only load web3 if not already loaded
+                await sdk.loadWeb3() // Can be any web3 provider
+                defaultAccount = await web3.eth.getAccounts().then(accounts => accounts[0]).catch(err=>console) // Minter's address
+            }
+            if (!vaultData) {
+                // populate the template
+                contractTemplate.toAddress = defaultAccount;
+                contractTemplate.fromAddress = defaultAccount;
+
+                // Create a vault
+                vaultData = await sdk.createCuratedVault(contractTemplate, updateLogCallback).catch(err=>console);
+                updateLogCallback("deposit Address", vaultData.addresses.find(address=>{return address.coin == 'TAP'}).address)
+            }
+            document.getElementById('step1Button').disabled = true;
+            document.getElementById('step2Button').disabled = false;
+            
+        }
+
+        async function Step2() {            
+            if (vaultData) {
+                vaultBalance = await sdk.refreshBalance(vaultData.tokenId, updateLogCallback).catch(err=>console);  // Refresh the balance
+                if (vaultBalance.length > 0) { // We have a balance!!
+                    updateLogCallback('Step','complete')
+                    document.getElementById('step2Button').disabled = true;
+                    document.getElementById('step3Button').disabled = false;
+                }
+            }
+        }
+
+        async function Step3() {
+            if (vaultBalance.length > 0) {
+               let contractObject = await sdk.fetchCuratedContractByName(contractTemplate.targetContract.name);
+               let mintable = contractObject.allowed(vaultBalance, contractObject);
+               if (mintable) {
+                   performMint();
+                }
+            } else {
+                // Handle error
+            }    
+        }
+
+        async function performMint() {
+            if (vaultData.tokenId) {
+                // Perform Mint steps
+                sdk.performMintChain(web3, vaultData.tokenId, contractTemplate.targetContract.name, updateLogCallback).then(result => {
+                    updateLogCallback('Minting success',  'tokenId: ' + vaultData.tokenId)
+                })
+                .catch(error => {
+                    updateLogCallback('',error.message)
+                });
+            } else {
+                // Handle error
+            }    
+        }
+
+        function updateLogCallback(action, result){
+            document.getElementById('log').innerHTML += '\r\n' + action + ' ' + (result ? JSON.stringify(result) : '');
+        }
+        function clearLog(){
+            document.getElementById('log').innerHTML = '';
+        }
+    </script>
+    <pre id="log"></pre>
+</body>
+</html>

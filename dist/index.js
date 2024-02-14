@@ -34,7 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
-const SDK_VERSION = '1.8.0';
+const SDK_VERSION = '1.8.1';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -42,7 +42,9 @@ class EmblemVaultSDK {
         if (!apiKey) {
             throw new Error('API key is required');
         }
+        this.v1Url = 'https://api2.emblemvault.io';
         this.baseUrl = baseUrl || 'https://v2.emblemvault.io';
+        this.v3Url = 'https://emblemvault-io-v3-6156a7b1ac82.herokuapp.com';
     }
     // Example method structure
     generateUploadUrl() {
@@ -124,6 +126,20 @@ class EmblemVaultSDK {
                 callback('received Metadata', metadata.tokenId);
             }
             return metadata;
+        });
+    }
+    refreshBalance(tokenId, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
+            (0, utils_1.genericGuard)(tokenId, "string", "tokenId");
+            if (callback) {
+                callback('refreshing Balance');
+            }
+            let url = `${this.v1Url}/vault/balance/${tokenId}?live=true`;
+            let balance = yield (0, utils_1.fetchData)(url, this.apiKey);
+            if (callback) {
+                callback('received Balance', balance.balances);
+            }
+            return (balance === null || balance === void 0 ? void 0 : balance.balances) || [];
         });
     }
     fetchVaultsOfType(vaultType, address) {
