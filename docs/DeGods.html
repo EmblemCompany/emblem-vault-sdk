@@ -55,12 +55,15 @@
                 contractTemplate.fromAddress = defaultAccount;
 
                 // Create a vault
-                vaultData = await sdk.createCuratedVault(contractTemplate, updateLogCallback).catch(err=>console);
-                updateLogCallback("deposit Address", vaultData.addresses.find(address=>{return address.coin == 'TAP'}).address)
+                vaultData = await sdk.createCuratedVault(contractTemplate, updateLogCallback).catch(err=>console.log(err));
+                if (!vaultData || vaultData.err) { // Temporary fix while I fix a race condition
+                    setTimeout(Step1, 1000); // should Back off and try again
+                } else {
+                    updateLogCallback("deposit Address", vaultData.addresses.find(address=>{return address.coin == 'TAP'}).address)
+                    document.getElementById('step1Button').disabled = true;
+                    document.getElementById('step2Button').disabled = false;
+                }                
             }
-            document.getElementById('step1Button').disabled = true;
-            document.getElementById('step2Button').disabled = false;
-            
         }
 
         async function Step2() {            
