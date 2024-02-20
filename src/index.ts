@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Collection, CuratedCollectionsResponse, MetaData, Vault } from './types';
-import { COIN_TO_NETWORK, NFT_DATA, checkContentType, evaluateFacts, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getTorusKeys, metadataAllProjects, metadataObj2Arr, pad, templateGuard } from './utils';
+import { COIN_TO_NETWORK, NFT_DATA, checkContentType, decryptKeys, evaluateFacts, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getTorusKeys, metadataAllProjects, metadataObj2Arr, pad, templateGuard } from './utils';
 
 const SDK_VERSION = '__SDK_VERSION__'; 
 class EmblemVaultSDK {
@@ -250,6 +250,13 @@ class EmblemVaultSDK {
         let mintResponse = await this.performMint(web3, quote, remoteMintSig, callback);
         return {mintResponse}
     }
+
+    async performClaimChain(web3: any, tokenId: string, serialNumber: any, callback: any = null) {
+        let sig = await this.requestLocalClaimSignature(web3, tokenId, serialNumber, callback)
+        let jwt = await this.requestRemoteClaimToken(web3, tokenId, sig, callback)
+        let dkeys = await this.requestRemoteKey(tokenId, jwt, callback)
+        return await this.decryptVaultKeys(tokenId, dkeys, callback)
+    }
     
     async requestLocalMintSignature(web3: any, tokenId: string, callback: any = null) {
         if (callback) { callback('requesting User Mint Signature')}
@@ -289,9 +296,17 @@ class EmblemVaultSDK {
 
     async requestRemoteKey(tokenId: string, jwt: any, callback: any = null) {
         if (callback) { callback('requesting Remote Key')}
-        let keys = await getTorusKeys(tokenId, jwt.token)
-        if (callback) { callback(`remote Key`, keys)}
-        return keys
+        let dkeys = await getTorusKeys(tokenId, jwt.token)
+        if (callback) { callback(`remote Key`, dkeys)}
+        return dkeys
+    }
+
+    async decryptVaultKeys(tokenId: string, dkeys: any, callback: any = null) {
+        if (callback) { callback('decrypting Vault Keys')}
+        let metadata: any = await this.fetchMetadata(tokenId);
+        let ukeys = await decryptKeys(metadata.ciphertextV2, dkeys, metadata.addresses)
+        if (callback) { callback(`remote Key`, ukeys)}
+        return ukeys
     }
 
     async getQuote(web3: any, amount: number, callback: any = null) {
@@ -318,9 +333,9 @@ class EmblemVaultSDK {
         const accounts = await web3.eth.getAccounts();
         const chainId = await web3.eth.getChainId();
         let handlerContract = await getHandlerContract(web3);
-        let mintResponse = await handlerContract.methods.claim(targetContract[chainId], targetContract.collectionType == 'ERC721a'? tokenId: targetContract.tokenId).send({from: accounts[0]});// target contract, tokenId, nonce, signature, serialNumber, 1).send({from: accounts[0], value: quote.toString()});
+        let burnResponse = await handlerContract.methods.claim(targetContract[chainId], targetContract.collectionType == 'ERC721a'? tokenId: targetContract.tokenId).send({from: accounts[0]});// target contract, tokenId, nonce, signature, serialNumber, 1).send({from: accounts[0], value: quote.toString()});
         if (callback) { callback('Burn Complete')}
-        return mintResponse
+        return burnResponse
     }
 
     async contentTypeReport(url: string) {

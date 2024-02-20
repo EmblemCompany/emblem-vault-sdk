@@ -24,6 +24,7 @@ declare class EmblemVaultSDK {
     performMintChain(web3: any, tokenId: string, collectionName: string, callback?: any): Promise<{
         mintResponse: any;
     }>;
+    performClaimChain(web3: any, tokenId: string, serialNumber: any, callback?: any): Promise<any>;
     requestLocalMintSignature(web3: any, tokenId: string, callback?: any): Promise<any>;
     requestLocalClaimSignature(web3: any, tokenId: string, serialNumber: any, callback?: any): Promise<any>;
     requestRemoteMintSignature(web3: any, tokenId: string, signature: string, callback?: any): Promise<any>;
@@ -31,6 +32,7 @@ declare class EmblemVaultSDK {
     requestRemoteKey(tokenId: string, jwt: any, callback?: any): Promise<{
         privateKey: any;
     }>;
+    decryptVaultKeys(tokenId: string, dkeys: any, callback?: any): Promise<any>;
     getQuote(web3: any, amount: number, callback?: any): Promise<BigNumber>;
     performMint(web3: any, quote: any, remoteMintSig: any, callback?: any): Promise<any>;
     performBurn(web3: any, targetContract: any, tokenId: any, callback?: any): Promise<any>;

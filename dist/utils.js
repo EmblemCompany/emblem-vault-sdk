@@ -12,9 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTorusKeys = exports.COIN_TO_NETWORK = exports.checkContentType = exports.getLegacyContract = exports.getHandlerContract = exports.getQuoteContractObject = exports.genericGuard = exports.templateGuard = exports.generateTemplate = exports.generateImageTemplate = exports.generateAttributeTemplate = exports.fetchData = exports.metadataAllProjects = exports.metadataObj2Arr = exports.evaluateFacts = exports.pad = exports.NFT_DATA = void 0;
+exports.decryptKeys = exports.getTorusKeys = exports.COIN_TO_NETWORK = exports.checkContentType = exports.getLegacyContract = exports.getHandlerContract = exports.getQuoteContractObject = exports.genericGuard = exports.templateGuard = exports.generateTemplate = exports.generateImageTemplate = exports.generateAttributeTemplate = exports.fetchData = exports.metadataAllProjects = exports.metadataObj2Arr = exports.evaluateFacts = exports.pad = exports.NFT_DATA = void 0;
+const crypto_js_1 = __importDefault(require("crypto-js"));
 const metadata_json_1 = __importDefault(require("./curated/metadata.json"));
 const abi_json_1 = __importDefault(require("./abi/abi.json"));
+const derive_1 = require("./derive");
 exports.NFT_DATA = metadata_json_1.default;
 const TORUS_CLIENT_ID = 'BOqGGv-Yx7Dp5RdvD9R3DgSC8jv66gQGwT3w22L7fj3Fg5WQ8AEUjJzyyEwD-qvq5eUQiVipyzOmRZTWBAxaoj0';
 const TORUS_VERIFIER = 'tor-us-signer-vercel';
@@ -663,31 +665,31 @@ const mimeToExtensionMap = {
 };
 function getTorusKeys(verifierId, idToken, cb = null) {
     return __awaiter(this, void 0, void 0, function* () {
-        // const FetchNodeDetails = require("@toruslabs/fetch-node-details").default;
-        // const TorusUtils = require("@toruslabs/torus.js").default;
-        // const fetchNodeDetails = new FetchNodeDetails({ network: "mainnet" });
-        // const torusUtils = new TorusUtils({ enableOneKey: true, network: "mainnet", clientId: TORUS_CLIENT_ID});
-        // const { torusNodeEndpoints, torusIndexes } = await fetchNodeDetails.getNodeDetails({ verifier: TORUS_VERIFIER, verifierId });
-        // const { privKey } = await torusUtils.retrieveShares(torusNodeEndpoints, torusIndexes, TORUS_VERIFIER, { verifier_id: verifierId }, idToken);
         const FetchNodeDetails = require("@toruslabs/fetch-node-details").default;
         const TorusUtils = require("@toruslabs/torus.js").default;
         const fetchNodeDetails = new FetchNodeDetails();
-        const torus = new TorusUtils({ network: "mainnet", clientId: TORUS_CLIENT_ID }); // get your Client ID from Web3Auth Dashboard
-        // const verifier = "google"; // any verifier
-        // const verifierId = "hello@tor.us"; // any verifier id
-        // fetchNodeDetails
-        // .getNodeDetails()
-        // .then(({ torusNodeEndpoints, torusNodePub }) => torus.getPublicAddress(torusNodeEndpoints, torusNodePub, { TORUS_VERIFIER, verifierId }))
-        // .then((publicAddress: any) => console.log(publicAddress));
-        // const idToken = "YOUR_ID_TOKEN";
-        // let privKey = await fetchNodeDetails
-        // .getNodeDetails({ verifier: TORUS_VERIFIER, verifierId })
-        // .then(({ torusNodeEndpoints, torusIndexes } : { torusNodeEndpoints: string[], torusIndexes: number[] }) =>
-        //     torus.retrieveShares(torusNodeEndpoints, torusIndexes, TORUS_VERIFIER, { verifier_id: verifierId }, idToken)
-        // ).then((keyData: any) => keyData);
+        const torus = new TorusUtils({ network: "mainnet", enableOneKey: true, clientId: TORUS_CLIENT_ID });
         const { torusNodeEndpoints, torusIndexes } = yield fetchNodeDetails.getNodeDetails({ verifier: TORUS_VERIFIER, verifierId });
         let privKey = yield torus.retrieveShares(torusNodeEndpoints, torusIndexes, TORUS_VERIFIER, { verifier_id: verifierId }, idToken);
         return { privateKey: privKey };
     });
 }
 exports.getTorusKeys = getTorusKeys;
+function decryptKeys(vaultCiphertextV2, keys, addresses) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            var bytes = crypto_js_1.default.AES.decrypt(vaultCiphertextV2, keys.privateKey.privKey);
+            let payload = JSON.parse(bytes.toString(crypto_js_1.default.enc.Utf8));
+            let key = (0, derive_1.phrasePathToKey)(payload.phrase, 0);
+            return payload; //key
+            // addresses.forEach(async address=>{
+            //     let key = phraseToKey(payload.phrase, 0)
+            //     console.log(key)
+            // })
+        }
+        catch (err) {
+            console.log(err);
+        }
+    });
+}
+exports.decryptKeys = decryptKeys;

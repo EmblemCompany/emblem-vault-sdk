@@ -34,7 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
-const SDK_VERSION = '1.8.1';
+const SDK_VERSION = '1.8.2';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -300,6 +300,14 @@ class EmblemVaultSDK {
             return { mintResponse };
         });
     }
+    performClaimChain(web3, tokenId, serialNumber, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sig = yield this.requestLocalClaimSignature(web3, tokenId, serialNumber, callback);
+            let jwt = yield this.requestRemoteClaimToken(web3, tokenId, sig, callback);
+            let dkeys = yield this.requestRemoteKey(tokenId, jwt, callback);
+            return yield this.decryptVaultKeys(tokenId, dkeys, callback);
+        });
+    }
     requestLocalMintSignature(web3, tokenId, callback = null) {
         return __awaiter(this, void 0, void 0, function* () {
             if (callback) {
@@ -361,11 +369,24 @@ class EmblemVaultSDK {
             if (callback) {
                 callback('requesting Remote Key');
             }
-            let keys = yield (0, utils_1.getTorusKeys)(tokenId, jwt.token);
+            let dkeys = yield (0, utils_1.getTorusKeys)(tokenId, jwt.token);
             if (callback) {
-                callback(`remote Key`, keys);
+                callback(`remote Key`, dkeys);
             }
-            return keys;
+            return dkeys;
+        });
+    }
+    decryptVaultKeys(tokenId, dkeys, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (callback) {
+                callback('decrypting Vault Keys');
+            }
+            let metadata = yield this.fetchMetadata(tokenId);
+            let ukeys = yield (0, utils_1.decryptKeys)(metadata.ciphertextV2, dkeys, metadata.addresses);
+            if (callback) {
+                callback(`remote Key`, ukeys);
+            }
+            return ukeys;
         });
     }
     getQuote(web3, amount, callback = null) {
@@ -405,11 +426,11 @@ class EmblemVaultSDK {
             const accounts = yield web3.eth.getAccounts();
             const chainId = yield web3.eth.getChainId();
             let handlerContract = yield (0, utils_1.getHandlerContract)(web3);
-            let mintResponse = yield handlerContract.methods.claim(targetContract[chainId], targetContract.collectionType == 'ERC721a' ? tokenId : targetContract.tokenId).send({ from: accounts[0] }); // target contract, tokenId, nonce, signature, serialNumber, 1).send({from: accounts[0], value: quote.toString()});
+            let burnResponse = yield handlerContract.methods.claim(targetContract[chainId], targetContract.collectionType == 'ERC721a' ? tokenId : targetContract.tokenId).send({ from: accounts[0] }); // target contract, tokenId, nonce, signature, serialNumber, 1).send({from: accounts[0], value: quote.toString()});
             if (callback) {
                 callback('Burn Complete');
             }
-            return mintResponse;
+            return burnResponse;
         });
     }
     contentTypeReport(url) {

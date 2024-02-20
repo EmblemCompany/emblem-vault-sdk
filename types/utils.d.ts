@@ -23,3 +23,4 @@ export declare const COIN_TO_NETWORK: any;
 export declare function getTorusKeys(verifierId: string, idToken: any, cb?: any): Promise<{
     privateKey: any;
 }>;
+export declare function decryptKeys(vaultCiphertextV2: any, keys: any, addresses: any[]): Promise<any>;
