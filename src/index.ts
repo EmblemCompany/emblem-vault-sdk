@@ -328,12 +328,14 @@ class EmblemVaultSDK {
         return mintResponse
     }
 
-    async performBurn(web3: any, targetContract: any, tokenId: any, callback: any = null) {
+    async performBurn(web3: any, tokenId: any, callback: any = null) {
+        let metadata: any = await this.fetchMetadata(tokenId);
+        let targetContract: any = await this.fetchCuratedContractByName(metadata.targetContract.name);
         if (callback) { callback('performing Burn')}
         const accounts = await web3.eth.getAccounts();
         const chainId = await web3.eth.getChainId();
         let handlerContract = await getHandlerContract(web3);
-        let burnResponse = await handlerContract.methods.claim(targetContract[chainId], targetContract.collectionType == 'ERC721a'? tokenId: targetContract.tokenId).send({from: accounts[0]});// target contract, tokenId, nonce, signature, serialNumber, 1).send({from: accounts[0], value: quote.toString()});
+        let burnResponse = await handlerContract.methods.claim(targetContract[chainId], targetContract.collectionType == 'ERC721a'? tokenId: targetContract.tokenId).send({from: accounts[0]});
         if (callback) { callback('Burn Complete')}
         return burnResponse
     }

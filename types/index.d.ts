@@ -35,7 +35,7 @@ declare class EmblemVaultSDK {
     decryptVaultKeys(tokenId: string, dkeys: any, callback?: any): Promise<any>;
     getQuote(web3: any, amount: number, callback?: any): Promise<BigNumber>;
     performMint(web3: any, quote: any, remoteMintSig: any, callback?: any): Promise<any>;
-    performBurn(web3: any, targetContract: any, tokenId: any, callback?: any): Promise<any>;
+    performBurn(web3: any, tokenId: any, callback?: any): Promise<any>;
     contentTypeReport(url: string): Promise<unknown>;
     legacyBalanceFromContractByAddress(web3: any, address: string): Promise<number[]>;
     refreshLegacyOwnership(web3: any, address: string): Promise<void>;

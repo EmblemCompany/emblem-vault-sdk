@@ -418,15 +418,17 @@ class EmblemVaultSDK {
             return mintResponse;
         });
     }
-    performBurn(web3, targetContract, tokenId, callback = null) {
+    performBurn(web3, tokenId, callback = null) {
         return __awaiter(this, void 0, void 0, function* () {
+            let metadata = yield this.fetchMetadata(tokenId);
+            let targetContract = yield this.fetchCuratedContractByName(metadata.targetContract.name);
             if (callback) {
                 callback('performing Burn');
             }
             const accounts = yield web3.eth.getAccounts();
             const chainId = yield web3.eth.getChainId();
             let handlerContract = yield (0, utils_1.getHandlerContract)(web3);
-            let burnResponse = yield handlerContract.methods.claim(targetContract[chainId], targetContract.collectionType == 'ERC721a' ? tokenId : targetContract.tokenId).send({ from: accounts[0] }); // target contract, tokenId, nonce, signature, serialNumber, 1).send({from: accounts[0], value: quote.toString()});
+            let burnResponse = yield handlerContract.methods.claim(targetContract[chainId], targetContract.collectionType == 'ERC721a' ? tokenId : targetContract.tokenId).send({ from: accounts[0] });
             if (callback) {
                 callback('Burn Complete');
             }
