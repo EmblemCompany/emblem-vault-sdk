@@ -101,19 +101,21 @@
             await getMetadata();           
         }
 
-        async function createMultipleVaults(index = 0, vaultCount = document.getElementById('vaultCount').value) {
+        async function createMultipleVaults(index = 0, vaultCount = parseInt(document.getElementById('vaultCount').value, 10)) {
             if (index < vaultCount) {
                 try {
                     await createVault();
-                    createMultipleVaults(index + 1, vaultCount);
-                    updateCsvData();
-
+                    console.log(`Vault ${index + 1} created successfully.`);
                 } catch (error) {
-                    console.error(`Failed to create vault at index ${index}:`, error);
+                    console.error(`Failed to create vault at index ${index + 1}:`, error);
+                } finally {
+                    updateCsvData();
+                    // Call the next iteration of the loop
                     createMultipleVaults(index + 1, vaultCount);
                 }
             }
         }
+
 
         function selectContract(index) {
             let contract = window.curatedContracts[index];

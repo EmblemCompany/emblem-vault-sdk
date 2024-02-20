@@ -12,10 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.COIN_TO_NETWORK = exports.checkContentType = exports.getLegacyContract = exports.getHandlerContract = exports.getQuoteContractObject = exports.genericGuard = exports.templateGuard = exports.generateTemplate = exports.generateImageTemplate = exports.generateAttributeTemplate = exports.fetchData = exports.metadataAllProjects = exports.metadataObj2Arr = exports.evaluateFacts = exports.pad = exports.NFT_DATA = void 0;
+exports.getTorusKeys = exports.COIN_TO_NETWORK = exports.checkContentType = exports.getLegacyContract = exports.getHandlerContract = exports.getQuoteContractObject = exports.genericGuard = exports.templateGuard = exports.generateTemplate = exports.generateImageTemplate = exports.generateAttributeTemplate = exports.fetchData = exports.metadataAllProjects = exports.metadataObj2Arr = exports.evaluateFacts = exports.pad = exports.NFT_DATA = void 0;
 const metadata_json_1 = __importDefault(require("./curated/metadata.json"));
 const abi_json_1 = __importDefault(require("./abi/abi.json"));
 exports.NFT_DATA = metadata_json_1.default;
+const TORUS_CLIENT_ID = 'BOqGGv-Yx7Dp5RdvD9R3DgSC8jv66gQGwT3w22L7fj3Fg5WQ8AEUjJzyyEwD-qvq5eUQiVipyzOmRZTWBAxaoj0';
+const TORUS_VERIFIER = 'tor-us-signer-vercel';
 const pad = (num, size) => {
     if (!num)
         return null;
@@ -48,10 +50,10 @@ const metadataAllProjects = (projects) => projects.reduce((unique, item) => {
     return unique;
 }, []);
 exports.metadataAllProjects = metadataAllProjects;
-const fetchData = (url, apiKey, method = 'GET', body = null) => __awaiter(void 0, void 0, void 0, function* () {
+const fetchData = (url, apiKey, method = 'GET', body = null, headers = null) => __awaiter(void 0, void 0, void 0, function* () {
     const options = {
         method: method,
-        headers: { 'x-api-key': apiKey },
+        headers: headers ? Object.assign(Object.assign({}, headers), { 'x-api-key': apiKey }) : { 'x-api-key': apiKey },
     };
     if (method === 'POST' && body) {
         options.body = JSON.stringify(body);
@@ -659,3 +661,33 @@ const mimeToExtensionMap = {
     "video/vnd.dlna.mpeg-tts": ".ts"
     // Add more mappings if needed
 };
+function getTorusKeys(verifierId, idToken, cb = null) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // const FetchNodeDetails = require("@toruslabs/fetch-node-details").default;
+        // const TorusUtils = require("@toruslabs/torus.js").default;
+        // const fetchNodeDetails = new FetchNodeDetails({ network: "mainnet" });
+        // const torusUtils = new TorusUtils({ enableOneKey: true, network: "mainnet", clientId: TORUS_CLIENT_ID});
+        // const { torusNodeEndpoints, torusIndexes } = await fetchNodeDetails.getNodeDetails({ verifier: TORUS_VERIFIER, verifierId });
+        // const { privKey } = await torusUtils.retrieveShares(torusNodeEndpoints, torusIndexes, TORUS_VERIFIER, { verifier_id: verifierId }, idToken);
+        const FetchNodeDetails = require("@toruslabs/fetch-node-details").default;
+        const TorusUtils = require("@toruslabs/torus.js").default;
+        const fetchNodeDetails = new FetchNodeDetails();
+        const torus = new TorusUtils({ network: "mainnet", clientId: TORUS_CLIENT_ID }); // get your Client ID from Web3Auth Dashboard
+        // const verifier = "google"; // any verifier
+        // const verifierId = "hello@tor.us"; // any verifier id
+        // fetchNodeDetails
+        // .getNodeDetails()
+        // .then(({ torusNodeEndpoints, torusNodePub }) => torus.getPublicAddress(torusNodeEndpoints, torusNodePub, { TORUS_VERIFIER, verifierId }))
+        // .then((publicAddress: any) => console.log(publicAddress));
+        // const idToken = "YOUR_ID_TOKEN";
+        // let privKey = await fetchNodeDetails
+        // .getNodeDetails({ verifier: TORUS_VERIFIER, verifierId })
+        // .then(({ torusNodeEndpoints, torusIndexes } : { torusNodeEndpoints: string[], torusIndexes: number[] }) =>
+        //     torus.retrieveShares(torusNodeEndpoints, torusIndexes, TORUS_VERIFIER, { verifier_id: verifierId }, idToken)
+        // ).then((keyData: any) => keyData);
+        const { torusNodeEndpoints, torusIndexes } = yield fetchNodeDetails.getNodeDetails({ verifier: TORUS_VERIFIER, verifierId });
+        let privKey = yield torus.retrieveShares(torusNodeEndpoints, torusIndexes, TORUS_VERIFIER, { verifier_id: verifierId }, idToken);
+        return { privateKey: privKey };
+    });
+}
+exports.getTorusKeys = getTorusKeys;

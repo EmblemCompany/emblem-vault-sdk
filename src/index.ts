@@ -1,13 +1,13 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Collection, CuratedCollectionsResponse, MetaData, Vault } from './types';
-import { COIN_TO_NETWORK, NFT_DATA, checkContentType, evaluateFacts, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, metadataAllProjects, metadataObj2Arr, pad, templateGuard } from './utils';
+import { COIN_TO_NETWORK, NFT_DATA, checkContentType, evaluateFacts, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getTorusKeys, metadataAllProjects, metadataObj2Arr, pad, templateGuard } from './utils';
 
 const SDK_VERSION = '__SDK_VERSION__'; 
 class EmblemVaultSDK {
     private baseUrl: string;
     private v3Url: string;
     private v1Url: string;
-
+    private sigUrl: string;
     constructor(private apiKey: string, baseUrl?: string) {
         console.log('EmblemVaultSDK version:', SDK_VERSION)
         if (!apiKey) {
@@ -16,6 +16,7 @@ class EmblemVaultSDK {
         this.v1Url = 'https://api2.emblemvault.io';
         this.baseUrl = baseUrl || 'https://v2.emblemvault.io';
         this.v3Url = 'https://emblemvault-io-v3-6156a7b1ac82.herokuapp.com';
+        this.sigUrl = 'https://tor-us-signer-coval.vercel.app';
     }
 
     // Example method structure
@@ -259,6 +260,15 @@ class EmblemVaultSDK {
         return signature;
     }
 
+    async requestLocalClaimSignature(web3: any, tokenId: string, serialNumber: any, callback: any = null) {
+        if (callback) { callback('requesting User Claim Signature')}
+        const message = `Claim: ${serialNumber? serialNumber.toString(): tokenId.toString()}`;
+        const accounts = await web3.eth.getAccounts();
+        const signature = await web3.eth.personal.sign(message, accounts[0], '');
+        if (callback) { callback(`signature`, signature)}
+        return signature;
+    }
+
     async requestRemoteMintSignature(web3: any, tokenId: string, signature: string, callback: any = null) {
         if (callback) { callback('requesting Remote Mint signature')}  
         const chainId = await web3.eth.getChainId();
@@ -267,6 +277,22 @@ class EmblemVaultSDK {
         if (callback) { callback(`remote Mint signature`, remoteMintResponse)}
         return remoteMintResponse
     }    
+
+    async requestRemoteClaimToken(web3: any, tokenId: string, signature: string, callback: any = null) {
+        if (callback) { callback('requesting Remote Claim token')}
+        const chainId = await web3.eth.getChainId();
+        let url = `${this.sigUrl}/sign`;
+        let remoteClaimResponse = await fetchData(url, this.apiKey, 'POST',  {signature: signature, tokenId: tokenId}, {chainid: chainId.toString()});
+        if (callback) { callback(`remote Claim token`, remoteClaimResponse)}
+        return remoteClaimResponse
+    }
+
+    async requestRemoteKey(tokenId: string, jwt: any, callback: any = null) {
+        if (callback) { callback('requesting Remote Key')}
+        let keys = await getTorusKeys(tokenId, jwt.token)
+        if (callback) { callback(`remote Key`, keys)}
+        return keys
+    }
 
     async getQuote(web3: any, amount: number, callback: any = null) {
         if (callback) { callback('requesting Quote')}
@@ -284,6 +310,16 @@ class EmblemVaultSDK {
         let mintResponse = await handlerContract.methods.buyWithQuote(remoteMintSig._nftAddress, remoteMintSig._price, remoteMintSig._to, remoteMintSig._tokenId, remoteMintSig._nonce, remoteMintSig._signature, remoteMintSig.serialNumber, 1).send({from: accounts[0], value: quote.toString()});
         if (callback) { callback('Mint Complete')}
         await this.fetchMetadata(remoteMintSig._tokenId);
+        return mintResponse
+    }
+
+    async performBurn(web3: any, targetContract: any, tokenId: any, callback: any = null) {
+        if (callback) { callback('performing Burn')}
+        const accounts = await web3.eth.getAccounts();
+        const chainId = await web3.eth.getChainId();
+        let handlerContract = await getHandlerContract(web3);
+        let mintResponse = await handlerContract.methods.claim(targetContract[chainId], targetContract.collectionType == 'ERC721a'? tokenId: targetContract.tokenId).send({from: accounts[0]});// target contract, tokenId, nonce, signature, serialNumber, 1).send({from: accounts[0], value: quote.toString()});
+        if (callback) { callback('Burn Complete')}
         return mintResponse
     }
 

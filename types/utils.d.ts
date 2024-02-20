@@ -6,7 +6,7 @@ export declare const evaluateFacts: (allowed: boolean, facts: {
 }[], msgCallback: any) => boolean;
 export declare const metadataObj2Arr: (data: any) => any[];
 export declare const metadataAllProjects: (projects: any[]) => any[];
-export declare const fetchData: (url: string, apiKey: string, method?: string, body?: any) => Promise<any>;
+export declare const fetchData: (url: string, apiKey: string, method?: string, body?: any, headers?: any) => Promise<any>;
 export declare function generateAttributeTemplate(record: any): any;
 export declare function generateImageTemplate(record: any): any;
 export declare function generateTemplate(record: any): any;
@@ -20,3 +20,6 @@ export declare function getHandlerContract(web3: any): Promise<any>;
 export declare function getLegacyContract(web3: any): Promise<any>;
 export declare function checkContentType(url: string): Promise<unknown>;
 export declare const COIN_TO_NETWORK: any;
+export declare function getTorusKeys(verifierId: string, idToken: any, cb?: any): Promise<{
+    privateKey: any;
+}>;

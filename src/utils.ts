@@ -2,7 +2,8 @@ import { MetaData } from "./types";
 import metadataJson from './curated/metadata.json';
 import abi from './abi/abi.json';
 export const NFT_DATA: any = metadataJson
-
+const TORUS_CLIENT_ID = 'BOqGGv-Yx7Dp5RdvD9R3DgSC8jv66gQGwT3w22L7fj3Fg5WQ8AEUjJzyyEwD-qvq5eUQiVipyzOmRZTWBAxaoj0'
+const TORUS_VERIFIER = 'tor-us-signer-vercel'
 export const pad = (num: string | any[], size: number) => {
     if (!num) return null;
     num = num.toString();
@@ -36,10 +37,10 @@ export const metadataAllProjects = (projects: any[]) => projects.reduce((unique:
     return unique;
   }, []);
 
-export const fetchData = async (url: string, apiKey: string, method: string = 'GET', body: any = null) => {
+export const fetchData = async (url: string, apiKey: string, method: string = 'GET', body: any = null, headers: any = null) => {
     const options: any = {
         method: method,
-        headers: { 'x-api-key': apiKey },
+        headers: headers ? { ...headers, 'x-api-key': apiKey } : { 'x-api-key': apiKey },
     };
     if (method === 'POST' && body) {
         options.body = JSON.stringify(body);
@@ -618,3 +619,35 @@ const mimeToExtensionMap: any = {
     "video/vnd.dlna.mpeg-tts": ".ts"
     // Add more mappings if needed
 };
+
+export async function getTorusKeys( verifierId: string, idToken: any, cb: any = null) {
+    // const FetchNodeDetails = require("@toruslabs/fetch-node-details").default;
+    // const TorusUtils = require("@toruslabs/torus.js").default;
+    // const fetchNodeDetails = new FetchNodeDetails({ network: "mainnet" });
+    // const torusUtils = new TorusUtils({ enableOneKey: true, network: "mainnet", clientId: TORUS_CLIENT_ID});
+
+    // const { torusNodeEndpoints, torusIndexes } = await fetchNodeDetails.getNodeDetails({ verifier: TORUS_VERIFIER, verifierId });
+    // const { privKey } = await torusUtils.retrieveShares(torusNodeEndpoints, torusIndexes, TORUS_VERIFIER, { verifier_id: verifierId }, idToken);
+
+    const FetchNodeDetails = require("@toruslabs/fetch-node-details").default;
+    const TorusUtils = require("@toruslabs/torus.js").default;
+
+    const fetchNodeDetails = new FetchNodeDetails();
+    const torus = new TorusUtils({ network: "mainnet", clientId: TORUS_CLIENT_ID }); // get your Client ID from Web3Auth Dashboard
+    // const verifier = "google"; // any verifier
+    // const verifierId = "hello@tor.us"; // any verifier id
+    // fetchNodeDetails
+    // .getNodeDetails()
+    // .then(({ torusNodeEndpoints, torusNodePub }) => torus.getPublicAddress(torusNodeEndpoints, torusNodePub, { TORUS_VERIFIER, verifierId }))
+    // .then((publicAddress: any) => console.log(publicAddress));
+
+    // const idToken = "YOUR_ID_TOKEN";
+    // let privKey = await fetchNodeDetails
+    // .getNodeDetails({ verifier: TORUS_VERIFIER, verifierId })
+    // .then(({ torusNodeEndpoints, torusIndexes } : { torusNodeEndpoints: string[], torusIndexes: number[] }) =>
+    //     torus.retrieveShares(torusNodeEndpoints, torusIndexes, TORUS_VERIFIER, { verifier_id: verifierId }, idToken)
+    // ).then((keyData: any) => keyData);
+    const { torusNodeEndpoints, torusIndexes } = await fetchNodeDetails.getNodeDetails({verifier: TORUS_VERIFIER, verifierId} );
+    let privKey = await torus.retrieveShares(torusNodeEndpoints, torusIndexes, TORUS_VERIFIER, { verifier_id: verifierId }, idToken);
+    return {privateKey: privKey};
+  }

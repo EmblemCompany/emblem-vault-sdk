@@ -45,6 +45,7 @@ class EmblemVaultSDK {
         this.v1Url = 'https://api2.emblemvault.io';
         this.baseUrl = baseUrl || 'https://v2.emblemvault.io';
         this.v3Url = 'https://emblemvault-io-v3-6156a7b1ac82.herokuapp.com';
+        this.sigUrl = 'https://tor-us-signer-coval.vercel.app';
     }
     // Example method structure
     generateUploadUrl() {
@@ -313,6 +314,20 @@ class EmblemVaultSDK {
             return signature;
         });
     }
+    requestLocalClaimSignature(web3, tokenId, serialNumber, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (callback) {
+                callback('requesting User Claim Signature');
+            }
+            const message = `Claim: ${serialNumber ? serialNumber.toString() : tokenId.toString()}`;
+            const accounts = yield web3.eth.getAccounts();
+            const signature = yield web3.eth.personal.sign(message, accounts[0], '');
+            if (callback) {
+                callback(`signature`, signature);
+            }
+            return signature;
+        });
+    }
     requestRemoteMintSignature(web3, tokenId, signature, callback = null) {
         return __awaiter(this, void 0, void 0, function* () {
             if (callback) {
@@ -325,6 +340,32 @@ class EmblemVaultSDK {
                 callback(`remote Mint signature`, remoteMintResponse);
             }
             return remoteMintResponse;
+        });
+    }
+    requestRemoteClaimToken(web3, tokenId, signature, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (callback) {
+                callback('requesting Remote Claim token');
+            }
+            const chainId = yield web3.eth.getChainId();
+            let url = `${this.sigUrl}/sign`;
+            let remoteClaimResponse = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { signature: signature, tokenId: tokenId }, { chainid: chainId.toString() });
+            if (callback) {
+                callback(`remote Claim token`, remoteClaimResponse);
+            }
+            return remoteClaimResponse;
+        });
+    }
+    requestRemoteKey(tokenId, jwt, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (callback) {
+                callback('requesting Remote Key');
+            }
+            let keys = yield (0, utils_1.getTorusKeys)(tokenId, jwt.token);
+            if (callback) {
+                callback(`remote Key`, keys);
+            }
+            return keys;
         });
     }
     getQuote(web3, amount, callback = null) {
@@ -353,6 +394,21 @@ class EmblemVaultSDK {
                 callback('Mint Complete');
             }
             yield this.fetchMetadata(remoteMintSig._tokenId);
+            return mintResponse;
+        });
+    }
+    performBurn(web3, targetContract, tokenId, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (callback) {
+                callback('performing Burn');
+            }
+            const accounts = yield web3.eth.getAccounts();
+            const chainId = yield web3.eth.getChainId();
+            let handlerContract = yield (0, utils_1.getHandlerContract)(web3);
+            let mintResponse = yield handlerContract.methods.claim(targetContract[chainId], targetContract.collectionType == 'ERC721a' ? tokenId : targetContract.tokenId).send({ from: accounts[0] }); // target contract, tokenId, nonce, signature, serialNumber, 1).send({from: accounts[0], value: quote.toString()});
+            if (callback) {
+                callback('Burn Complete');
+            }
             return mintResponse;
         });
     }

@@ -5,6 +5,7 @@ declare class EmblemVaultSDK {
     private baseUrl;
     private v3Url;
     private v1Url;
+    private sigUrl;
     constructor(apiKey: string, baseUrl?: string);
     generateUploadUrl(): void;
     getAssetMetadata(projectName: string, strict?: boolean): any[];
@@ -24,9 +25,15 @@ declare class EmblemVaultSDK {
         mintResponse: any;
     }>;
     requestLocalMintSignature(web3: any, tokenId: string, callback?: any): Promise<any>;
+    requestLocalClaimSignature(web3: any, tokenId: string, serialNumber: any, callback?: any): Promise<any>;
     requestRemoteMintSignature(web3: any, tokenId: string, signature: string, callback?: any): Promise<any>;
+    requestRemoteClaimToken(web3: any, tokenId: string, signature: string, callback?: any): Promise<any>;
+    requestRemoteKey(tokenId: string, jwt: any, callback?: any): Promise<{
+        privateKey: any;
+    }>;
     getQuote(web3: any, amount: number, callback?: any): Promise<BigNumber>;
     performMint(web3: any, quote: any, remoteMintSig: any, callback?: any): Promise<any>;
+    performBurn(web3: any, targetContract: any, tokenId: any, callback?: any): Promise<any>;
     contentTypeReport(url: string): Promise<unknown>;
     legacyBalanceFromContractByAddress(web3: any, address: string): Promise<number[]>;
     refreshLegacyOwnership(web3: any, address: string): Promise<void>;
