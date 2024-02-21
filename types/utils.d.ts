@@ -9,6 +9,15 @@ export declare const metadataAllProjects: (projects: any[]) => any[];
 export declare const fetchData: (url: string, apiKey: string, method?: string, body?: any, headers?: any) => Promise<any>;
 export declare function generateAttributeTemplate(record: any): any;
 export declare function generateImageTemplate(record: any): any;
+/**
+ * generateTemplate defines rules and utilitites for a given curated
+ * collection. This is used by callers, like emblem.finance website
+ * to display vaults belonging to a curated collection with appropriate
+ * data and actions.
+ *
+ * @param record is a curated collection record as defined in
+ * the Emblem database.
+ */
 export declare function generateTemplate(record: any): any;
 export declare function templateGuard(input: {
     [x: string]: any;
