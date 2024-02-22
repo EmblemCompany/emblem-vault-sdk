@@ -18,8 +18,21 @@ const metadata_json_1 = __importDefault(require("./curated/metadata.json"));
 const abi_json_1 = __importDefault(require("./abi/abi.json"));
 const derive_1 = require("./derive");
 exports.NFT_DATA = metadata_json_1.default;
+// PROJECTS_DATA is list of projects i.e. curated collection names
+// that are present in metadataJson file
+const PROJECTS_DATA = projectsFromMetadataJson();
 const TORUS_CLIENT_ID = 'BOqGGv-Yx7Dp5RdvD9R3DgSC8jv66gQGwT3w22L7fj3Fg5WQ8AEUjJzyyEwD-qvq5eUQiVipyzOmRZTWBAxaoj0';
 const TORUS_VERIFIER = 'tor-us-signer-vercel';
+function projectsFromMetadataJson() {
+    let projects = [];
+    for (var key in exports.NFT_DATA) {
+        const projectName = exports.NFT_DATA[key]["projectName"];
+        if (!projects.includes(projectName)) {
+            projects.push();
+        }
+    }
+    return projects;
+}
 const pad = (num, size) => {
     if (!num)
         return null;
@@ -204,6 +217,15 @@ function generateImageTemplate(record) {
     return template;
 }
 exports.generateImageTemplate = generateImageTemplate;
+/**
+ * generateTemplate defines rules and utilitites for a given curated
+ * collection. This is used by callers, like emblem.finance website
+ * to display vaults belonging to a curated collection with appropriate
+ * data and actions.
+ *
+ * @param record is a curated collection record as defined in
+ * the Emblem database.
+ */
 function generateTemplate(record) {
     let addressChain = record.addressChain;
     let attributes = generateAttributeTemplate(record);
@@ -212,115 +234,109 @@ function generateTemplate(record) {
     let balanceQty = record.balanceQty;
     let template = {
         attributes,
+        /**
+         * allowed function is used by callers, like the Emblem website
+         * to determine if a vault belonging to a curated collection
+         * has assets matching that curated collection. A vault can't be
+         * minted until it has at least one qualifying asset.
+         * Currently, we run qualifying checks only on the first asset in the vault.
+         *
+         * @param {Array} data - data is a list of balance Value objects
+         * (see Value's interface definition  in emblemvault.io-v3)
+         * @param {function} - msgCallback should be a function that takes a string message
+         */
         allowed: (data, _this, msgCallback = null) => {
             var _a;
+            if (!data || data.length == 0) {
+                return false;
+            }
             let allowed = false;
+            let firstAsset = data[0];
+            let assetName = firstAsset.name ? firstAsset.name : "";
+            let message = null;
             if (recordName == "Cursed Ordinal") {
-                allowed = data && data.length > 0 ? data[0].content_type != "application/json" && data[0].coin == "cursedordinalsbtc" : false;
+                if (data && data.length > 0) {
+                    let allowedCoin = firstAsset.content_type != "application/json" && firstAsset.coin == "cursedordinalsbtc";
+                    let pieces = assetName.split(' ');
+                    let allowedName = assetName.includes(recordName) && pieces.length === 3 && Number(pieces.reverse()[0]) < 0;
+                    allowed = allowedCoin && allowedName;
+                }
             }
             else if (recordName == "BitcoinOrdinals") {
                 data = _this.filterNativeBalances({ balances: data }, _this);
                 allowed = data && data.length > 0 && data[0].coin == _this.collectionChain.toLowerCase();
             }
             else if (recordName == "Ethscription") {
-                allowed = data && data.length > 0 && data[0].coin == recordName.toLowerCase() ? true : false;
+                allowed = firstAsset.coin == recordName.toLowerCase();
             }
-            else if (recordName == "$OXBT" || recordName == "$ORDI") {
-                if (data && data.length > 0 && data[0].balance == balanceQty) {
-                    msgCallback ? msgCallback("") : null;
-                    allowed = true;
-                }
-                else if (data && data.length > 0 && data[0].balance != balanceQty && msgCallback) {
-                    msgCallback ? msgCallback(`Load vault with exactly ${balanceQty} ${recordName}`) : null;
-                    allowed = false;
+            else if (balanceQty && balanceQty > 0) { // $ORDI, $OXBT
+                allowed = firstAsset.balance == balanceQty && assetName == `${balanceQty} ${recordName}`;
+                if (!allowed) {
+                    message = `Load vault with exactly ${balanceQty} ${recordName}`;
                 }
             }
             else if (recordName == "Counterparty") {
                 let facts = [
-                    { eval: record.nativeAssets.includes((_a = data[0]) === null || _a === void 0 ? void 0 : _a.coin), msg: `Vaults should only contain assets native to ${recordName}` },
+                    {
+                        eval: record.nativeAssets.includes((_a = data[0]) === null || _a === void 0 ? void 0 : _a.coin),
+                        msg: `Vaults should only contain assets native to ${recordName}`
+                    },
                     { eval: data.length == 1, msg: `Vaults should only contain a single item` },
                     // { eval: data[0].projectName && data[0].projectName == recordName, msg: `Vaults should only contain a single item` }
                 ];
                 allowed = (0, exports.evaluateFacts)(allowed, facts, msgCallback);
             }
             else if (recordName == "Stamps") {
-                allowed = data && data.length > 0 && data[0].project && record.nativeAssets.includes(data[0].coin) && (recordName.toLowerCase() == data[0].project.toLowerCase() || data[0].project.toLowerCase() == "stampunks");
+                let allowedName = assetName.toLowerCase().includes("stamp");
+                allowed = allowedName &&
+                    firstAsset.project &&
+                    record.nativeAssets.includes(firstAsset.coin) &&
+                    (recordName.toLowerCase() == firstAsset.project.toLowerCase() || firstAsset.project.toLowerCase() == "stampunks");
             }
             else if (recordName == "EmblemOpen") {
-                allowed = data && data.length > 0 ? true : false;
+                allowed = true;
             }
             else if (recordName == "Bells") {
-                allowed = data && data.length > 0 && data[0].name == "Bel" && data[0].balance > 0 && Number.isInteger(data[0].balance);
+                allowed = assetName == "Bel" && firstAsset.balance > 0 && Number.isInteger(data[0].balance);
             }
             else if (recordName == "Namecoin") {
-                allowed = data && data.length > 0 && record.nativeAssets.includes(data[0].coin) ? true : false;
+                allowed = record.nativeAssets.includes(data[0].coin);
             }
             else if (recordName == "Embels") {
                 allowed = _this.name.toLowerCase() == recordName.toLowerCase();
-                if (allowed && data && data.length > 0 && data[0].coin) {
+                if (allowed && firstAsset.coin) {
                     allowed = _this.nativeAssets.includes(data[0].coin);
                 }
             }
             else if (recordName == "Bitcoin DeGods") {
-                allowed = data && data.length > 0 && data[0].coin == "ordinalsbtc" && data[0].balance == 1 && data[0].project == "DeGods";
+                allowed = firstAsset.coin == "ordinalsbtc" && firstAsset.balance == 1 && firstAsset.project == "DeGods";
+            }
+            else if (PROJECTS_DATA.includes(recordName)) { // XCP
+                allowed = !!exports.NFT_DATA[assetName];
             }
             else if (_this.vaultCollectionType && _this.vaultCollectionType == "protocol") {
-                allowed = data && data.length > 0 && data[0].coin.toLowerCase() == _this.collectionChain.toLowerCase() && data[0].project && data[0].project == recordName;
+                allowed = firstAsset.coin.toLowerCase() == _this.collectionChain.toLowerCase() && firstAsset.project && firstAsset.project == recordName;
             }
             else if (_this.vaultCollectionType && _this.vaultCollectionType == "collection") {
-                allowed = data && data.length > 0 && data[0].coin.toLowerCase() == _this.collectionChain.toLowerCase() && data[0].project == recordName;
+                allowed = firstAsset.coin.toLowerCase() == _this.collectionChain.toLowerCase() && firstAsset.project == recordName;
             }
             else { // XCP
-                allowed = data && data.length > 0 && data[0].project == _this.name && data[0].balance == 1;
+                allowed = firstAsset.project == _this.name && firstAsset.balance == 1;
+            }
+            if (message && msgCallback) {
+                msgCallback(message);
             }
             return allowed;
         },
+        /**
+         * allowedName function is deprecated. It used to be called by callers like Emblem website
+         * to determine if an asset with a given name was allowed in a vault.
+         * This functionality is now part of the "allowed" function instead.
+         *
+         *  @deprecated
+         */
         allowedName: (asset, msgCallback = null) => {
-            let allowedName = false;
-            if (recordName == "Cursed Ordinal") {
-                let pieces = asset.split(' ');
-                allowedName = asset.includes(recordName) && pieces.length === 3 && Number(pieces.reverse()[0]) < 0;
-            }
-            else if (recordName == "Ethscription") {
-                if (asset) {
-                    allowedName = true;
-                }
-            }
-            else if (recordName == "$OXBT" || recordName == "$ORDI") {
-                if (asset == `${balanceQty} ${recordName}`) {
-                    allowedName = true;
-                }
-                else {
-                    msgCallback ? msgCallback("Incorrect Asset Or Qty In Vault") : null;
-                    allowedName = false;
-                }
-            }
-            else if (recordName == "Counterparty") {
-                allowedName = asset ? true : false;
-            }
-            else if (recordName == "Stamps") {
-                allowedName = asset && asset.toLowerCase().includes("stamp") ? true : false;
-            }
-            else if (recordName == "EmblemOpen") {
-                allowedName = asset ? true : false;
-            }
-            else if (recordName == "Bells") {
-                allowedName = asset == "Bel" ? true : false;
-            }
-            else if (recordName == "Namecoin") {
-                allowedName = asset ? true : false;
-            }
-            else if (recordName == "Embels") {
-                allowedName = true;
-            }
-            else if (recordName == "BitcoinOrdinals" || recordName == "BitcoinPunks" || recordName == "filthyFiat" || recordName == "Megapunks" || recordName == "TwelveFold" || recordName == "Bitcoin DeGods" || recordName == "Bitcoin Frogs" || recordName == "Ordinal Maxi Biz" || recordName == "NodeMonkes" || recordName == "Bitmap" || recordName == "Ordinal Punks" || recordName == "Bitcoin Rocks" || recordName == "OnChainMonkey (OCM) Dimentions") {
-                allowedName = true;
-            }
-            else { // XCP
-                let curatedItemFound = exports.NFT_DATA[asset];
-                allowedName = asset && curatedItemFound ? true : false;
-            }
-            return allowedName;
+            return true;
         },
         allowedJump: (ownership_balances, _this) => {
             let hasAnyBalance = ownership_balances && ownership_balances.status != "claimed";
