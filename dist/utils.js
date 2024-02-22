@@ -478,7 +478,7 @@ function generateTemplate(record) {
             let template = {
                 fromAddress: { type: "user-provided" },
                 toAddress: { type: "user-provided" },
-                chainId: 1,
+                chainId: { type: "user-provided" },
                 experimental: true,
                 targetContract: Object.assign(Object.assign({}, _this.contracts), { name: _this.name, description: _this.loadTypes.includes('detailed') ? null : _this.description }),
                 targetAsset: {

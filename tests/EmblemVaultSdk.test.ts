@@ -93,7 +93,7 @@ const mocks = {
     emblemopen_create_template: {
         "fromAddress": { "type": "user-provided" },
         "toAddress": { "type": "user-provided" },
-        "chainId": 1,
+        "chainId": { "type": "user-provided" },
         "experimental": true,
         "targetContract": {
             "1": "0x184ddb67E2EF517f6754F055b56905f2A9b29b6A",
@@ -109,7 +109,8 @@ const mocks = {
     empty_create_template: { 
         "fromAddress": { "type": "user-provided" }, 
         "toAddress": { "type": "user-provided" }, 
-        "chainId": 1, "experimental": true, 
+        "chainId": { "type": "user-provided" }, 
+        "experimental": true, 
         "targetContract": { 
             "1": "0xEAD67175CDb9CBDeA5bDDC36015e52f4A954E3fD", 
             "name": "BitcoinOrdinals", 

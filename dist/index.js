@@ -34,7 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
-const SDK_VERSION = '1.9.0';
+const SDK_VERSION = '1.9.1';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -104,6 +104,7 @@ class EmblemVaultSDK {
     createCuratedVault(template, callback = null) {
         return __awaiter(this, void 0, void 0, function* () {
             (0, utils_1.templateGuard)(template);
+            template.chainId == 1 ? delete template.targetContract[5] : delete template.targetContract[1];
             let url = `${this.baseUrl}/create-curated`;
             if (callback) {
                 callback(`creating Vault for user`, template.toAddress);

@@ -27,6 +27,7 @@
             "experimental":true,
             "targetContract":{
                 "1":"0x345eF9d7E75aEEb979053AA41BB6330683353B7b",
+                "5":"0x582699d2c58A38056Cf02875540705137f0bbbF7",
                 "name":"Bitcoin DeGods",
                 "description":"Bitcoin DeGods is a collection of 535 Bitcoin Ordinals inscribed in the 77236 to 77770 range. This collection is curated by Emblem Vault. "
             },
@@ -50,10 +51,11 @@
                 defaultAccount = await web3.eth.getAccounts().then(accounts => accounts[0]).catch(err=>console) // Minter's address
             }
             if (!vaultData) {
+                let chainId = Number(await web3.eth.net.getId())
                 // populate the template
                 contractTemplate.toAddress = defaultAccount;
                 contractTemplate.fromAddress = defaultAccount;
-
+                contractTemplate.chainId = chainId;
                 // Create a vault
                 vaultData = await sdk.createCuratedVault(contractTemplate, updateLogCallback).catch(err=>console.log(err));
                 if (!vaultData || vaultData.err) { // Temporary fix while I fix a race condition

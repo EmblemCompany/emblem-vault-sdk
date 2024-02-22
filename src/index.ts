@@ -78,6 +78,7 @@ class EmblemVaultSDK {
     
     async createCuratedVault(template: any, callback: any = null): Promise<Vault> {
         templateGuard(template);
+        template.chainId == 1? delete template.targetContract[5]: delete template.targetContract[1]
         let url = `${this.baseUrl}/create-curated`;
         if (callback) { callback(`creating Vault for user`, template.toAddress)}     
         let vaultCreationResponse = await fetchData(url, this.apiKey, 'POST', template);

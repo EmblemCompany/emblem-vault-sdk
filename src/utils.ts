@@ -455,7 +455,7 @@ export function generateTemplate(record: any) {
             let template: any =  {
                 fromAddress: { type: "user-provided" },
                 toAddress: { type: "user-provided" },
-                chainId: 1,
+                chainId: { type: "user-provided" },
                 experimental: true,
                 targetContract: {
                     ..._this.contracts,
