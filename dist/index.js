@@ -34,7 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
-const SDK_VERSION = '1.8.2';
+const SDK_VERSION = '1.9.0';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
