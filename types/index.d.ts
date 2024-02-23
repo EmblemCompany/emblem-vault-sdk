@@ -46,7 +46,7 @@ declare class EmblemVaultSDK {
     legacyBalanceFromContractByAddress(web3: any, address: string): Promise<number[]>;
     refreshLegacyOwnership(web3: any, address: string): Promise<void>;
     getSatsConnectAddress(): Promise<SatsConnectAddress>;
-    generatePSBT(phrase: string): Promise<void>;
+    generatePSBT(phrase: string, satsPerByte?: number): Promise<void>;
     getTaprootAddressFromMnemonic(phrase: string): Promise<{
         p2tr: any;
         tweakedSigner: import("bip32/types/bip32").Signer;

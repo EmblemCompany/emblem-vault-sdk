@@ -404,9 +404,7 @@ class EmblemVaultSDK {
         });
     }
 
-    async generatePSBT(phrase: string) {
-       
-        const desiredFeeRate = 2; // sats per byte -> mainnet will be much higher
+    async generatePSBT(phrase: string, satsPerByte: number = 20) {     
 
         const { paymentAddress, paymentPublicKey, ordinalsAddress } = await this.getSatsConnectAddress();
 
@@ -481,20 +479,20 @@ class EmblemVaultSDK {
 
                 size = getPsbtTxnSize(phrase, psbt.toBase64());
 
-                if (totalFeeInput >= desiredFeeRate * size) {
+                if (totalFeeInput >= satsPerByte * size) {
                     break;
                 }
             }
 
-            if (totalFeeInput < desiredFeeRate * size) {
+            if (totalFeeInput < satsPerByte * size) {
                 throw new Error("Insufficient funds at desired fee rate");
             }
 
             // maybe add output for change if change is greater than 1000 sats (dust)
-            if (desiredFeeRate * size > 1000) {
+            if (satsPerByte * size > 1000) {
                 psbt.addOutput({
                     address: paymentAddress,
-                    value: totalFeeInput - Math.ceil(desiredFeeRate * size),
+                    value: totalFeeInput - Math.ceil(satsPerByte * size),
                 });
             }
 

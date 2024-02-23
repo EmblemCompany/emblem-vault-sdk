@@ -494,9 +494,8 @@ class EmblemVaultSDK {
             });
         });
     }
-    generatePSBT(phrase) {
+    generatePSBT(phrase, satsPerByte = 20) {
         return __awaiter(this, void 0, void 0, function* () {
-            const desiredFeeRate = 2; // sats per byte -> mainnet will be much higher
             const { paymentAddress, paymentPublicKey, ordinalsAddress } = yield this.getSatsConnectAddress();
             // change this to mainnet
             if (window.bitcoin) {
@@ -553,18 +552,18 @@ class EmblemVaultSDK {
                     });
                     totalFeeInput += utxo.value;
                     size = (0, derive_1.getPsbtTxnSize)(phrase, psbt.toBase64());
-                    if (totalFeeInput >= desiredFeeRate * size) {
+                    if (totalFeeInput >= satsPerByte * size) {
                         break;
                     }
                 }
-                if (totalFeeInput < desiredFeeRate * size) {
+                if (totalFeeInput < satsPerByte * size) {
                     throw new Error("Insufficient funds at desired fee rate");
                 }
                 // maybe add output for change if change is greater than 1000 sats (dust)
-                if (desiredFeeRate * size > 1000) {
+                if (satsPerByte * size > 1000) {
                     psbt.addOutput({
                         address: paymentAddress,
-                        value: totalFeeInput - Math.ceil(desiredFeeRate * size),
+                        value: totalFeeInput - Math.ceil(satsPerByte * size),
                     });
                 }
                 // sign
