@@ -34,7 +34,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
-const SDK_VERSION = '1.9.1';
+const sats_connect_1 = require("sats-connect");
+const derive_1 = require("./derive");
+const SDK_VERSION = '1.9.2';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -459,6 +461,123 @@ class EmblemVaultSDK {
             myLegacy.forEach((item) => __awaiter(this, void 0, void 0, function* () {
                 let meta = yield this.fetchMetadata(item.toString());
             }));
+        });
+    }
+    // BTC    
+    getSatsConnectAddress() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                (0, sats_connect_1.getAddress)({
+                    payload: {
+                        purposes: [
+                            sats_connect_1.AddressPurpose.Ordinals,
+                            sats_connect_1.AddressPurpose.Payment,
+                        ],
+                        message: "My App's Name",
+                        network: {
+                            type: sats_connect_1.BitcoinNetworkType.Mainnet,
+                        },
+                    },
+                    onFinish: (response) => {
+                        const paymentAddressItem = response.addresses.find((address) => address.purpose === sats_connect_1.AddressPurpose.Payment);
+                        const ordinalsAddressItem = response.addresses.find((address) => address.purpose === sats_connect_1.AddressPurpose.Ordinals);
+                        resolve({
+                            paymentAddress: (paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.address) || "",
+                            paymentPublicKey: (paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.publicKey) || "",
+                            ordinalsAddress: (ordinalsAddressItem === null || ordinalsAddressItem === void 0 ? void 0 : ordinalsAddressItem.address) || ""
+                        });
+                    },
+                    onCancel: () => {
+                        reject("Request canceled");
+                    },
+                });
+            });
+        });
+    }
+    generatePSBT(phrase) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const desiredFeeRate = 2; // sats per byte -> mainnet will be much higher
+            const { paymentAddress, paymentPublicKey, ordinalsAddress } = yield this.getSatsConnectAddress();
+            // change this to mainnet
+            if (window.bitcoin) {
+                let bitcoin = window.bitcoin;
+                var network = bitcoin.networks.mainnet;
+                // generate taproot address
+                const { p2tr, pubKey, tweakedSigner } = yield (0, derive_1.generateTaprootAddressFromMnemonic)(phrase);
+                const taprootAddress = p2tr.address;
+                // build payment definition for payments address
+                const p2wpkh = bitcoin.payments.p2wpkh({
+                    pubkey: Buffer.from(paymentPublicKey, "hex"),
+                    network,
+                });
+                const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh, network });
+                console.log(taprootAddress);
+                const getAddressUtxos = (address) => __awaiter(this, void 0, void 0, function* () {
+                    const response = yield fetch(`https://mempool.space/api/address/${address}/utxo`);
+                    const utxos = yield response.json();
+                    return utxos;
+                });
+                const taprootUtxos = yield getAddressUtxos(taprootAddress);
+                const paymentUtxos = yield getAddressUtxos(paymentAddress);
+                // there should only be 1 utxo in this vault address
+                const taprootUtxo = taprootUtxos[0];
+                // construct PSBT
+                const psbt = new bitcoin.Psbt({ network });
+                // add input from taproot
+                psbt.addInput({
+                    hash: taprootUtxo.txid,
+                    index: taprootUtxo.vout,
+                    witnessUtxo: {
+                        script: p2tr.output,
+                        value: taprootUtxo.value,
+                    },
+                    tapInternalKey: pubKey,
+                });
+                // output to ordinalsAddress
+                psbt.addOutput({
+                    address: ordinalsAddress,
+                    value: taprootUtxo.value,
+                });
+                // add inputs for fees from paymentAddress
+                let totalFeeInput = 0;
+                let size = 0;
+                for (const utxo of paymentUtxos) {
+                    psbt.addInput({
+                        hash: utxo.txid,
+                        index: utxo.vout,
+                        witnessUtxo: {
+                            script: p2sh.output,
+                            value: utxo.value,
+                        },
+                        redeemScript: p2sh.redeem.output,
+                    });
+                    totalFeeInput += utxo.value;
+                    size = (0, derive_1.getPsbtTxnSize)(phrase, psbt.toBase64());
+                    if (totalFeeInput >= desiredFeeRate * size) {
+                        break;
+                    }
+                }
+                if (totalFeeInput < desiredFeeRate * size) {
+                    throw new Error("Insufficient funds at desired fee rate");
+                }
+                // maybe add output for change if change is greater than 1000 sats (dust)
+                if (desiredFeeRate * size > 1000) {
+                    psbt.addOutput({
+                        address: paymentAddress,
+                        value: totalFeeInput - Math.ceil(desiredFeeRate * size),
+                    });
+                }
+                // sign
+                psbt.signInput(0, tweakedSigner);
+                // send this to wallet to sign all indexes except the first one
+                const psbtBase64 = psbt.toBase64();
+                console.log(psbtBase64);
+            }
+        });
+    }
+    getTaprootAddressFromMnemonic(phrase) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return (0, derive_1.generateTaprootAddressFromMnemonic)(phrase);
         });
     }
 }

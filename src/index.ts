@@ -1,8 +1,14 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Collection, CuratedCollectionsResponse, MetaData, Vault } from './types';
 import { COIN_TO_NETWORK, NFT_DATA, checkContentType, decryptKeys, evaluateFacts, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getTorusKeys, metadataAllProjects, metadataObj2Arr, pad, templateGuard } from './utils';
-
+import { getAddress, BitcoinNetworkType, AddressPurpose } from "sats-connect";
+import { generateTaprootAddressFromMnemonic, getPsbtTxnSize } from './derive';
 const SDK_VERSION = '__SDK_VERSION__'; 
+interface SatsConnectAddress {
+    paymentAddress: string;
+    paymentPublicKey: string;
+    ordinalsAddress: string;
+}
 class EmblemVaultSDK {
     private baseUrl: string;
     private v3Url: string;
@@ -361,6 +367,150 @@ class EmblemVaultSDK {
         myLegacy.forEach(async item=>{
             let meta = await this.fetchMetadata(item.toString())
         })
+    }
+
+    // BTC    
+    async getSatsConnectAddress(): Promise<SatsConnectAddress> {
+        return new Promise((resolve, reject) => {
+            getAddress({
+                payload: {
+                    purposes: [
+                        AddressPurpose.Ordinals,
+                        AddressPurpose.Payment,
+                    ],
+                    message: "My App's Name",
+                    network: {
+                        type: BitcoinNetworkType.Mainnet,
+                    },
+                },
+                onFinish: (response) => {
+                    const paymentAddressItem = response.addresses.find(
+                        (address) => address.purpose === AddressPurpose.Payment
+                    );
+
+                    const ordinalsAddressItem = response.addresses.find(
+                        (address) => address.purpose === AddressPurpose.Ordinals
+                    );
+                    resolve({
+                        paymentAddress: paymentAddressItem?.address || "",
+                        paymentPublicKey: paymentAddressItem?.publicKey || "",
+                        ordinalsAddress: ordinalsAddressItem?.address || ""
+                    });
+                },
+                onCancel: () => {
+                    reject("Request canceled");
+                },
+            });
+        });
+    }
+
+    async generatePSBT(phrase: string) {
+       
+        const desiredFeeRate = 2; // sats per byte -> mainnet will be much higher
+
+        const { paymentAddress, paymentPublicKey, ordinalsAddress } = await this.getSatsConnectAddress();
+
+        // change this to mainnet
+        if (window.bitcoin) {
+            let bitcoin = window.bitcoin;
+            var network = bitcoin.networks.mainnet;
+
+            // generate taproot address
+            const { p2tr, pubKey, tweakedSigner } = await generateTaprootAddressFromMnemonic(phrase);
+            const taprootAddress = p2tr.address;
+
+            // build payment definition for payments address
+            const p2wpkh = bitcoin.payments.p2wpkh({
+                pubkey: Buffer.from(paymentPublicKey, "hex"),
+                network,
+            });
+            const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh, network });
+
+            console.log(taprootAddress);
+
+            const getAddressUtxos = async (address: string) => {
+                const response = await fetch(
+                    `https://mempool.space/api/address/${address}/utxo`
+                );
+                const utxos = await response.json();
+                return utxos;
+            };
+
+            const taprootUtxos = await getAddressUtxos(taprootAddress);
+            const paymentUtxos = await getAddressUtxos(paymentAddress);
+
+            // there should only be 1 utxo in this vault address
+            const taprootUtxo = taprootUtxos[0];
+
+            // construct PSBT
+            const psbt = new bitcoin.Psbt({ network });
+
+            // add input from taproot
+            psbt.addInput({
+                hash: taprootUtxo.txid,
+                index: taprootUtxo.vout,
+                witnessUtxo: {
+                    script: p2tr.output,
+                    value: taprootUtxo.value,
+                },
+                tapInternalKey: pubKey,
+            });
+
+            // output to ordinalsAddress
+            psbt.addOutput({
+                address: ordinalsAddress,
+                value: taprootUtxo.value,
+            });
+
+            // add inputs for fees from paymentAddress
+            let totalFeeInput = 0;
+            let size = 0;
+
+            for (const utxo of paymentUtxos) {
+                psbt.addInput({
+                    hash: utxo.txid,
+                    index: utxo.vout,
+                    witnessUtxo: {
+                        script: p2sh.output,
+                        value: utxo.value,
+                    },
+                    redeemScript: p2sh.redeem.output,
+                });
+
+                totalFeeInput += utxo.value;
+
+                size = getPsbtTxnSize(phrase, psbt.toBase64());
+
+                if (totalFeeInput >= desiredFeeRate * size) {
+                    break;
+                }
+            }
+
+            if (totalFeeInput < desiredFeeRate * size) {
+                throw new Error("Insufficient funds at desired fee rate");
+            }
+
+            // maybe add output for change if change is greater than 1000 sats (dust)
+            if (desiredFeeRate * size > 1000) {
+                psbt.addOutput({
+                    address: paymentAddress,
+                    value: totalFeeInput - Math.ceil(desiredFeeRate * size),
+                });
+            }
+
+            // sign
+            psbt.signInput(0, tweakedSigner);
+
+            // send this to wallet to sign all indexes except the first one
+            const psbtBase64 = psbt.toBase64();
+
+            console.log(psbtBase64);
+        }
+
+    }
+
+    async getTaprootAddressFromMnemonic(phrase: string) {
+        return generateTaprootAddressFromMnemonic(phrase)
     }
 }
 

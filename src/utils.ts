@@ -2,7 +2,7 @@ import CryptoJS from 'crypto-js'
 import { MetaData } from "./types";
 import metadataJson from './curated/metadata.json';
 import abi from './abi/abi.json';
-import { phrasePathToKey } from './derive'
+// import { phrasePathToKey } from './derive'
 
 export const NFT_DATA: any = metadataJson
 // PROJECTS_DATA is list of projects i.e. curated collection names
@@ -670,7 +670,7 @@ export async function decryptKeys(vaultCiphertextV2: any, keys: any, addresses: 
     try {
         var bytes = CryptoJS.AES.decrypt(vaultCiphertextV2, keys.privateKey.privKey)
         let payload = JSON.parse(bytes.toString(CryptoJS.enc.Utf8))
-        let key = phrasePathToKey(payload.phrase, 0)
+        // let key = phrasePathToKey(payload.phrase, 0)
         return payload//key
         // addresses.forEach(async address=>{
         //     let key = phraseToKey(payload.phrase, 0)

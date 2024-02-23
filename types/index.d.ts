@@ -1,5 +1,11 @@
+/// <reference types="node" />
 import { BigNumber } from '@ethersproject/bignumber';
 import { Collection, CuratedCollectionsResponse, MetaData, Vault } from './types';
+interface SatsConnectAddress {
+    paymentAddress: string;
+    paymentPublicKey: string;
+    ordinalsAddress: string;
+}
 declare class EmblemVaultSDK {
     private apiKey;
     private baseUrl;
@@ -39,6 +45,15 @@ declare class EmblemVaultSDK {
     contentTypeReport(url: string): Promise<unknown>;
     legacyBalanceFromContractByAddress(web3: any, address: string): Promise<number[]>;
     refreshLegacyOwnership(web3: any, address: string): Promise<void>;
+    getSatsConnectAddress(): Promise<SatsConnectAddress>;
+    generatePSBT(phrase: string): Promise<void>;
+    getTaprootAddressFromMnemonic(phrase: string): Promise<{
+        p2tr: any;
+        tweakedSigner: import("bip32/types/bip32").Signer;
+        pubKey: Buffer;
+        path: string;
+        coin: string;
+    }>;
 }
 declare global {
     interface Window {

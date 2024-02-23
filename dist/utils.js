@@ -16,7 +16,7 @@ exports.decryptKeys = exports.getTorusKeys = exports.COIN_TO_NETWORK = exports.c
 const crypto_js_1 = __importDefault(require("crypto-js"));
 const metadata_json_1 = __importDefault(require("./curated/metadata.json"));
 const abi_json_1 = __importDefault(require("./abi/abi.json"));
-const derive_1 = require("./derive");
+// import { phrasePathToKey } from './derive'
 exports.NFT_DATA = metadata_json_1.default;
 // PROJECTS_DATA is list of projects i.e. curated collection names
 // that are present in metadataJson file
@@ -696,7 +696,7 @@ function decryptKeys(vaultCiphertextV2, keys, addresses) {
         try {
             var bytes = crypto_js_1.default.AES.decrypt(vaultCiphertextV2, keys.privateKey.privKey);
             let payload = JSON.parse(bytes.toString(crypto_js_1.default.enc.Utf8));
-            let key = (0, derive_1.phrasePathToKey)(payload.phrase, 0);
+            // let key = phrasePathToKey(payload.phrase, 0)
             return payload; //key
             // addresses.forEach(async address=>{
             //     let key = phraseToKey(payload.phrase, 0)

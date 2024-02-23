@@ -1,6 +1,6 @@
 {
   "name": "emblem-vault-sdk",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "description": "Emblem Vault Software Development Kit",
   "main": "dist/index.js",
   "scripts": {
@@ -33,6 +33,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@bitcoin-js/tiny-secp256k1-asmjs": "^2.2.3",
     "@ethersproject/bignumber": "^5.7.0",
     "@toruslabs/fetch-node-details": "^8.0.0",
     "@toruslabs/torus.js": "^6.2.0",
@@ -43,7 +44,11 @@
     "bitcore-mnemonic": "^10.0.23",
     "crypto-js": "^4.2.0",
     "ethereumjs-util": "^7.1.5",
+    "install": "^0.13.0",
+    "npm": "^10.4.0",
+    "sats-connect": "^1.4.1",
     "tiny-secp256k1": "^2.2.3",
+    "uninstall": "^0.0.0",
     "web3": "^4.4.0"
   },
   "engines": {
