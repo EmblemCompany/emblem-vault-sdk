@@ -36,7 +36,7 @@ const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const sats_connect_1 = require("sats-connect");
 const derive_1 = require("./derive");
-const SDK_VERSION = '1.9.5';
+const SDK_VERSION = '1.9.6';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -298,8 +298,9 @@ class EmblemVaultSDK {
             let collection = yield this.fetchCuratedContractByName(collectionName);
             let mintRequestSig = yield this.requestLocalMintSignature(web3, tokenId, callback);
             let remoteMintSig = yield this.requestRemoteMintSignature(web3, tokenId, mintRequestSig, callback);
-            let quote = yield this.getQuote(web3, collection ? collection.price : remoteMintSig._price, callback);
-            let mintResponse = yield this.performMint(web3, quote, remoteMintSig, callback);
+            let quote = yield this.getQuote(web3, collection ? collection.price : remoteMintSig._price / 1000000, callback);
+            let ethToSend = quote.mul(bignumber_1.BigNumber.from(10).pow(6));
+            let mintResponse = yield this.performMint(web3, ethToSend, remoteMintSig, callback);
             return { mintResponse };
         });
     }
@@ -413,7 +414,8 @@ class EmblemVaultSDK {
             }
             const accounts = yield web3.eth.getAccounts();
             let handlerContract = yield (0, utils_1.getHandlerContract)(web3);
-            let mintResponse = yield handlerContract.methods.buyWithQuote(remoteMintSig._nftAddress, remoteMintSig._price, remoteMintSig._to, remoteMintSig._tokenId, remoteMintSig._nonce, remoteMintSig._signature, remoteMintSig.serialNumber, 1).send({ from: accounts[0], value: quote.toString() });
+            const feeData = yield web3.eth.getGasPrice();
+            let mintResponse = yield handlerContract.methods.buyWithQuote(remoteMintSig._nftAddress, remoteMintSig._price, remoteMintSig._to, remoteMintSig._tokenId, remoteMintSig._nonce, remoteMintSig._signature, remoteMintSig.serialNumber, 1).send({ from: accounts[0], value: Number(quote), gasPrice: feeData });
             if (callback) {
                 callback('Mint Complete');
             }

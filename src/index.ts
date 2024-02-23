@@ -253,8 +253,9 @@ class EmblemVaultSDK {
         let collection = await this.fetchCuratedContractByName(collectionName);        
         let mintRequestSig = await this.requestLocalMintSignature(web3, tokenId, callback);
         let remoteMintSig = await this.requestRemoteMintSignature(web3, tokenId, mintRequestSig, callback);
-        let quote = await this.getQuote(web3, collection? collection.price: remoteMintSig._price, callback);
-        let mintResponse = await this.performMint(web3, quote, remoteMintSig, callback);
+        let quote = await this.getQuote(web3, collection? collection.price: remoteMintSig._price/1000000, callback);
+        let ethToSend = quote.mul(BigNumber.from(10).pow(6))
+        let mintResponse = await this.performMint(web3, ethToSend, remoteMintSig, callback);
         return {mintResponse}
     }
 
@@ -329,7 +330,8 @@ class EmblemVaultSDK {
         if (callback) { callback('performing Mint')}
         const accounts = await web3.eth.getAccounts();
         let handlerContract = await getHandlerContract(web3);
-        let mintResponse = await handlerContract.methods.buyWithQuote(remoteMintSig._nftAddress, remoteMintSig._price, remoteMintSig._to, remoteMintSig._tokenId, remoteMintSig._nonce, remoteMintSig._signature, remoteMintSig.serialNumber, 1).send({from: accounts[0], value: quote.toString()});
+        const feeData = await web3.eth.getGasPrice()
+        let mintResponse = await handlerContract.methods.buyWithQuote(remoteMintSig._nftAddress, remoteMintSig._price, remoteMintSig._to, remoteMintSig._tokenId, remoteMintSig._nonce, remoteMintSig._signature, remoteMintSig.serialNumber, 1).send({from: accounts[0], value: Number(quote), gasPrice: feeData });
         if (callback) { callback('Mint Complete')}
         await this.fetchMetadata(remoteMintSig._tokenId);
         return mintResponse
