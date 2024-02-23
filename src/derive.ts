@@ -6,14 +6,15 @@ import * as ecc from '@bitcoin-js/tiny-secp256k1-asmjs'
 
 const bip32 = BIP32Factory(ecc);
 
-let mainnet: any = {"messagePrefix":"\u0018Bitcoin Signed Message:\n","bech32":"bc","bip32":{"public":76067358,"private":76066276},"pubKeyHash":0,"scriptHash":5,"wif":128}
+// let mainnet: any = {"messagePrefix":"\u0018Bitcoin Signed Message:\n","bech32":"bc","bip32":{"public":76067358,"private":76066276},"pubKeyHash":0,"scriptHash":5,"wif":128}
 declare global {
     interface Window {
       bitcoin: any;
     }
   }
 export const generateTaprootAddressFromMnemonic = async (phrase: string) => {
-  let bitcoin = window.bitcoin;  
+  let bitcoin = window.bitcoin;
+  let mainnet = bitcoin.networks.mainnet;
   bitcoin.initEccLib(ecc);
   const seed = bip39.mnemonicToSeedSync(phrase);
 
@@ -39,7 +40,8 @@ export const generateTaprootAddressFromMnemonic = async (phrase: string) => {
 // we sign it with a dummy key and then extract the transaction
 // it should be very close to 100% accurate
 export const getPsbtTxnSize = (phrase: string, psbtBase64: string) => {
-    let bitcoin = window.bitcoin;  
+    let bitcoin = window.bitcoin;
+    let mainnet = bitcoin.networks.mainnet;
   const parsedPsbt = bitcoin.Psbt.fromBase64(psbtBase64);
 
   const psbt = new bitcoin.Psbt();

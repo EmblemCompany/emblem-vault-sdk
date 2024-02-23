@@ -38,9 +38,9 @@ const bip39 = __importStar(require("bip39"));
 // import bitcoin from "bitcoinjs-lib";
 const ecc = __importStar(require("@bitcoin-js/tiny-secp256k1-asmjs"));
 const bip32 = (0, bip32_1.BIP32Factory)(ecc);
-let mainnet = { "messagePrefix": "\u0018Bitcoin Signed Message:\n", "bech32": "bc", "bip32": { "public": 76067358, "private": 76066276 }, "pubKeyHash": 0, "scriptHash": 5, "wif": 128 };
 const generateTaprootAddressFromMnemonic = (phrase) => __awaiter(void 0, void 0, void 0, function* () {
     let bitcoin = window.bitcoin;
+    let mainnet = bitcoin.networks.mainnet;
     bitcoin.initEccLib(ecc);
     const seed = bip39.mnemonicToSeedSync(phrase);
     const rootKey = bip32.fromSeed(seed, mainnet);
@@ -62,6 +62,7 @@ exports.generateTaprootAddressFromMnemonic = generateTaprootAddressFromMnemonic;
 const getPsbtTxnSize = (phrase, psbtBase64) => {
     var _a, _b;
     let bitcoin = window.bitcoin;
+    let mainnet = bitcoin.networks.mainnet;
     const parsedPsbt = bitcoin.Psbt.fromBase64(psbtBase64);
     const psbt = new bitcoin.Psbt();
     const seed = bip39.mnemonicToSeedSync(phrase);
