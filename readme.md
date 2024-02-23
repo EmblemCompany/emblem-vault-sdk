@@ -1,78 +1,49 @@
 # Emblem Vault SDK
 
-This SDK provides a set of tools to interact with the Emblem Vault API. It includes methods for fetching curated contracts, creating vaults, and fetching metadata.
-
-## Installation
-
-```
-npm i emblem-vault-sdk
-```
+## Overview
+The EmblemVault SDK provides developers with the tools needed to interact with the EmblemVault API, facilitating the seamless integration of EmblemVault functionalities into applications.
 
 ## Getting Started
-```
-const EmblemVaultSDK = require('emblem-vault-sdk');
-// import EmblemVaultSDK from 'emblem-vault-sdk'
-const apiKey = 'YOUR_API_KEY'; // replace with your actual API key
 
-const sdk = new EmblemVaultSDK(apiKey);
-```
+### Installation
+Install via npm or yarn:
+- `npm install emblemvault-sdk`
+- `yarn add emblemvault-sdk`
 
-## SDK Methods
+### Initialization
+Initialize with your API key:
 ```javascript
-// Fetch curated contracts
-sdk.fetchCuratedContracts().then(contracts => {
-    console.log(contracts);
-});
-
-// Select a contract create template
-sdk.fetchCuratedContracts().then(contracts => {
-    const contract = contracts.find(contract => contract.name === "Ethscriptions");
-    const template = contract.generateCreateTemplate(contract);
-    console.log(template);
-});
-
-// Create a curated vault
-const template = {}; // replace with your actual template
-sdk.createCuratedVault(template).then(vault => {
-    console.log(vault);
-});
-
-// Fetch metadata
-const tokenId = 'YOUR_TOKEN_ID'; // replace with your actual token id
-sdk.fetchMetadata(tokenId).then(metadata => {
-    console.log(metadata);
-});
-
-// Fetch Vaults of type ____ owned by ____
-const TEST_ADDRESS = "0x9dE9ffB62c159A10cbcC19BdAc7962e9C19a1baa"
-sdk.fetchVaultsOfType("created", TEST_ADDRESS).then(vaults => {
-    console.log(vaults);
-});
-
-// Get all projects that contain Asset Metadata
-projects = sdk.getAllProjects()
-// [
-//     "Emblem Test",
-//     "Age of Chains",
-//     "Age of Rust",
-//     "..."
-// ]
-
-// Get asset metadata
-const projectName = projects[1]; // valid item from getAllProjects() above
-assets = sdk.getAssetMetadata(projectName)
-console.log(assets)
-// [
-//     {
-//     "image":"ELECTRUMCARD.jpg",
-//     "projectName":"Age of Chains",
-//     "projectLogo":"age-of-chains.jpg",
-//     "projectSite":"https://www.ageofchains.com/",
-//     "assetName":"ELECTRUMCARD"
-//     },...
-// ]
-
+import EmblemVaultSDK from 'emblemvault-sdk';
+const emblemVaultSDK = new EmblemVaultSDK('YOUR_API_KEY');
 ```
+
+## API Reference
+
+### Asset Metadata Methods
+- **getAssetMetadata(projectName, strict = false)**: Fetch metadata for assets by project name.
+- **getAllAssetMetadata()**: Retrieve metadata for all assets.
+- **getAllProjects()**: Get a list of all projects.
+
+### Curated Collections Methods
+- **fetchCuratedContracts(hideUnMintable = false, overrideFunc = false)**: Fetch curated contracts, with optional parameters to hide unmintable contracts or override the fetching function.
+- **fetchCuratedContractByName(name, contracts = false)**: Fetch a curated contract by its name.
+
+### Web3 Integration Methods
+- **loadWeb3()**: Dynamically load Web3 and connect to MetaMask.
+
+### Minting, Burning, and Claiming Methods
+- **performMintChain(web3, tokenId, collectionName, callback = null)**: Perform the minting process for a specific token in a collection.
+- **performBurn(web3, tokenId, callback = null)**: Burn a token.
+- **performClaimChain(web3, tokenId, serialNumber, callback = null)**: Claim ownership of a token.
+
+### Bitcoin Network Methods
+- **getSatsConnectAddress()**: Generate a SatsConnect address for Bitcoin transactions.
+- **generatePSBT(phrase, satsPerByte = 20)**: Generate a Partially Signed Bitcoin Transaction (PSBT).
+- **getTaprootAddressFromMnemonic(phrase)**: Generate a Taproot address from a mnemonic phrase.
+
+## Global Declaration
+The `EmblemVaultSDK` is available globally in web applications through the `window` object.
+
 
 ## Simple Html Demo
 
