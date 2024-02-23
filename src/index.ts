@@ -253,7 +253,7 @@ class EmblemVaultSDK {
         let collection = await this.fetchCuratedContractByName(collectionName);        
         let mintRequestSig = await this.requestLocalMintSignature(web3, tokenId, callback);
         let remoteMintSig = await this.requestRemoteMintSignature(web3, tokenId, mintRequestSig, callback);
-        let quote = await this.getQuote(web3, collection? collection.price: 2000000000, callback);
+        let quote = await this.getQuote(web3, collection? collection.price: remoteMintSig._price, callback);
         let mintResponse = await this.performMint(web3, quote, remoteMintSig, callback);
         return {mintResponse}
     }

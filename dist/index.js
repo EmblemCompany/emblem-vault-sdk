@@ -36,7 +36,7 @@ const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const sats_connect_1 = require("sats-connect");
 const derive_1 = require("./derive");
-const SDK_VERSION = '1.9.3';
+const SDK_VERSION = '1.9.5';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -298,7 +298,7 @@ class EmblemVaultSDK {
             let collection = yield this.fetchCuratedContractByName(collectionName);
             let mintRequestSig = yield this.requestLocalMintSignature(web3, tokenId, callback);
             let remoteMintSig = yield this.requestRemoteMintSignature(web3, tokenId, mintRequestSig, callback);
-            let quote = yield this.getQuote(web3, collection ? collection.price : 2000000000, callback);
+            let quote = yield this.getQuote(web3, collection ? collection.price : remoteMintSig._price, callback);
             let mintResponse = yield this.performMint(web3, quote, remoteMintSig, callback);
             return { mintResponse };
         });
