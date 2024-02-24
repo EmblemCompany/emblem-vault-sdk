@@ -321,21 +321,54 @@ class EmblemVaultSDK {
         if (callback) { callback('requesting Quote')}
         let quoteContract = await getQuoteContractObject(web3);
         const accounts = await web3.eth.getAccounts();
-        let quote = BigNumber.from(await quoteContract.methods.quoteExternalPrice(accounts[0], amount.toString()).call());
+        let quote = BigNumber.from(await quoteContract.methods.quoteExternalPrice(accounts[0], Number(amount)/1000000).call());
         if (callback) { callback(`quote`, quote.toString())}
         return quote
     }
 
     async performMint(web3: any, quote: any, remoteMintSig: any, callback: any = null) {
-        if (callback) { callback('performing Mint')}
+    // async performMint(web3, quote, remoteMintSig, callback = null) {
+        if (callback) { callback('performing Mint') }
         const accounts = await web3.eth.getAccounts();
         let handlerContract = await getHandlerContract(web3);
-        const feeData = await web3.eth.getGasPrice()
-        let mintResponse = await handlerContract.methods.buyWithQuote(remoteMintSig._nftAddress, remoteMintSig._price, remoteMintSig._to, remoteMintSig._tokenId, remoteMintSig._nonce, remoteMintSig._signature, remoteMintSig.serialNumber, 1).send({from: accounts[0], value: Number(quote), gasPrice: feeData });
-        if (callback) { callback('Mint Complete')}
+    
+        // Get current gas price from the network
+        const gasPrice = await web3.eth.getGasPrice();
+        
+        // Estimate gas limit for the transaction
+        const gasLimit = await handlerContract.methods.buyWithQuote(
+            remoteMintSig._nftAddress, 
+            remoteMintSig._price, 
+            remoteMintSig._to, 
+            remoteMintSig._tokenId, 
+            remoteMintSig._nonce, 
+            remoteMintSig._signature, 
+            remoteMintSig.serialNumber, 
+            1
+        ).estimateGas({ from: accounts[0], value: Number(quote) });
+    
+        // Execute the transaction with the specified gas price and estimated gas limit
+        let mintResponse = await handlerContract.methods.buyWithQuote(
+            remoteMintSig._nftAddress, 
+            remoteMintSig._price, 
+            remoteMintSig._to, 
+            remoteMintSig._tokenId, 
+            remoteMintSig._nonce, 
+            remoteMintSig._signature, 
+            remoteMintSig.serialNumber, 
+            1
+        ).send({ 
+            from: accounts[0], 
+            value: Number(quote),
+            gasPrice: gasPrice, // Use the current gas price
+            gas: gasLimit // Use the estimated gas limit
+        });
+    
+        if (callback) { callback('Mint Complete') }
         await this.fetchMetadata(remoteMintSig._tokenId);
         return mintResponse
     }
+        
 
     async performBurn(web3: any, tokenId: any, callback: any = null) {
         let metadata: any = await this.fetchMetadata(tokenId);

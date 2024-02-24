@@ -36,7 +36,7 @@ const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const sats_connect_1 = require("sats-connect");
 const derive_1 = require("./derive");
-const SDK_VERSION = '1.9.6';
+const SDK_VERSION = '1.9.7';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -400,7 +400,7 @@ class EmblemVaultSDK {
             }
             let quoteContract = yield (0, utils_1.getQuoteContractObject)(web3);
             const accounts = yield web3.eth.getAccounts();
-            let quote = bignumber_1.BigNumber.from(yield quoteContract.methods.quoteExternalPrice(accounts[0], amount.toString()).call());
+            let quote = bignumber_1.BigNumber.from(yield quoteContract.methods.quoteExternalPrice(accounts[0], Number(amount) / 1000000).call());
             if (callback) {
                 callback(`quote`, quote.toString());
             }
@@ -409,13 +409,23 @@ class EmblemVaultSDK {
     }
     performMint(web3, quote, remoteMintSig, callback = null) {
         return __awaiter(this, void 0, void 0, function* () {
+            // async performMint(web3, quote, remoteMintSig, callback = null) {
             if (callback) {
                 callback('performing Mint');
             }
             const accounts = yield web3.eth.getAccounts();
             let handlerContract = yield (0, utils_1.getHandlerContract)(web3);
-            const feeData = yield web3.eth.getGasPrice();
-            let mintResponse = yield handlerContract.methods.buyWithQuote(remoteMintSig._nftAddress, remoteMintSig._price, remoteMintSig._to, remoteMintSig._tokenId, remoteMintSig._nonce, remoteMintSig._signature, remoteMintSig.serialNumber, 1).send({ from: accounts[0], value: Number(quote), gasPrice: feeData });
+            // Get current gas price from the network
+            const gasPrice = yield web3.eth.getGasPrice();
+            // Estimate gas limit for the transaction
+            const gasLimit = yield handlerContract.methods.buyWithQuote(remoteMintSig._nftAddress, remoteMintSig._price, remoteMintSig._to, remoteMintSig._tokenId, remoteMintSig._nonce, remoteMintSig._signature, remoteMintSig.serialNumber, 1).estimateGas({ from: accounts[0], value: Number(quote) });
+            // Execute the transaction with the specified gas price and estimated gas limit
+            let mintResponse = yield handlerContract.methods.buyWithQuote(remoteMintSig._nftAddress, remoteMintSig._price, remoteMintSig._to, remoteMintSig._tokenId, remoteMintSig._nonce, remoteMintSig._signature, remoteMintSig.serialNumber, 1).send({
+                from: accounts[0],
+                value: Number(quote),
+                gasPrice: gasPrice, // Use the current gas price
+                gas: gasLimit // Use the estimated gas limit
+            });
             if (callback) {
                 callback('Mint Complete');
             }
