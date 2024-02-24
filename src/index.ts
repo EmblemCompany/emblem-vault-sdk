@@ -334,30 +334,23 @@ class EmblemVaultSDK {
     
         // Get current gas price from the network
         const gasPrice = await web3.eth.getGasPrice();
+
+        let createdTxObject = handlerContract.methods.buyWithQuote(
+            remoteMintSig._nftAddress, 
+            remoteMintSig._price, 
+            remoteMintSig._to, 
+            remoteMintSig._tokenId, 
+            remoteMintSig._nonce, 
+            remoteMintSig._signature, 
+            remoteMintSig.serialNumber, 
+            1
+        )
         
         // Estimate gas limit for the transaction
-        const gasLimit = await handlerContract.methods.buyWithQuote(
-            remoteMintSig._nftAddress, 
-            remoteMintSig._price, 
-            remoteMintSig._to, 
-            remoteMintSig._tokenId, 
-            remoteMintSig._nonce, 
-            remoteMintSig._signature, 
-            remoteMintSig.serialNumber, 
-            1
-        ).estimateGas({ from: accounts[0], value: Number(quote) });
+        const gasLimit = await createdTxObject.estimateGas({ from: accounts[0], value: Number(quote) });
     
         // Execute the transaction with the specified gas price and estimated gas limit
-        let mintResponse = await handlerContract.methods.buyWithQuote(
-            remoteMintSig._nftAddress, 
-            remoteMintSig._price, 
-            remoteMintSig._to, 
-            remoteMintSig._tokenId, 
-            remoteMintSig._nonce, 
-            remoteMintSig._signature, 
-            remoteMintSig.serialNumber, 
-            1
-        ).send({ 
+        let mintResponse = await createdTxObject.send({ 
             from: accounts[0], 
             value: Number(quote),
             gasPrice: gasPrice, // Use the current gas price
@@ -377,10 +370,24 @@ class EmblemVaultSDK {
         const accounts = await web3.eth.getAccounts();
         const chainId = await web3.eth.getChainId();
         let handlerContract = await getHandlerContract(web3);
-        let burnResponse = await handlerContract.methods.claim(targetContract[chainId], targetContract.collectionType == 'ERC721a'? tokenId: targetContract.tokenId).send({from: accounts[0]});
+    
+        // Dynamically fetch the current gas price
+        const gasPrice = await web3.eth.getGasPrice();
+        
+        let createdTxObject = handlerContract.methods.claim(targetContract[chainId], targetContract.collectionType == 'ERC721a' ? tokenId : targetContract.tokenId) 
+        // Estimate gas limit for the transaction
+        const estimatedGas = await createdTxObject.estimateGas({from: accounts[0]});
+    
+        let burnResponse = await createdTxObject.send({
+            from: accounts[0],
+            gasPrice: gasPrice,
+            gas: estimatedGas
+        });
+    
         if (callback) { callback('Burn Complete')}
-        return burnResponse
+        return burnResponse;
     }
+    
 
     async contentTypeReport(url: string) {
         return await checkContentType(url)

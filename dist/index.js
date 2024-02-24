@@ -36,7 +36,7 @@ const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const sats_connect_1 = require("sats-connect");
 const derive_1 = require("./derive");
-const SDK_VERSION = '1.9.7';
+const SDK_VERSION = '1.9.8';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -417,10 +417,11 @@ class EmblemVaultSDK {
             let handlerContract = yield (0, utils_1.getHandlerContract)(web3);
             // Get current gas price from the network
             const gasPrice = yield web3.eth.getGasPrice();
+            let createdTxObject = handlerContract.methods.buyWithQuote(remoteMintSig._nftAddress, remoteMintSig._price, remoteMintSig._to, remoteMintSig._tokenId, remoteMintSig._nonce, remoteMintSig._signature, remoteMintSig.serialNumber, 1);
             // Estimate gas limit for the transaction
-            const gasLimit = yield handlerContract.methods.buyWithQuote(remoteMintSig._nftAddress, remoteMintSig._price, remoteMintSig._to, remoteMintSig._tokenId, remoteMintSig._nonce, remoteMintSig._signature, remoteMintSig.serialNumber, 1).estimateGas({ from: accounts[0], value: Number(quote) });
+            const gasLimit = yield createdTxObject.estimateGas({ from: accounts[0], value: Number(quote) });
             // Execute the transaction with the specified gas price and estimated gas limit
-            let mintResponse = yield handlerContract.methods.buyWithQuote(remoteMintSig._nftAddress, remoteMintSig._price, remoteMintSig._to, remoteMintSig._tokenId, remoteMintSig._nonce, remoteMintSig._signature, remoteMintSig.serialNumber, 1).send({
+            let mintResponse = yield createdTxObject.send({
                 from: accounts[0],
                 value: Number(quote),
                 gasPrice: gasPrice, // Use the current gas price
@@ -443,7 +444,16 @@ class EmblemVaultSDK {
             const accounts = yield web3.eth.getAccounts();
             const chainId = yield web3.eth.getChainId();
             let handlerContract = yield (0, utils_1.getHandlerContract)(web3);
-            let burnResponse = yield handlerContract.methods.claim(targetContract[chainId], targetContract.collectionType == 'ERC721a' ? tokenId : targetContract.tokenId).send({ from: accounts[0] });
+            // Dynamically fetch the current gas price
+            const gasPrice = yield web3.eth.getGasPrice();
+            let createdTxObject = handlerContract.methods.claim(targetContract[chainId], targetContract.collectionType == 'ERC721a' ? tokenId : targetContract.tokenId);
+            // Estimate gas limit for the transaction
+            const estimatedGas = yield createdTxObject.estimateGas({ from: accounts[0] });
+            let burnResponse = yield createdTxObject.send({
+                from: accounts[0],
+                gasPrice: gasPrice,
+                gas: estimatedGas
+            });
             if (callback) {
                 callback('Burn Complete');
             }
