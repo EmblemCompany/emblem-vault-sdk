@@ -45,6 +45,8 @@ declare class EmblemVaultSDK {
     contentTypeReport(url: string): Promise<unknown>;
     legacyBalanceFromContractByAddress(web3: any, address: string): Promise<number[]>;
     refreshLegacyOwnership(web3: any, address: string): Promise<void>;
+    checkLiveliness(tokenId: string, chainId?: number): Promise<any>;
+    checkLivelinessBulk(tokenIds: string[], chainId?: number): Promise<any[]>;
     getSatsConnectAddress(): Promise<SatsConnectAddress>;
     generatePSBT(phrase: string, satsPerByte?: number): Promise<void>;
     getTaprootAddressFromMnemonic(phrase: string): Promise<{

@@ -82,7 +82,7 @@ export const getPsbtTxnSize = (phrase: string, psbtBase64: string) => {
       hash: "0000000000000000000000000000000000000000000000000000000000000000",
       index: i,
       witnessUtxo: {
-        script: p2tr.output || Buffer.alloc(0),
+        script: p2sh.output || Buffer.alloc(0),
         value: 100000,
       },
       redeemScript: p2sh.redeem?.output,

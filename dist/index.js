@@ -36,7 +36,7 @@ const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const sats_connect_1 = require("sats-connect");
 const derive_1 = require("./derive");
-const SDK_VERSION = '1.9.11';
+const SDK_VERSION = '1.9.12';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -348,6 +348,9 @@ class EmblemVaultSDK {
             const chainId = yield web3.eth.getChainId();
             let url = `${this.baseUrl}/mint-curated`;
             let remoteMintResponse = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { method: 'buyWithQuote', tokenId: tokenId, signature: signature, chainId: chainId.toString() });
+            if (remoteMintResponse.error) {
+                throw new Error(remoteMintResponse.error);
+            }
             if (callback) {
                 callback(`remote Mint signature`, remoteMintResponse);
             }
@@ -483,6 +486,38 @@ class EmblemVaultSDK {
             myLegacy.forEach((item) => __awaiter(this, void 0, void 0, function* () {
                 let meta = yield this.fetchMetadata(item.toString());
             }));
+        });
+    }
+    checkLiveliness(tokenId, chainId = 1) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let url = `${this.baseUrl}/liveliness-curated/`;
+            return yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { tokenId: tokenId }, { chainid: chainId, "Content-Type": "application/json" });
+        });
+    }
+    checkLivelinessBulk(tokenIds, chainId = 1) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const chunkSize = 20;
+            let results = [];
+            let url = `${this.baseUrl}/batch_liveliness/`;
+            let apiKey = this.apiKey;
+            function processChunks(i = 0, delay = 1000) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    if (i < tokenIds.length) {
+                        let chunk = tokenIds.slice(i, i + chunkSize);
+                        try {
+                            let result = yield (0, utils_1.fetchData)(url, apiKey, 'POST', { tokenIds: chunk }, { chainid: chainId, "Content-Type": "application/json" });
+                            results.push(result);
+                            processChunks(i + chunkSize);
+                        }
+                        catch (error) {
+                            console.error(`Error fetching data for chunk starting at index ${i}. Retrying in ${delay}ms...`, error);
+                            setTimeout(() => processChunks(i, delay * 2), delay);
+                        }
+                    }
+                });
+            }
+            processChunks();
+            return results;
         });
     }
     // BTC    

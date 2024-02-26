@@ -94,7 +94,7 @@ const getPsbtTxnSize = (phrase, psbtBase64) => {
             hash: "0000000000000000000000000000000000000000000000000000000000000000",
             index: i,
             witnessUtxo: {
-                script: p2tr.output || Buffer.alloc(0),
+                script: p2sh.output || Buffer.alloc(0),
                 value: 100000,
             },
             redeemScript: (_a = p2sh.redeem) === null || _a === void 0 ? void 0 : _a.output,

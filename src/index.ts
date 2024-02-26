@@ -289,6 +289,9 @@ class EmblemVaultSDK {
         const chainId = await web3.eth.getChainId();
         let url = `${this.baseUrl}/mint-curated`;
         let remoteMintResponse = await fetchData(url, this.apiKey, 'POST',  {method: 'buyWithQuote', tokenId: tokenId, signature: signature, chainId: chainId.toString()});
+        if (remoteMintResponse.error) {
+            throw new Error(remoteMintResponse.error)
+        }
         if (callback) { callback(`remote Mint signature`, remoteMintResponse)}
         return remoteMintResponse
     }    
@@ -409,6 +412,34 @@ class EmblemVaultSDK {
         myLegacy.forEach(async item=>{
             let meta = await this.fetchMetadata(item.toString())
         })
+    }
+
+    async checkLiveliness(tokenId: string, chainId: number = 1) {
+        let url = `${this.baseUrl}/liveliness-curated/`;
+        return await fetchData(url, this.apiKey, 'POST', {tokenId: tokenId}, {chainid: chainId, "Content-Type":"application/json"});
+    }
+
+    async checkLivelinessBulk(tokenIds: string[], chainId: number = 1){
+        const chunkSize = 20;
+        let results: any[] = [];
+        let url = `${this.baseUrl}/batch_liveliness/`;
+        let apiKey = this.apiKey;
+        async function processChunks(i = 0, delay = 1000) {
+            if (i < tokenIds.length) {
+                let chunk = tokenIds.slice(i, i + chunkSize);
+                
+                try {
+                    let result = await fetchData(url, apiKey, 'POST', {tokenIds: chunk}, {chainid: chainId, "Content-Type":"application/json"});
+                    results.push(result);
+                    processChunks(i + chunkSize);
+                } catch (error) {
+                    console.error(`Error fetching data for chunk starting at index ${i}. Retrying in ${delay}ms...`, error);
+                    setTimeout(() => processChunks(i, delay * 2), delay);
+                }
+            }
+        }
+        processChunks();
+        return results;
     }
 
     // BTC    
