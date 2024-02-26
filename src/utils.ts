@@ -238,7 +238,7 @@ export function generateTemplate(record: any) {
 
             let allowed = false
             let firstAsset = data[0]
-            let assetName = firstAsset.name ? firstAsset.name : ""
+            let assetName = firstAsset?.name ? firstAsset.name : ""
             let message = null
             if (recordName == "Embels"){
                 allowed = true

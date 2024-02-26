@@ -36,7 +36,7 @@ const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const sats_connect_1 = require("sats-connect");
 const derive_1 = require("./derive");
-const SDK_VERSION = '1.9.10';
+const SDK_VERSION = '1.9.11';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
