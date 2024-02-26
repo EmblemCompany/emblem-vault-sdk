@@ -288,11 +288,23 @@ export function generateTemplate(record: any) {
             } else if (recordName == "Bitcoin DeGods") {
                 allowed = firstAsset.coin == "ordinalsbtc" && firstAsset.balance == 1 && firstAsset.project == "DeGods"
             } else if (PROJECTS_DATA.includes(recordName)) { // XCP
-                allowed = !!NFT_DATA[assetName];
+                allowed = !!NFT_DATA[assetName] && NFT_DATA[assetName]["projectName"].toLowerCase() == recordName.toLowerCase();
             } else if (_this.vaultCollectionType && _this.vaultCollectionType == "protocol") {
-                allowed = firstAsset.coin.toLowerCase() == _this.collectionChain.toLowerCase() && firstAsset.project && firstAsset.project == recordName
+                allowed = firstAsset.coin.toLowerCase() == _this.collectionChain.toLowerCase()
+                if(!allowed){
+                    message = `Found ${firstAsset.coin} asset, expected ${_this.collectionChain} asset.`
+                }
             } else if (_this.vaultCollectionType && _this.vaultCollectionType == "collection") {
-                allowed = firstAsset.coin.toLowerCase() == _this.collectionChain.toLowerCase() && firstAsset.project == recordName
+                const allowedChain = firstAsset.coin.toLowerCase() == _this.collectionChain.toLowerCase()
+                if(!allowedChain) {
+                    message = `Found ${firstAsset.coin} asset, expected ${_this.collectionChain} asset.`
+                }
+                const allowedAProject = firstAsset.project == recordName
+                if(!allowedAProject){
+                    message = (message ? `${message} ` : '') +
+                        `Found asset from ${firstAsset.project} collection, expected asset from  ${recordName} collection.`
+                }
+                allowed = allowedChain && allowedAProject
             } else { // XCP
                 allowed = firstAsset.project == _this.name && firstAsset.balance == 1;
             }
