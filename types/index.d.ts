@@ -1,11 +1,5 @@
-/// <reference types="node" />
 import { BigNumber } from '@ethersproject/bignumber';
 import { Collection, CuratedCollectionsResponse, MetaData, Vault } from './types';
-interface SatsConnectAddress {
-    paymentAddress: string;
-    paymentPublicKey: string;
-    ordinalsAddress: string;
-}
 declare class EmblemVaultSDK {
     private apiKey;
     private baseUrl;
@@ -47,15 +41,7 @@ declare class EmblemVaultSDK {
     refreshLegacyOwnership(web3: any, address: string): Promise<void>;
     checkLiveliness(tokenId: string, chainId?: number): Promise<any>;
     checkLivelinessBulk(tokenIds: string[], chainId?: number): Promise<any[]>;
-    getSatsConnectAddress(): Promise<SatsConnectAddress>;
-    generatePSBT(phrase: string, satsPerByte?: number): Promise<void>;
-    getTaprootAddressFromMnemonic(phrase: string): Promise<{
-        p2tr: any;
-        tweakedSigner: import("bip32/types/bip32").Signer;
-        pubKey: Buffer;
-        path: string;
-        coin: string;
-    }>;
+    sweepVaultUsingPhrase(phrase: string, satsPerByte?: number, broadcast?: boolean): Promise<unknown>;
 }
 declare global {
     interface Window {

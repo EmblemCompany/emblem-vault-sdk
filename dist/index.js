@@ -34,9 +34,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
-const sats_connect_1 = require("sats-connect");
 const derive_1 = require("./derive");
-const SDK_VERSION = '1.9.12';
+const SDK_VERSION = '1.9.13';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -520,40 +519,10 @@ class EmblemVaultSDK {
             return results;
         });
     }
-    // BTC    
-    getSatsConnectAddress() {
+    // BTC
+    sweepVaultUsingPhrase(phrase, satsPerByte = 20, broadcast = false) {
         return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
-                (0, sats_connect_1.getAddress)({
-                    payload: {
-                        purposes: [
-                            sats_connect_1.AddressPurpose.Ordinals,
-                            sats_connect_1.AddressPurpose.Payment,
-                        ],
-                        message: "My App's Name",
-                        network: {
-                            type: sats_connect_1.BitcoinNetworkType.Mainnet,
-                        },
-                    },
-                    onFinish: (response) => {
-                        const paymentAddressItem = response.addresses.find((address) => address.purpose === sats_connect_1.AddressPurpose.Payment);
-                        const ordinalsAddressItem = response.addresses.find((address) => address.purpose === sats_connect_1.AddressPurpose.Ordinals);
-                        resolve({
-                            paymentAddress: (paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.address) || "",
-                            paymentPublicKey: (paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.publicKey) || "",
-                            ordinalsAddress: (ordinalsAddressItem === null || ordinalsAddressItem === void 0 ? void 0 : ordinalsAddressItem.address) || ""
-                        });
-                    },
-                    onCancel: () => {
-                        reject("Request canceled");
-                    },
-                });
-            });
-        });
-    }
-    generatePSBT(phrase, satsPerByte = 20) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { paymentAddress, paymentPublicKey, ordinalsAddress } = yield this.getSatsConnectAddress();
+            const { paymentAddress, paymentPublicKey, ordinalsAddress } = yield (0, utils_1.getSatsConnectAddress)();
             // change this to mainnet
             if (window.bitcoin) {
                 let bitcoin = window.bitcoin;
@@ -628,12 +597,9 @@ class EmblemVaultSDK {
                 // send this to wallet to sign all indexes except the first one
                 const psbtBase64 = psbt.toBase64();
                 console.log(psbtBase64);
+                let signedPsbt = yield (0, utils_1.signPSBT)(psbtBase64, paymentAddress, [...Array(paymentUtxos.length).keys()].map(i => i + taprootUtxos.length), broadcast);
+                return signedPsbt;
             }
-        });
-    }
-    getTaprootAddressFromMnemonic(phrase) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return (0, derive_1.generateTaprootAddressFromMnemonic)(phrase);
         });
     }
 }

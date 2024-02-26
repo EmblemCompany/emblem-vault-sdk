@@ -1,14 +1,10 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Collection, CuratedCollectionsResponse, MetaData, Vault } from './types';
-import { COIN_TO_NETWORK, NFT_DATA, checkContentType, decryptKeys, evaluateFacts, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getTorusKeys, metadataAllProjects, metadataObj2Arr, pad, templateGuard } from './utils';
-import { getAddress, BitcoinNetworkType, AddressPurpose } from "sats-connect";
+import { COIN_TO_NETWORK, NFT_DATA, checkContentType, decryptKeys, evaluateFacts, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getSatsConnectAddress, getTorusKeys, metadataAllProjects, metadataObj2Arr, pad, signPSBT, templateGuard } from './utils';
+import { getAddress, BitcoinNetworkType, AddressPurpose, signTransaction } from "sats-connect";
 import { generateTaprootAddressFromMnemonic, getPsbtTxnSize } from './derive';
 const SDK_VERSION = '__SDK_VERSION__'; 
-interface SatsConnectAddress {
-    paymentAddress: string;
-    paymentPublicKey: string;
-    ordinalsAddress: string;
-}
+
 class EmblemVaultSDK {
     private baseUrl: string;
     private v3Url: string;
@@ -442,44 +438,11 @@ class EmblemVaultSDK {
         return results;
     }
 
-    // BTC    
-    async getSatsConnectAddress(): Promise<SatsConnectAddress> {
-        return new Promise((resolve, reject) => {
-            getAddress({
-                payload: {
-                    purposes: [
-                        AddressPurpose.Ordinals,
-                        AddressPurpose.Payment,
-                    ],
-                    message: "My App's Name",
-                    network: {
-                        type: BitcoinNetworkType.Mainnet,
-                    },
-                },
-                onFinish: (response) => {
-                    const paymentAddressItem = response.addresses.find(
-                        (address) => address.purpose === AddressPurpose.Payment
-                    );
+    // BTC
 
-                    const ordinalsAddressItem = response.addresses.find(
-                        (address) => address.purpose === AddressPurpose.Ordinals
-                    );
-                    resolve({
-                        paymentAddress: paymentAddressItem?.address || "",
-                        paymentPublicKey: paymentAddressItem?.publicKey || "",
-                        ordinalsAddress: ordinalsAddressItem?.address || ""
-                    });
-                },
-                onCancel: () => {
-                    reject("Request canceled");
-                },
-            });
-        });
-    }
+    async sweepVaultUsingPhrase(phrase: string, satsPerByte: number = 20, broadcast: boolean = false) {     
 
-    async generatePSBT(phrase: string, satsPerByte: number = 20) {     
-
-        const { paymentAddress, paymentPublicKey, ordinalsAddress } = await this.getSatsConnectAddress();
+        const { paymentAddress, paymentPublicKey, ordinalsAddress } = await getSatsConnectAddress();
 
         // change this to mainnet
         if (window.bitcoin) {
@@ -576,13 +539,13 @@ class EmblemVaultSDK {
             const psbtBase64 = psbt.toBase64();
 
             console.log(psbtBase64);
+            
+            let signedPsbt = await signPSBT(psbtBase64, paymentAddress, [...Array(paymentUtxos.length).keys()].map(i => i + taprootUtxos.length), broadcast);
+            return signedPsbt;
         }
 
     }
 
-    async getTaprootAddressFromMnemonic(phrase: string) {
-        return generateTaprootAddressFromMnemonic(phrase)
-    }
 }
 
 declare global {

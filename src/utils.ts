@@ -2,6 +2,7 @@ import CryptoJS from 'crypto-js'
 import { MetaData } from "./types";
 import metadataJson from './curated/metadata.json';
 import abi from './abi/abi.json';
+import { AddressPurpose, BitcoinNetworkType, getAddress, signTransaction } from 'sats-connect';
 // import { phrasePathToKey } from './derive'
 
 export const NFT_DATA: any = metadataJson
@@ -694,3 +695,74 @@ export async function decryptKeys(vaultCiphertextV2: any, keys: any, addresses: 
         console.log(err)
       }
 }
+interface SatsConnectAddress {
+    paymentAddress: string;
+    paymentPublicKey: string;
+    ordinalsAddress: string;
+}
+export async function getSatsConnectAddress(): Promise<SatsConnectAddress> {
+    return new Promise((resolve, reject) => {
+        getAddress({
+            payload: {
+                purposes: [
+                    AddressPurpose.Ordinals,
+                    AddressPurpose.Payment,
+                ],
+                message: "My App's Name",
+                network: {
+                    type: BitcoinNetworkType.Mainnet,
+                },
+            },
+            onFinish: (response) => {
+                const paymentAddressItem = response.addresses.find(
+                    (address) => address.purpose === AddressPurpose.Payment
+                );
+
+                const ordinalsAddressItem = response.addresses.find(
+                    (address) => address.purpose === AddressPurpose.Ordinals
+                );
+                resolve({
+                    paymentAddress: paymentAddressItem?.address || "",
+                    paymentPublicKey: paymentAddressItem?.publicKey || "",
+                    ordinalsAddress: ordinalsAddressItem?.address || ""
+                });
+            },
+            onCancel: () => {
+                reject("Request canceled");
+            },
+        });
+    });
+}
+
+export async function signPSBT(psbtBase64: any, paymentAddress: any, indexes: number[], broadcast: boolean = false) {
+    return new Promise((resolve, reject) => {
+        signTransaction({
+            payload: {
+              network: {
+                type: BitcoinNetworkType.Mainnet,
+              },
+              message: "Sign Transaction",
+              psbtBase64,
+              broadcast: broadcast, // or false if you want to broadcast yourself
+              inputsToSign: [
+                {
+                  address: paymentAddress,
+                  signingIndexes: indexes, // this needs to match the number of inputs coming from the payment address
+                  sigHash: 1,
+                },
+              ],
+            },
+            onFinish: (response: any) => {
+              console.log('PSBT', response.psbtBase64);
+              console.log('txid', response.txid); // only populated if broadcast is true
+              resolve(response);
+            },
+            onCancel: () => {
+              alert("Canceled");
+              reject(new Error("Transaction cancelled"));
+            },
+        });
+    });
+}
+
+

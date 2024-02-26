@@ -12,10 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.decryptKeys = exports.getTorusKeys = exports.COIN_TO_NETWORK = exports.checkContentType = exports.getLegacyContract = exports.getHandlerContract = exports.getQuoteContractObject = exports.genericGuard = exports.templateGuard = exports.generateTemplate = exports.generateImageTemplate = exports.generateAttributeTemplate = exports.fetchData = exports.metadataAllProjects = exports.metadataObj2Arr = exports.evaluateFacts = exports.pad = exports.NFT_DATA = void 0;
+exports.signPSBT = exports.getSatsConnectAddress = exports.decryptKeys = exports.getTorusKeys = exports.COIN_TO_NETWORK = exports.checkContentType = exports.getLegacyContract = exports.getHandlerContract = exports.getQuoteContractObject = exports.genericGuard = exports.templateGuard = exports.generateTemplate = exports.generateImageTemplate = exports.generateAttributeTemplate = exports.fetchData = exports.metadataAllProjects = exports.metadataObj2Arr = exports.evaluateFacts = exports.pad = exports.NFT_DATA = void 0;
 const crypto_js_1 = __importDefault(require("crypto-js"));
 const metadata_json_1 = __importDefault(require("./curated/metadata.json"));
 const abi_json_1 = __importDefault(require("./abi/abi.json"));
+const sats_connect_1 = require("sats-connect");
 // import { phrasePathToKey } from './derive'
 exports.NFT_DATA = metadata_json_1.default;
 // PROJECTS_DATA is list of projects i.e. curated collection names
@@ -724,3 +725,67 @@ function decryptKeys(vaultCiphertextV2, keys, addresses) {
     });
 }
 exports.decryptKeys = decryptKeys;
+function getSatsConnectAddress() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            (0, sats_connect_1.getAddress)({
+                payload: {
+                    purposes: [
+                        sats_connect_1.AddressPurpose.Ordinals,
+                        sats_connect_1.AddressPurpose.Payment,
+                    ],
+                    message: "My App's Name",
+                    network: {
+                        type: sats_connect_1.BitcoinNetworkType.Mainnet,
+                    },
+                },
+                onFinish: (response) => {
+                    const paymentAddressItem = response.addresses.find((address) => address.purpose === sats_connect_1.AddressPurpose.Payment);
+                    const ordinalsAddressItem = response.addresses.find((address) => address.purpose === sats_connect_1.AddressPurpose.Ordinals);
+                    resolve({
+                        paymentAddress: (paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.address) || "",
+                        paymentPublicKey: (paymentAddressItem === null || paymentAddressItem === void 0 ? void 0 : paymentAddressItem.publicKey) || "",
+                        ordinalsAddress: (ordinalsAddressItem === null || ordinalsAddressItem === void 0 ? void 0 : ordinalsAddressItem.address) || ""
+                    });
+                },
+                onCancel: () => {
+                    reject("Request canceled");
+                },
+            });
+        });
+    });
+}
+exports.getSatsConnectAddress = getSatsConnectAddress;
+function signPSBT(psbtBase64, paymentAddress, indexes, broadcast = false) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            (0, sats_connect_1.signTransaction)({
+                payload: {
+                    network: {
+                        type: sats_connect_1.BitcoinNetworkType.Mainnet,
+                    },
+                    message: "Sign Transaction",
+                    psbtBase64,
+                    broadcast: broadcast, // or false if you want to broadcast yourself
+                    inputsToSign: [
+                        {
+                            address: paymentAddress,
+                            signingIndexes: indexes, // this needs to match the number of inputs coming from the payment address
+                            sigHash: 1,
+                        },
+                    ],
+                },
+                onFinish: (response) => {
+                    console.log('PSBT', response.psbtBase64);
+                    console.log('txid', response.txid); // only populated if broadcast is true
+                    resolve(response);
+                },
+                onCancel: () => {
+                    alert("Canceled");
+                    reject(new Error("Transaction cancelled"));
+                },
+            });
+        });
+    });
+}
+exports.signPSBT = signPSBT;

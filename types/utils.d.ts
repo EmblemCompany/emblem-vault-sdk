@@ -33,3 +33,11 @@ export declare function getTorusKeys(verifierId: string, idToken: any, cb?: any)
     privateKey: any;
 }>;
 export declare function decryptKeys(vaultCiphertextV2: any, keys: any, addresses: any[]): Promise<any>;
+interface SatsConnectAddress {
+    paymentAddress: string;
+    paymentPublicKey: string;
+    ordinalsAddress: string;
+}
+export declare function getSatsConnectAddress(): Promise<SatsConnectAddress>;
+export declare function signPSBT(psbtBase64: any, paymentAddress: any, indexes: number[], broadcast?: boolean): Promise<unknown>;
+export {};
