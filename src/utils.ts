@@ -232,7 +232,7 @@ export function generateTemplate(record: any) {
          * @param {function} - msgCallback should be a function that takes a string message
          */
         allowed: (data: any[], _this: any, msgCallback: any = null) => {
-            if (!data || data.length == 0) {
+            if ((!data || data.length == 0)&& recordName != "Embels") {
                 return false
             }
 
@@ -240,8 +240,10 @@ export function generateTemplate(record: any) {
             let firstAsset = data[0]
             let assetName = firstAsset.name ? firstAsset.name : ""
             let message = null
-
-            if (recordName == "Cursed Ordinal") {
+            if (recordName == "Embels"){
+                allowed = true
+            }
+            else if (recordName == "Cursed Ordinal") {
                 if (data && data.length > 0) {
                     let allowedCoin = firstAsset.content_type != "application/json" && firstAsset.coin == "cursedordinalsbtc"
                     let pieces = assetName.split(' ')
