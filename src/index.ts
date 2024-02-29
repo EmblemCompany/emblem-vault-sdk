@@ -354,6 +354,14 @@ class EmblemVaultSDK {
             value: Number(quote),
             gasPrice: gasPrice, // Use the current gas price
             gas: gasLimit // Use the estimated gas limit
+        }).on('transactionHash', (hash: any) => {
+            if (callback) callback(`Transaction submitted. Hash`, hash);
+        })
+        .on('confirmation', (confirmationNumber: any, receipt: any) => {
+            if (callback) callback(`Mint Complete. Confirmation Number`, confirmationNumber);
+        })
+        .on('error', (error: { message: any; }) => {
+            if (callback) callback(`Transaction Error`, error.message );
         });
     
         if (callback) { callback('Mint Complete') }
@@ -381,6 +389,14 @@ class EmblemVaultSDK {
             from: accounts[0],
             gasPrice: gasPrice,
             gas: estimatedGas
+        }).on('transactionHash', (hash: any) => {
+            if (callback) callback(`Transaction submitted. Hash`, hash);
+        })
+        .on('confirmation', (confirmationNumber: any, receipt: any) => {
+            if (callback) callback(`Burn Complete. Confirmation Number`, confirmationNumber);
+        })
+        .on('error', (error: { message: any; }) => {
+            if (callback) callback(`Transaction Error`, error.message );
         });
     
         if (callback) { callback('Burn Complete')}

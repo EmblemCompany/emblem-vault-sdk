@@ -35,7 +35,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const derive_1 = require("./derive");
-const SDK_VERSION = '1.9.13';
+const SDK_VERSION = '1.9.14';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -428,6 +428,17 @@ class EmblemVaultSDK {
                 value: Number(quote),
                 gasPrice: gasPrice, // Use the current gas price
                 gas: gasLimit // Use the estimated gas limit
+            }).on('transactionHash', (hash) => {
+                if (callback)
+                    callback(`Transaction submitted. Hash`, hash);
+            })
+                .on('confirmation', (confirmationNumber, receipt) => {
+                if (callback)
+                    callback(`Mint Complete. Confirmation Number`, confirmationNumber);
+            })
+                .on('error', (error) => {
+                if (callback)
+                    callback(`Transaction Error`, error.message);
             });
             if (callback) {
                 callback('Mint Complete');
@@ -455,6 +466,17 @@ class EmblemVaultSDK {
                 from: accounts[0],
                 gasPrice: gasPrice,
                 gas: estimatedGas
+            }).on('transactionHash', (hash) => {
+                if (callback)
+                    callback(`Transaction submitted. Hash`, hash);
+            })
+                .on('confirmation', (confirmationNumber, receipt) => {
+                if (callback)
+                    callback(`Burn Complete. Confirmation Number`, confirmationNumber);
+            })
+                .on('error', (error) => {
+                if (callback)
+                    callback(`Transaction Error`, error.message);
             });
             if (callback) {
                 callback('Burn Complete');
