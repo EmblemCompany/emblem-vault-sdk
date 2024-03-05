@@ -1,0 +1,17 @@
+[
+  {
+    "coin": "BTC",
+    "name": "BTC",
+    "balance": 1
+  },
+  {
+    "coin": "ordinalsbtc",
+    "name": "Nakamigos Ordinal",
+    "balance": 1,
+    "type": "nft",
+    "external_url": "https://ordinals.com/inscription/5f209252497b47a9b92202a2715ad528687eb3abd5f8555171fe17fb46d67aaci0",
+    "image": "https://bis-ord-content.fra1.cdn.digitaloceanspaces.com/ordinals/5f209252497b47a9b92202a2715ad528687eb3abd5f8555171fe17fb46d67aaci0",
+    "project": "Nakamigos Ordinal",
+    "projectLogo": "https://bis-ord-content.fra1.cdn.digitaloceanspaces.com/ordinals/5f209252497b47a9b92202a2715ad528687eb3abd5f8555171fe17fb46d67aaci0"
+  }
+]

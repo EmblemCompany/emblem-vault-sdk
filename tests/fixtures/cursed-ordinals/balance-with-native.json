@@ -1,0 +1,15 @@
+[
+  {
+    "coin": "cursedordinalsbtc",
+    "content_type": "image/png",
+    "name": "Cursed Ordinal -53888",
+    "balance": 1,
+    "type": "nft",
+    "external_url": "some url",
+    "image": "some url"
+  },
+  {
+    "coin": "BTC",
+    "balance": 1
+  }
+]
