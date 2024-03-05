@@ -11,16 +11,16 @@ describe('Allowed Function for Counterparty', () => {
             expect(curatedContract.allowed([], curatedContract)).toBeFalsy()
         })
 
-        it('Does not allow non-native coins', async () => {
+        it('Does not allow more than one asset', async () => {
             const curatedContract: any = await sdk.fetchCuratedContractByName('Counterparty')
-            const balanceValues = JSON.parse(fs.readFileSync("tests/fixtures/counterparty/balance.json"))
+            const balanceValues = JSON.parse(fs.readFileSync("tests/fixtures/counterparty/balance-with-multiple.json"))
             balanceValues[0].coin = 'invalid coin'
             expect(curatedContract.allowed(balanceValues, curatedContract)).toBeFalsy()
         })
 
-        it('Does not allow more than one asset', async () => {
+        it('Does not allow non-native coin', async () => {
             const curatedContract: any = await sdk.fetchCuratedContractByName('Counterparty')
-            const balanceValues = JSON.parse(fs.readFileSync("tests/fixtures/counterparty/balance-with-native.json"))
+            const balanceValues = JSON.parse(fs.readFileSync("tests/fixtures/counterparty/balance.json"))
             balanceValues[0].coin = 'invalid coin'
             expect(curatedContract.allowed(balanceValues, curatedContract)).toBeFalsy()
         })

@@ -23,7 +23,7 @@ describe('Allowed Function for project collections', () => {
             expect(curatedContract.allowed(balanceValues, curatedContract)).toBeFalsy()
         })
 
-        it('Requires projectName to match collection name', async () => {
+        it('Requires project to match collection name', async () => {
             const curatedContract: any = await sdk.fetchCuratedContractByName('MegaPunks')
             const balanceValues = JSON.parse(fs.readFileSync("tests/fixtures/megapunks/balance.json"))
             balanceValues[0].project = 'invalid project'

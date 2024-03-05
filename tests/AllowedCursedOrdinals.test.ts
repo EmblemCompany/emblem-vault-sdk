@@ -39,6 +39,12 @@ describe('Allowed Function for Cursed Ordinals', () => {
 
             balanceValues[0].name = "Cursed Ordinal 53888"
             expect(curatedContract.allowed(balanceValues, curatedContract)).toBeFalsy()
+
+            balanceValues[0].name = "Invalid Project -53888"
+            expect(curatedContract.allowed(balanceValues, curatedContract)).toBeFalsy()
+
+            balanceValues[0].name = "Cursed Ordinal -53888"
+            expect(curatedContract.allowed(balanceValues, curatedContract)).toBeTruthy()
         })
 
         it('Requires first balance value to be a cursed ordinal', async () => {

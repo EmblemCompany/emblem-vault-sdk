@@ -30,7 +30,7 @@ describe('Allowed Function for Ethscriptions', () => {
             expect(curatedContract.allowed(balanceValues, curatedContract)).toBeTruthy()
         })
 
-        it('Allows valid coin and name', async () => {
+        it('Allows valid balances', async () => {
             const curatedContract: any = await sdk.fetchCuratedContractByName('Ethscription')
             const balanceValues = JSON.parse(fs.readFileSync("tests/fixtures/ethscriptions/balance.json"))
             expect(curatedContract.allowed(balanceValues, curatedContract)).toBeTruthy()
