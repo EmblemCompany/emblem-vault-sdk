@@ -1,0 +1,15 @@
+[
+  {
+    "coin": "XCP",
+    "name": "GUARDIANCARD",
+    "balance": 1,
+    "type": "nft",
+    "external_url": "https://xchain.io/asset/GUARDIANCARD",
+    "image": "https://xchain.io/img/cards/GUARDIANCARD.jpg",
+    "project": "Age of Chains",
+    "projectLogo": "age-of-chains.jpg",
+    "projectSite": "https://www.ageofchains.com/",
+    "traits": [],
+    "assetName": "GUARDIANCARD"
+  }
+]

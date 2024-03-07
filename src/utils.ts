@@ -17,7 +17,7 @@ function projectsFromMetadataJson() {
     for (var key in NFT_DATA) {
         const projectName = NFT_DATA[key]["projectName"]
         if (!projects.includes(projectName)) {
-            projects.push()
+            projects.push(projectName)
         }
     }
     return projects
@@ -230,10 +230,16 @@ export function generateTemplate(record: any) {
          *
          * @param {Array} data - data is a list of balance Value objects
          * (see Value's interface definition  in emblemvault.io-v3)
+         * @param {_this} _this is  one of the curatedContract returned by `fetchCuratedContracts`.
+         *  It should be further embellished with tokenId and serialNumber properties.
          * @param {function} - msgCallback should be a function that takes a string message
          */
         allowed: (data: any[], _this: any, msgCallback: any = null) => {
-            if ((!data || data.length == 0)&& recordName != "Embels") {
+            if (recordName == "Embels"){
+                return true
+            }
+
+            if ((!data || data.length == 0) ) {
                 return false
             }
 
@@ -241,10 +247,8 @@ export function generateTemplate(record: any) {
             let firstAsset = data[0]
             let assetName = firstAsset?.name ? firstAsset.name : ""
             let message = null
-            if (recordName == "Embels"){
-                allowed = true
-            }
-            else if (recordName == "Cursed Ordinal") {
+
+            if (recordName == "Cursed Ordinal") {
                 if (data && data.length > 0) {
                     let allowedCoin = firstAsset.content_type != "application/json" && firstAsset.coin == "cursedordinalsbtc"
                     let pieces = assetName.split(' ')
@@ -291,7 +295,9 @@ export function generateTemplate(record: any) {
             } else if (recordName == "Bitcoin DeGods") {
                 allowed = firstAsset.coin == "ordinalsbtc" && firstAsset.balance == 1 && firstAsset.project == "DeGods"
             } else if (PROJECTS_DATA.includes(recordName)) { // XCP
-                allowed = !!NFT_DATA[assetName] && NFT_DATA[assetName]["projectName"].toLowerCase() == recordName.toLowerCase();
+                allowed = !!NFT_DATA[assetName] &&
+                    NFT_DATA[assetName]["projectName"].toLowerCase() == recordName.toLowerCase() &&
+                    firstAsset.project == _this.name && firstAsset.balance == 1;
             } else if (_this.vaultCollectionType && _this.vaultCollectionType == "protocol") {
                 allowed = firstAsset.coin.toLowerCase() == _this.collectionChain.toLowerCase()
                 if(!allowed){
@@ -302,14 +308,12 @@ export function generateTemplate(record: any) {
                 if(!allowedChain) {
                     message = `Found ${firstAsset.coin} asset, expected ${_this.collectionChain} asset.`
                 }
-                const allowedAProject = firstAsset.project == recordName
-                if(!allowedAProject){
+                const allowedProject = firstAsset.project == recordName
+                if(!allowedProject){
                     message = (message ? `${message} ` : '') +
                         `Found asset from ${firstAsset.project} collection, expected asset from  ${recordName} collection.`
                 }
-                allowed = allowedChain && allowedAProject
-            } else { // XCP
-                allowed = firstAsset.project == _this.name && firstAsset.balance == 1;
+                allowed = allowedChain && allowedProject
             }
 
             if (message && msgCallback) {

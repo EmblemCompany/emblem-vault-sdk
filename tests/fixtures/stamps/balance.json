@@ -1,0 +1,18 @@
+[
+  {
+    "coin": "XCP",
+    "name": "Stamp #11",
+    "balance": 1,
+    "type": "nft",
+    "external_url": "https://xchain.io/asset/A5433937813514022010",
+    "image": "https://stampchain.io/stamps/88fab306902f27f2a2c5aabf8983f0ef1f4135c20c0cbf494546a611bc2692c6.png",
+    "project": "STAMPS",
+    "traits": [
+      {
+        "trait_type": "STAMPS",
+        "value": "STAMP #11"
+      }
+    ],
+    "assetName": "A5433937813514022010"
+  }
+]
