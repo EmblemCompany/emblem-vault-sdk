@@ -6,7 +6,8 @@ import abi from './abi/abi.json';
 import { AddressPurpose, BitcoinNetworkType, getAddress, signTransaction } from 'sats-connect';
 // import { phrasePathToKey } from './derive'
 
-export const NFT_DATA: any = Object.assign(metadataJson, darkfarmsMetadataJson);
+export const NFT_DATA: any = metadataJson;
+export const DARKFARMS_NFT_DATA: any = darkfarmsMetadataJson;
 // PROJECTS_DATA is list of projects i.e. curated collection names
 // that are present in metadataJson file
 const PROJECTS_DATA = projectsFromMetadataJson()
@@ -295,7 +296,12 @@ export function generateTemplate(record: any) {
                 }
             } else if (recordName == "Bitcoin DeGods") {
                 allowed = firstAsset.coin == "ordinalsbtc" && firstAsset.balance == 1 && firstAsset.project == "DeGods"
-            } else if (PROJECTS_DATA.includes(recordName)) { // XCP
+            } else if(recordName == "Darkfarms"){
+                allowed = !!DARKFARMS_NFT_DATA[assetName] &&
+                    DARKFARMS_NFT_DATA[assetName]["projectName"].toLowerCase() == recordName.toLowerCase() &&
+                    firstAsset.project == _this.name && firstAsset.balance == 1;
+            }
+            else if (PROJECTS_DATA.includes(recordName)) { // XCP
                 allowed = !!NFT_DATA[assetName] &&
                     NFT_DATA[assetName]["projectName"].toLowerCase() == recordName.toLowerCase() &&
                     firstAsset.project == _this.name && firstAsset.balance == 1;
@@ -395,7 +401,7 @@ export function generateTemplate(record: any) {
                 }
             }
             // handle xcp image urls
-            
+
             let assetInformation = NFT_DATA[nameAndImage.name]? NFT_DATA[nameAndImage.name] : false
             if (assetInformation) {
                 if (assetInformation.image) {
@@ -403,7 +409,7 @@ export function generateTemplate(record: any) {
                 }
                 if (assetInformation.series) {
                     nameAndImage.name += ' | Series ' + assetInformation.series;
-                                      
+
                 }
                 if (assetInformation.order) {
                     nameAndImage.name += ' Card ' + assetInformation.order;
@@ -415,7 +421,7 @@ export function generateTemplate(record: any) {
 
             if (nameAndImage.image.includes("STAMP:")) {
                 nameAndImage.image = nameAndImage.image.replace("STAMP:", 'data:image/png:base64,')
-            } 
+            }
 
             if (_this.imageHandler) {
                 nameAndImage.image = _this.imageHandler + nameAndImage.image
@@ -426,7 +432,7 @@ export function generateTemplate(record: any) {
                 nameAndImage.image = _this.loading()
             }
 
-            if (externalUrl) {     
+            if (externalUrl) {
                 nameAndImage.explorer = `from the [${COIN_TO_NETWORK[_this.collectionChain]} blockchain](${externalUrl})`;
             }
 
@@ -468,7 +474,7 @@ export function generateTemplate(record: any) {
                 viewOnEmblemFinanceLink = `\n\n[View on Emblem.finance](https://emblem.finance/nft2?id=${metadata.tokenId})`;
             }
             nameAndImage.description = nameAndImage.description + viewOnEmblemFinanceLink;
-            
+
             return nameAndImage
         },
         generateCreateTemplate: (_this: any) =>{
@@ -571,17 +577,17 @@ export function checkContentType(url: string) {
             fetch(url, { method: 'HEAD' })
                 .then(response => {
                     if (!response.ok) {
-                        returnVal.valid = false                    
-                    } 
+                        returnVal.valid = false
+                    }
                     else if (response.status === 200) {
                         const contentType = response.headers.get('content-type');
                         let extension = getFileExtensionFromMimeType(contentType)
                         returnVal.valid = true
                         returnVal.contentType = contentType
-                        returnVal.extension = extension 
+                        returnVal.extension = extension
                         returnVal.embed = !isValidDirect(extension)
                         console.log('Content-Type:', contentType);
-                    } 
+                    }
                     resolve(returnVal);
                 })
                 .catch(error => {
