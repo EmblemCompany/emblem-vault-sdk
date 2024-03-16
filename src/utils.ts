@@ -1,11 +1,12 @@
 import CryptoJS from 'crypto-js'
 import { MetaData } from "./types";
 import metadataJson from './curated/metadata.json';
+import darkfarmsMetadataJson from './curated/darkfarms-metadata.json';
 import abi from './abi/abi.json';
 import { AddressPurpose, BitcoinNetworkType, getAddress, signTransaction } from 'sats-connect';
 // import { phrasePathToKey } from './derive'
 
-export const NFT_DATA: any = metadataJson
+export const NFT_DATA: any = Object.assign(metadataJson, darkfarmsMetadataJson);
 // PROJECTS_DATA is list of projects i.e. curated collection names
 // that are present in metadataJson file
 const PROJECTS_DATA = projectsFromMetadataJson()
