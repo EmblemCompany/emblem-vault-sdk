@@ -1,0 +1,22 @@
+[
+  {
+    "coin": "XCP",
+    "name": "RUGLOBSTER",
+    "balance": 1,
+    "type": "nft",
+    "external_url": "https://xchain.io/asset/RUGLOBSTER",
+    "image": "https://i.imgur.com//jLToES6.png",
+    "project": "Darkfarms",
+    "traits": [
+      {
+        "trait_type": "Type",
+        "value": "General"
+      },
+      {
+        "trait_type": "Quantity",
+        "value": 78
+      }
+    ],
+    "assetName": "RUGLOBSTER"
+  }
+]

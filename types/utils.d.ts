@@ -1,4 +1,5 @@
 export declare const NFT_DATA: any;
+export declare const DARKFARMS_NFT_DATA: any;
 export declare const pad: (num: string | any[], size: number) => string | null;
 export declare const evaluateFacts: (allowed: boolean, facts: {
     eval: any;
