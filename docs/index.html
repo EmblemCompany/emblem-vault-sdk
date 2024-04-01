@@ -121,6 +121,7 @@
         function selectContract(index) {
             let contract = window.curatedContracts[index];
             let template = contract.generateCreateTemplate(contract)
+            template.chainId = 1
             template.toAddress = document.getElementById('ethAddress').value;
             template.fromAddress = document.getElementById('ethAddress').value;
             window.contract = contract;

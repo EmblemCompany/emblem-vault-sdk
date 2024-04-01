@@ -1,61 +1,286 @@
-# Emblem Vault SDK
+# Emblem Vault SDK Documentation
 
-## Overview
-The EmblemVault SDK provides developers with the tools needed to interact with the EmblemVault API, facilitating the seamless integration of EmblemVault functionalities into applications.
+The Emblem Vault SDK is a JavaScript library that provides functionality for interacting with Emblem Vaults, including creating vaults, refreshing balances, and performing minting operations.
 
-## Getting Started
+## Table of Contents
+- [Installation](#installation)
+- [Initialization](#initialization)
+- [Fetching Curated Contracts](#fetching-curated-contracts)
+- [Creating a Vault](#creating-a-vault)
+- [Refreshing Vault Balance](#refreshing-vault-balance)
+- [Validating Mintability](#validating-mintability)
+- [Performing a Mint](#performing-a-mint)
+- [Utility Functions](#utility-functions)
+  - [generateUploadUrl()](#generateuploadurl)
+  - [generateAttributeTemplate(record: any)](#generateattributetemplaterecord-any)
+  - [generateImageTemplate(record: any)](#generateimagetemplaterecord-any)
+  - [generateTemplate(record: any)](#generatetemplaterecord-any)
+  - [templateGuard(input: { [x: string]: any; hasOwnProperty: (arg0: string) => any; })](#templateguardinput--x-string-any-hasownproperty-arg0-string--any-)
+  - [genericGuard(input: any, type: string, key: string)](#genericguardinput-any-type-string-key-string)
+  - [getQuoteContractObject(web3: any)](#getquotecontractobjectweb3-any)
+  - [getHandlerContract(web3: any)](#gethandlercontractweb3-any)
+  - [getLegacyContract(web3: any)](#getlegacycontractweb3-any)
+  - [checkContentType(url: string)](#checkcontenttypeurl-string)
+  - [getTorusKeys(verifierId: string, idToken: any, cb: any = null)](#gettoruskeysveriferid-string-idtoken-any-cb-any--null)
+  - [decryptKeys(vaultCiphertextV2: any, keys: any, addresses: any[])](#decryptkeysvaultciphertextv2-any-keys-any-addresses-any)
+  - [getSatsConnectAddress()](#getsatsconnectaddress)
+  - [signPSBT(psbtBase64: any, paymentAddress: any, indexes: number[], broadcast: boolean = false)](#signpsbtpsbtbase64-any-paymentaddress-any-indexes-number-broadcast-boolean--false)
+- [Example Usage](#example-usage)
 
-### Installation
-Install via npm or yarn:
-- `npm install emblemvault-sdk`
-- `yarn add emblemvault-sdk`
+## Installation
 
-### Initialization
-Initialize with your API key:
+To use the Emblem Vault SDK in your project, include the `bundle.js` file in your HTML file:
+
+```html
+<script src="./bundle.js"></script>
+```
+
+Or use within NodeJS by `npm install emblem-vault-sdk`
+
 ```javascript
-import EmblemVaultSDK from 'emblemvault-sdk';
-const emblemVaultSDK = new EmblemVaultSDK('YOUR_API_KEY');
+let EmblemVaultSDK = require('emblem-vault-sdk').default
 ```
 
-## API Reference
+## Initialization
 
-### Asset Metadata Methods
-- **getAssetMetadata(projectName, strict = false)**: Fetch metadata for assets by project name.
-- **getAllAssetMetadata()**: Retrieve metadata for all assets.
-- **getAllProjects()**: Get a list of all projects.
+To initialize the SDK, create an instance of the `EmblemVaultSDK` class:
 
-### Curated Collections Methods
-- **fetchCuratedContracts(hideUnMintable = false, overrideFunc = false)**: Fetch curated contracts, with optional parameters to hide unmintable contracts or override the fetching function.
-- **fetchCuratedContractByName(name, contracts = false)**: Fetch a curated contract by its name.
+```javascript
 
-### Web3 Integration Methods
-- **loadWeb3()**: Dynamically load Web3 and connect to MetaMask.
-
-### Minting, Burning, and Claiming Methods
-- **performMintChain(web3, tokenId, collectionName, callback = null)**: Perform the minting process for a specific token in a collection.
-- **performBurn(web3, tokenId, callback = null)**: Burn a token.
-- **performClaimChain(web3, tokenId, serialNumber, callback = null)**: Claim ownership of a token.
-
-### Bitcoin Network Methods
-- **getSatsConnectAddress()**: Generate a SatsConnect address for Bitcoin transactions.
-- **generatePSBT(phrase, satsPerByte = 20)**: Generate a Partially Signed Bitcoin Transaction (PSBT).
-- **getTaprootAddressFromMnemonic(phrase)**: Generate a Taproot address from a mnemonic phrase.
-
-## Global Declaration
-The `EmblemVaultSDK` is available globally in web applications through the `window` object.
-
-
-## Simple Html Demo
-
-View Live Demo Here(https://emblemcompany.github.io/emblem-vault-sdk/)
-```
-git clone https://github.com/EmblemCompany/emblem-vault-sdk.git
-cd emblem-vault-sdk/docs
-open index.html
+const sdk = new EmblemVaultSDK('demo');
 ```
 
-### Visit our #Development channel on Discord
-#development (https://discord.gg/UEkrya8usj)
+## Fetching Curated Contracts
+To fetch the curated contracts, use the fetchCuratedContracts method:
+```javascript
+sdk.fetchCuratedContracts(false).then(curatedContracts => {
+    // Use the curated contracts
+});
+```
 
+## Creating a Vault
+To create a vault, prepare a contract template object and call the createCuratedVault method:
 
+```javascript
+let contractTemplate = {
+    fromAddress: null,
+    toAddress: null,
+    chainId: 1,
+    experimental: true,
+    targetContract: {
+        "1": "0x345eF9d7E75aEEb979053AA41BB6330683353B7b",
+        "5": "0x582699d2c58A38056Cf02875540705137f0bbbF7",
+        name: "Bitcoin DeGods",
+        description: "Bitcoin DeGods is a collection of 535 Bitcoin Ordinals inscribed in the 77236 to 77770 range. This collection is curated by Emblem Vault."
+    },
+    targetAsset: {
+        image: "https://emblem.finance/btcdegods.jpg",
+        name: "Loading...",
+        xtra: "anything else you need here"
+    }
+};
+
+vaultData = await sdk.createCuratedVault(contractTemplate, updateLogCallback);
+```
+## Refreshing Vault Balance
+To refresh the balance of a vault, use the refreshBalance method:
+
+```javascript
+vaultBalance = await sdk.refreshBalance(vaultData.tokenId, updateLogCallback);
+```
+## Validating Mintability
+To validate if a vault is mintable, use the allowed method of the curated contract object:
+
+```javascript
+let contractObject = await sdk.fetchCuratedContractByName(contractTemplate.targetContract.name);
+let mintable = contractObject.allowed(vaultBalance, contractObject);
+```
+## Performing a Mint
+To perform a mint, use the performMintChain method:
+
+```javascript
+sdk.performMintChain(web3, vaultData.tokenId, contractTemplate.targetContract.name, updateLogCallback)
+    .then(result => {
+        // Handle success
+    })
+    .catch(error => {
+        // Handle error
+    });
+```
+## Utility Functions
+### `generateUploadUrl()`
+
+Generates a URL for uploading files.
+
+## `generateAttributeTemplate(record: any)`
+
+Generates an attribute template based on the provided record.
+
+* Parameters:
+    * `record`: The record object containing information about the asset.
+* Returns:
+    * An array of attribute templates.
+
+## `generateImageTemplate(record: any)`
+
+Generates an image template based on the provided record.
+
+* Parameters:
+    * `record`: The record object containing information about the asset.
+* Returns:
+    * An object containing image template properties.
+
+## `generateTemplate(record: any)`
+
+Generates a template for a given curated collection record.
+
+* Parameters:
+    * `record`: The curated collection record.
+* Returns:
+A template object containing rules and utilities for the curated collection.
+
+## `templateGuard(input: { [x: string]: any; hasOwnProperty: (arg0: string) => any; })`
+
+Validates the provided template input and throws an error if any required fields are missing or invalid.
+
+* Parameters:
+    * `input`: The template input object to validate.
+
+## `genericGuard(input: any, type: string, key: string)`
+
+Validates the provided input against the specified type and key.
+
+* Parameters:
+    * `input`: The input value to validate.
+    * `type`: The expected type of the input.
+    * `key`: The key or name of the input.
+
+## `getQuoteContractObject(web3: any)`
+
+Retrieves the quote contract object using the provided Web3 instance.
+
+* Parameters:
+    * web3: The Web3 instance.
+* Returns:
+    * A promise that resolves to the quote contract object.
+
+## `getHandlerContract(web3: any)`
+
+Retrieves the handler contract object using the provided Web3 instance.
+
+* Parameters:
+    * `web3`: The Web3 instance.
+* Returns:
+    * A promise that resolves to the handler contract object.
+
+## `getLegacyContract(web3: any)`
+
+Retrieves the legacy contract object using the provided Web3 instance.
+
+* Parameters:
+    * `web3`: The Web3 instance.
+* Returns:
+    * A promise that resolves to the legacy contract object.
+
+## `checkContentType(url: string)`
+
+Checks the content type of the provided URL by making a HEAD request.
+
+* Parameters:
+    * `url`: The URL to check the content type of.
+* Returns:
+    * A promise that resolves to an object containing the content type information.
+
+## `getTorusKeys(verifierId: string, idToken: any, cb: any = null)`
+
+Retrieves the Torus keys using the provided verifier ID and ID token.
+
+* Parameters:
+    * `verifierId`: The verifier ID.
+    * `idToken`: The ID token.
+    * `cb` (optional): A callback function to handle the retrieved keys.
+* Returns:
+    * A promise that resolves to an object containing the private key.
+
+## `decryptKeys(vaultCiphertextV2: any, keys: any, addresses: any[])`
+
+Decrypts the vault keys using the provided ciphertext, keys, and addresses.
+
+* Parameters:
+    * `vaultCiphertextV2`: The vault ciphertext to decrypt.
+    * `keys`: The keys used for decryption.
+    * `addresses`: An array of addresses associated with the vault.
+* Returns:
+    * A promise that resolves to the decrypted payload.
+
+## `getSatsConnectAddress()`
+
+Retrieves the Sats Connect address.
+
+* Returns:
+    * A promise that resolves to an object containing the payment address, payment public key, and ordinals address.
+
+## `signPSBT(psbtBase64: any, paymentAddress: any, indexes: number[], broadcast: boolean = false)`
+
+Signs a Partially Signed Bitcoin Transaction (PSBT) using the provided PSBT base64 data, payment address, and input indexes.
+
+* Parameters:
+    * `psbtBase64`: The base64-encoded PSBT data.
+    * `paymentAddress`: The payment address.
+    * `indexes`: An array of input indexes to sign.
+    * `broadcast` (optional): A boolean indicating whether to broadcast the transaction after signing (default: false).
+* Returns:
+    * A promise that resolves to the signed PSBT response.
+
+## Example Usage
+Here's an example of how to use the Emblem Vault SDK to create a vault, refresh its balance, validate mintability, and perform a mint:    
+```javascript
+async function Step1() {
+    if (!defaultAccount) {
+        await sdk.loadWeb3();
+        defaultAccount = await web3.eth.getAccounts().then(accounts => accounts[0]).catch(err => console);
+    }
+    if (!vaultData) {
+        let chainId = Number(await web3.eth.net.getId());
+        contractTemplate.toAddress = defaultAccount;
+        contractTemplate.fromAddress = defaultAccount;
+        contractTemplate.chainId = chainId;
+        vaultData = await sdk.createCuratedVault(contractTemplate, updateLogCallback).catch(err => console.log(err));
+        if (!vaultData || vaultData.err) {
+            setTimeout(Step1, 1000);
+        } else {
+            updateLogCallback("deposit Address", vaultData.addresses.find(address => { return address.coin == 'TAP' }).address);
+        }
+    }
+}
+
+async function Step2() {
+    if (vaultData) {
+        vaultBalance = await sdk.refreshBalance(vaultData.tokenId, updateLogCallback).catch(err => console);
+    }
+}
+
+async function Step3() {
+    if (vaultBalance.length > 0) {
+        let contractObject = await sdk.fetchCuratedContractByName(contractTemplate.targetContract.name);
+        let mintable = contractObject.allowed(vaultBalance, contractObject);
+        if (mintable) {
+            performMint();
+        }
+    }
+}
+
+async function performMint() {
+    if (vaultData.tokenId) {
+        sdk.performMintChain(web3, vaultData.tokenId, contractTemplate.targetContract.name, updateLogCallback)
+            .then(result => {
+                updateLogCallback('Minting success', 'tokenId: ' + vaultData.tokenId);
+            })
+            .catch(error => {
+                updateLogCallback('', error.message);
+            });
+    }
+}
+```
+This example demonstrates the step-by-step process of creating a vault, refreshing its balance, validating mintability, and performing a mint using the Emblem Vault SDK.
 
