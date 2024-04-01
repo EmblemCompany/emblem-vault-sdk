@@ -157,12 +157,43 @@ Validates the provided input against the specified type and key.
 
 #### `getQuoteContractObject(web3: any)`
 
-Retrieves the quote contract object using the provided Web3 instance.
+Retrieves the quote contract object using the provided Web3 instance. Used to calculate the amount in BASE CURRENCY to charge for an operation
 
 * Parameters:
     * web3: The Web3 instance.
 * Returns:
     * A promise that resolves to the quote contract object.
+
+Example
+```javascript
+async function getQuote(usdPrice) {
+    try {
+        // Load Web3
+        await sdk.loadWeb3();
+
+        // Get the Web3 instance
+        const web3 = window.web3;
+
+        // Get the quote contract object
+        const quoteContract = await sdk.getQuoteContractObject(web3);
+
+        // Get the current user's account
+        const accounts = await web3.eth.getAccounts();
+        const userAccount = accounts[0];
+
+        // Call the quoteExternalPrice method on the quote contract
+        const quote = await quoteContract.methods.quoteExternalPrice(userAccount, usdPrice).call();
+
+        console.log('Quote:', quote);
+    } catch (error) {
+        console.error('Error getting quote:', error);
+    }
+}
+
+// Call the getQuote function
+getQuote(25);
+```
+
 
 #### `getHandlerContract(web3: any)`
 
