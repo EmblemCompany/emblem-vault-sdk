@@ -12,14 +12,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signPSBT = exports.getSatsConnectAddress = exports.decryptKeys = exports.getTorusKeys = exports.COIN_TO_NETWORK = exports.checkContentType = exports.getLegacyContract = exports.getHandlerContract = exports.getQuoteContractObject = exports.genericGuard = exports.templateGuard = exports.generateTemplate = exports.generateImageTemplate = exports.generateAttributeTemplate = exports.fetchData = exports.metadataAllProjects = exports.metadataObj2Arr = exports.evaluateFacts = exports.pad = exports.NFT_DATA = void 0;
+exports.signPSBT = exports.getSatsConnectAddress = exports.decryptKeys = exports.getTorusKeys = exports.COIN_TO_NETWORK = exports.checkContentType = exports.getLegacyContract = exports.getHandlerContract = exports.getQuoteContractObject = exports.genericGuard = exports.templateGuard = exports.generateTemplate = exports.generateImageTemplate = exports.generateAttributeTemplate = exports.fetchData = exports.metadataAllProjects = exports.metadataObj2Arr = exports.evaluateFacts = exports.pad = exports.DARKFARMS_NFT_DATA = exports.NFT_DATA = void 0;
 const crypto_js_1 = __importDefault(require("crypto-js"));
 const metadata_json_1 = __importDefault(require("./curated/metadata.json"));
 const darkfarms_metadata_json_1 = __importDefault(require("./curated/darkfarms-metadata.json"));
 const abi_json_1 = __importDefault(require("./abi/abi.json"));
 const sats_connect_1 = require("sats-connect");
 // import { phrasePathToKey } from './derive'
-exports.NFT_DATA = Object.assign(metadata_json_1.default, darkfarms_metadata_json_1.default);
+exports.NFT_DATA = metadata_json_1.default;
+exports.DARKFARMS_NFT_DATA = darkfarms_metadata_json_1.default;
 // PROJECTS_DATA is list of projects i.e. curated collection names
 // that are present in metadataJson file
 const PROJECTS_DATA = projectsFromMetadataJson();
@@ -317,6 +318,11 @@ function generateTemplate(record) {
             }
             else if (recordName == "Bitcoin DeGods") {
                 allowed = firstAsset.coin == "ordinalsbtc" && firstAsset.balance == 1 && firstAsset.project == "DeGods";
+            }
+            else if (recordName == "Darkfarms") {
+                allowed = !!exports.DARKFARMS_NFT_DATA[assetName] &&
+                    exports.DARKFARMS_NFT_DATA[assetName]["projectName"].toLowerCase() == recordName.toLowerCase() &&
+                    firstAsset.project == _this.name && firstAsset.balance == 1;
             }
             else if (PROJECTS_DATA.includes(recordName)) { // XCP
                 allowed = !!exports.NFT_DATA[assetName] &&
