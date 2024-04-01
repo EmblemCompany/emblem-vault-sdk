@@ -108,11 +108,11 @@ sdk.performMintChain(web3, vaultData.tokenId, contractTemplate.targetContract.na
     });
 ```
 ## Utility Functions
-### `generateUploadUrl()`
+#### `generateUploadUrl()`
 
 Generates a URL for uploading files.
 
-## `generateAttributeTemplate(record: any)`
+#### `generateAttributeTemplate(record: any)`
 
 Generates an attribute template based on the provided record.
 
@@ -121,7 +121,7 @@ Generates an attribute template based on the provided record.
 * Returns:
     * An array of attribute templates.
 
-## `generateImageTemplate(record: any)`
+#### `generateImageTemplate(record: any)`
 
 Generates an image template based on the provided record.
 
@@ -130,7 +130,7 @@ Generates an image template based on the provided record.
 * Returns:
     * An object containing image template properties.
 
-## `generateTemplate(record: any)`
+#### `generateTemplate(record: any)`
 
 Generates a template for a given curated collection record.
 
@@ -139,14 +139,14 @@ Generates a template for a given curated collection record.
 * Returns:
 A template object containing rules and utilities for the curated collection.
 
-## `templateGuard(input: { [x: string]: any; hasOwnProperty: (arg0: string) => any; })`
+#### `templateGuard(input: { [x: string]: any; hasOwnProperty: (arg0: string) => any; })`
 
 Validates the provided template input and throws an error if any required fields are missing or invalid.
 
 * Parameters:
     * `input`: The template input object to validate.
 
-## `genericGuard(input: any, type: string, key: string)`
+#### `genericGuard(input: any, type: string, key: string)`
 
 Validates the provided input against the specified type and key.
 
@@ -155,7 +155,7 @@ Validates the provided input against the specified type and key.
     * `type`: The expected type of the input.
     * `key`: The key or name of the input.
 
-## `getQuoteContractObject(web3: any)`
+#### `getQuoteContractObject(web3: any)`
 
 Retrieves the quote contract object using the provided Web3 instance.
 
@@ -164,7 +164,7 @@ Retrieves the quote contract object using the provided Web3 instance.
 * Returns:
     * A promise that resolves to the quote contract object.
 
-## `getHandlerContract(web3: any)`
+#### `getHandlerContract(web3: any)`
 
 Retrieves the handler contract object using the provided Web3 instance.
 
@@ -173,7 +173,7 @@ Retrieves the handler contract object using the provided Web3 instance.
 * Returns:
     * A promise that resolves to the handler contract object.
 
-## `getLegacyContract(web3: any)`
+#### `getLegacyContract(web3: any)`
 
 Retrieves the legacy contract object using the provided Web3 instance.
 
@@ -182,7 +182,7 @@ Retrieves the legacy contract object using the provided Web3 instance.
 * Returns:
     * A promise that resolves to the legacy contract object.
 
-## `checkContentType(url: string)`
+#### `checkContentType(url: string)`
 
 Checks the content type of the provided URL by making a HEAD request.
 
@@ -191,7 +191,7 @@ Checks the content type of the provided URL by making a HEAD request.
 * Returns:
     * A promise that resolves to an object containing the content type information.
 
-## `getTorusKeys(verifierId: string, idToken: any, cb: any = null)`
+#### `getTorusKeys(verifierId: string, idToken: any, cb: any = null)`
 
 Retrieves the Torus keys using the provided verifier ID and ID token.
 
@@ -202,7 +202,7 @@ Retrieves the Torus keys using the provided verifier ID and ID token.
 * Returns:
     * A promise that resolves to an object containing the private key.
 
-## `decryptKeys(vaultCiphertextV2: any, keys: any, addresses: any[])`
+#### `decryptKeys(vaultCiphertextV2: any, keys: any, addresses: any[])`
 
 Decrypts the vault keys using the provided ciphertext, keys, and addresses.
 
@@ -213,14 +213,14 @@ Decrypts the vault keys using the provided ciphertext, keys, and addresses.
 * Returns:
     * A promise that resolves to the decrypted payload.
 
-## `getSatsConnectAddress()`
+#### `getSatsConnectAddress()`
 
 Retrieves the Sats Connect address.
 
 * Returns:
     * A promise that resolves to an object containing the payment address, payment public key, and ordinals address.
 
-## `signPSBT(psbtBase64: any, paymentAddress: any, indexes: number[], broadcast: boolean = false)`
+#### `signPSBT(psbtBase64: any, paymentAddress: any, indexes: number[], broadcast: boolean = false)`
 
 Signs a Partially Signed Bitcoin Transaction (PSBT) using the provided PSBT base64 data, payment address, and input indexes.
 
