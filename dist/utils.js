@@ -318,6 +318,10 @@ function generateTemplate(record) {
             else if (recordName == "Bitcoin DeGods") {
                 allowed = firstAsset.coin == "ordinalsbtc" && firstAsset.balance == 1 && firstAsset.project == "DeGods";
             }
+            else if (recordName == "dot_id" || recordName == "dot_bit") {
+                data = _this.filterNativeBalances({ balances: data }, _this);
+                allowed = firstAsset.project == data[0].project == recordName;
+            }
             else if (PROJECTS_DATA.includes(recordName)) { // XCP
                 allowed = !!exports.NFT_DATA[assetName] &&
                     exports.NFT_DATA[assetName]["projectName"].toLowerCase() == recordName.toLowerCase() &&
