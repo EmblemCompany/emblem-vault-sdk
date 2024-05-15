@@ -320,7 +320,7 @@ function generateTemplate(record) {
             }
             else if (recordName == "dot_id" || recordName == "dot_bit") {
                 data = _this.filterNativeBalances({ balances: data }, _this);
-                allowed = firstAsset.project == data[0].project == recordName;
+                allowed = data[0].project == recordName;
             }
             else if (PROJECTS_DATA.includes(recordName)) { // XCP
                 allowed = !!exports.NFT_DATA[assetName] &&
