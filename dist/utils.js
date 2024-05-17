@@ -16,10 +16,11 @@ exports.signPSBT = exports.getSatsConnectAddress = exports.decryptKeys = exports
 const crypto_js_1 = __importDefault(require("crypto-js"));
 const metadata_json_1 = __importDefault(require("./curated/metadata.json"));
 const darkfarms_metadata_json_1 = __importDefault(require("./curated/darkfarms-metadata.json"));
+const dot_id_json_1 = __importDefault(require("./curated/dot_id.json"));
 const abi_json_1 = __importDefault(require("./abi/abi.json"));
 const sats_connect_1 = require("sats-connect");
 // import { phrasePathToKey } from './derive'
-exports.NFT_DATA = Object.assign(metadata_json_1.default, darkfarms_metadata_json_1.default);
+exports.NFT_DATA = Object.assign(metadata_json_1.default, darkfarms_metadata_json_1.default, dot_id_json_1.default);
 // PROJECTS_DATA is list of projects i.e. curated collection names
 // that are present in metadataJson file
 const PROJECTS_DATA = projectsFromMetadataJson();
