@@ -319,7 +319,7 @@ function generateTemplate(record) {
             else if (recordName == "Bitcoin DeGods") {
                 allowed = firstAsset.coin == "ordinalsbtc" && firstAsset.balance == 1 && firstAsset.project == "DeGods";
             }
-            else if (recordName == "dot_id" || recordName == "dot_bit" || recordName == "Twitter Eggs" || recordName == "Blockhead" || recordName == "Punycodes") {
+            else if (recordName == "dot_id" || recordName == "dot_bit" || recordName == "Twitter Eggs" || recordName == "Blockhead" || recordName == "punycodes") {
                 data = _this.filterNativeBalances({ balances: data }, _this);
                 allowed = data[0].project == recordName;
             }
