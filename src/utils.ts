@@ -296,7 +296,7 @@ export function generateTemplate(record: any) {
                 }
             } else if (recordName == "Bitcoin DeGods") {
                 allowed = firstAsset.coin == "ordinalsbtc" && firstAsset.balance == 1 && firstAsset.project == "DeGods"
-            } else if (recordName == "dot_id" || recordName == "dot_bit") {
+            } else if (recordName == "dot_id" || recordName == "dot_bit" || recordName == "Twitter Eggs" || recordName == "Blockhead" || recordName == "Punycodes") {
                 data = _this.filterNativeBalances({balances: data}, _this)
                 allowed = data[0].project == recordName
             } else if (PROJECTS_DATA.includes(recordName)) { // XCP
