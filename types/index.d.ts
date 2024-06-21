@@ -10,6 +10,9 @@ declare class EmblemVaultSDK {
     generateUploadUrl(): void;
     getAssetMetadata(projectName: string, strict?: boolean): any[];
     getAllAssetMetadata(): any[];
+    getRemoteAssetMetadataProjectList(): Promise<any>;
+    getRemoteAssetMetadata(asset_name: string): Promise<any>;
+    getRemoteAssetMetadataVaultedProjectList(): Promise<any>;
     getAllProjects(): any[];
     fetchCuratedContracts(hideUnMintable?: boolean, overrideFunc?: Function | boolean): Promise<CuratedCollectionsResponse>;
     fetchCuratedContractByName(name: string, contracts?: any): Promise<Collection | null>;

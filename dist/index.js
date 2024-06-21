@@ -35,7 +35,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const derive_1 = require("./derive");
-const SDK_VERSION = '1.9.21';
+const SDK_VERSION = '1.10.0';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -64,6 +64,15 @@ class EmblemVaultSDK {
     }
     getAllAssetMetadata() {
         return (0, utils_1.metadataObj2Arr)(utils_1.NFT_DATA);
+    }
+    getRemoteAssetMetadataProjectList() {
+        return (0, utils_1.fetchData)(`${this.v3Url}/asset_metadata/projects`, this.apiKey);
+    }
+    getRemoteAssetMetadata(asset_name) {
+        return (0, utils_1.fetchData)(`${this.v3Url}/asset_metadata/${asset_name}`, this.apiKey);
+    }
+    getRemoteAssetMetadataVaultedProjectList() {
+        return (0, utils_1.fetchData)(`${this.v3Url}/asset_metadata/projects/vaulted`, this.apiKey);
     }
     getAllProjects() {
         const NFT_DATA_ARR = (0, utils_1.metadataObj2Arr)(utils_1.NFT_DATA);

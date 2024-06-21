@@ -41,6 +41,18 @@ class EmblemVaultSDK {
         return metadataObj2Arr(NFT_DATA)
     }
 
+    getRemoteAssetMetadataProjectList() {
+        return fetchData(`${this.v3Url}/asset_metadata/projects`, this.apiKey);
+    }
+
+    getRemoteAssetMetadata(asset_name: string) {
+        return fetchData(`${this.v3Url}/asset_metadata/${asset_name}`, this.apiKey);
+    }
+
+    getRemoteAssetMetadataVaultedProjectList() {
+        return fetchData(`${this.v3Url}/asset_metadata/projects/vaulted`, this.apiKey);
+    }
+
     getAllProjects() {
         const NFT_DATA_ARR = metadataObj2Arr(NFT_DATA)
         const projects = metadataAllProjects(NFT_DATA_ARR)
