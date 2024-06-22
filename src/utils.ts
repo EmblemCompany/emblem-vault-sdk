@@ -568,35 +568,89 @@ export async function getLegacyContract(web3: any) {
 
 export function checkContentType(url: string) {
     return new Promise((resolve, reject) => {
-        // Making a HTTP HEAD request to get only the headers
-        type ReturnVal = { valid?: boolean, contentType?: string | null, extension?: string, embed?: boolean };
-        let returnVal: ReturnVal = {valid: false};
-        try {
-            fetch(url, { method: 'HEAD' })
+        // Define the return value type
+        type ReturnVal = { valid?: boolean, contentType?: string | null, extension?: string, embed?: boolean, method?: string };
+        let returnVal: ReturnVal = { valid: false };
+
+        // Function to make fetch requests
+        function fetchUrl(method: string): any {
+            return fetch(url, { method: method })
                 .then(response => {
                     if (!response.ok) {
-                        returnVal.valid = false                    
-                    } 
-                    else if (response.status === 200) {
+                        returnVal.valid = false;
+                        return resolve(returnVal);
+                    } else if (response.status === 200) {
                         const contentType = response.headers.get('content-type');
-                        let extension = getFileExtensionFromMimeType(contentType)
-                        returnVal.valid = true
-                        returnVal.contentType = contentType
-                        returnVal.extension = extension 
-                        returnVal.embed = !isValidDirect(extension)
-                        console.log('Content-Type:', contentType);
-                    } 
-                    resolve(returnVal);
+                        if (!contentType && method === 'HEAD') {
+                            // If content-type is not found in HEAD, make a GET request
+                            return fetchUrl('GET');
+                        } else {
+                            // Process the content type and resolve the promise
+                            let extension = getFileExtensionFromMimeType(contentType);
+                            returnVal.valid = true;
+                            returnVal.contentType = contentType;
+                            returnVal.extension = extension;
+                            returnVal.method = method;
+                            returnVal.embed = !isValidDirect(extension);
+                            console.log('Content-Type:', contentType);
+                            return resolve(returnVal);
+                        }
+                    } else {
+                        return resolve(returnVal);
+                    }
                 })
                 .catch(error => {
                     console.error('Error while fetching URL:', error);
-                    resolve(returnVal);
+                    return resolve(returnVal);
                 });
-            } catch (error) {
+        }
 
-            }
+        // Start with a HEAD request
+        fetchUrl('HEAD').catch((error: any) => {
+            console.error('Initial fetch error:', error);
+            resolve(returnVal);
+        });
     });
 }
+// export function checkContentType(url: string) {
+//     return new Promise((resolve, reject) => {
+//         // Making a HTTP HEAD request to get only the headers
+//         type ReturnVal = { valid?: boolean, contentType?: string | null, extension?: string, embed?: boolean, method?: string};
+//         let returnVal: ReturnVal = {valid: false};
+//         function fetchUrl(method: string) {
+//             fetch(url, { method: method })
+//                 .then(response => {
+//                     if (!response.ok) {
+//                         returnVal.valid = false                    
+//                     } 
+//                     else if (response.status === 200) {
+//                         const contentType = response.headers.get('content-type');
+//                         if (!contentType) {
+//                             return fetchUrl('GET')
+//                         } else {
+//                             let extension = getFileExtensionFromMimeType(contentType)
+//                             returnVal.valid = true
+//                             returnVal.contentType = contentType
+//                             returnVal.extension = extension 
+//                             returnVal.method = method
+//                             returnVal.embed = !isValidDirect(extension)
+//                             console.log('Content-Type:', contentType);
+//                         }
+//                     } 
+//                     return resolve(returnVal);
+//                 })
+//                 .catch(error => {
+//                     console.error('Error while fetching URL:', error);
+//                     resolve(returnVal);
+//                 });                
+//         }
+//         try {
+//             fetchUrl('HEAD');
+//         } catch (error) {
+
+//         }
+//     });
+// }
 
 function isValidDirect(extension: string) {
     switch (extension) {
