@@ -35,7 +35,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const derive_1 = require("./derive");
-const SDK_VERSION = '1.10.2';
+const SDK_VERSION = '1.10.3';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -146,7 +146,7 @@ class EmblemVaultSDK {
             if (callback) {
                 callback('refreshing Balance');
             }
-            let url = `${this.v1Url}/vault/balance/${tokenId}?live=true`;
+            let url = `${this.v3Url}/vault/balance/${tokenId}?live=true`;
             let balance = yield (0, utils_1.fetchData)(url, this.apiKey);
             if (callback) {
                 callback('received Balance', balance.balances);

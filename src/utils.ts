@@ -575,7 +575,7 @@ export function checkContentType(url: string) {
         // Function to make fetch requests
         function fetchUrl(method: string): any {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 3000); // 10 seconds timeout
+            const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 seconds timeout (probably need to make this timeout only for HEAD)
 
             return fetch(url, { method: method, signal: controller.signal })
                 .then(response => {

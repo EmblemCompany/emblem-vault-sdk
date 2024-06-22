@@ -112,7 +112,7 @@ class EmblemVaultSDK {
     async refreshBalance(tokenId: string, callback: any = null): Promise<MetaData> {
         genericGuard(tokenId, "string", "tokenId");
         if (callback) { callback('refreshing Balance')}  
-        let url = `${this.v1Url}/vault/balance/${tokenId}?live=true`;
+        let url = `${this.v3Url}/vault/balance/${tokenId}?live=true`;
         let balance = await fetchData(url, this.apiKey);
         if (callback) { callback('received Balance', balance.balances)}
         return balance?.balances || [];
