@@ -574,8 +574,12 @@ export function checkContentType(url: string) {
 
         // Function to make fetch requests
         function fetchUrl(method: string): any {
-            return fetch(url, { method: method })
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000); // 10 seconds timeout
+
+            return fetch(url, { method: method, signal: controller.signal })
                 .then(response => {
+                    clearTimeout(timeoutId);
                     if (!response.ok) {
                         returnVal.valid = false;
                         return resolve(returnVal);
@@ -600,6 +604,7 @@ export function checkContentType(url: string) {
                     }
                 })
                 .catch(error => {
+                    clearTimeout(timeoutId);
                     console.error('Error while fetching URL:', error);
                     return resolve(returnVal);
                 });
