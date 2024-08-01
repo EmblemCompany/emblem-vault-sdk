@@ -346,6 +346,9 @@ function generateTemplate(record) {
                 }
             }
             else if (_this.vaultCollectionType && _this.vaultCollectionType == "collection") {
+                if (recordName == "Bitcoin Punks") {
+                    firstAsset = _this.filterNativeBalances({ balances: data }, _this)[0];
+                }
                 const allowedChain = firstAsset.coin.toLowerCase() == _this.collectionChain.toLowerCase();
                 if (!allowedChain) {
                     message = `Found ${firstAsset.coin} asset, expected ${_this.collectionChain} asset.`;
