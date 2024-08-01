@@ -172,7 +172,7 @@ class EmblemVaultSDK {
                 vaults.forEach(async (vault: any) => {
                     if (vault.targetContract) {                        
                         let targetVault: any = await this.fetchCuratedContractByName(vault.targetContract.name, curated);
-                        let balance = vault.balances && vault.balances.length > 0 ? vault.balances : []
+                        let balance = vault.balances && vault.balances.length > 0 ? vault.balances : vault.ownership && vault.ownership.balances && vault.ownership.balances.length > 0? vault.ownership.balances: []
                         let allowed = targetVault.allowed(balance, targetVault)
                         if (allowed || !hideUnMintable) {
                             map[vault.tokenId] = { to: vault.targetContract.name, mintable: allowed};
