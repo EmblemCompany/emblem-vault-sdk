@@ -484,12 +484,7 @@ export function generateTemplate(record: any) {
                 toAddress: { type: "user-provided" },
                 chainId: { type: "user-provided" },
                 experimental: true,
-                targetContract: {
-                    ..._this.contracts,
-                    name: _this.name,
-                    description: _this.loadTypes.includes('detailed') ? null: _this.description
-
-                },
+                targetContract: _this,
                 targetAsset: {
                     name: _this.loadTypes.includes('detailed') ? { type: "user-provided"}: _this.loadTypes.includes('select')? { type: "selection-provided"}: "Loading...",
                     image: _this.loadTypes.includes('detailed') ? { type: "user-provided"}: _this.loadTypes.includes('select')? { type: "selection-provided"}: _this.loading(),
@@ -536,8 +531,10 @@ export function templateGuard(input: { [x: string]: any; hasOwnProperty: (arg0: 
                 } catch (e: any) {
                     errors.push(e.message);
                 }
-            } else if (value == "") {
+            } else if (value === "") {
                 errors.push(`'${key}' is a required field`);
+            } else if (value === false) {
+                // false is allowed, do nothing
             }
             if (errors.length > 0) {
                 throw new Error(errors.join(", "));

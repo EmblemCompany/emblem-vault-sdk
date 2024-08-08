@@ -517,7 +517,7 @@ function generateTemplate(record) {
                 toAddress: { type: "user-provided" },
                 chainId: { type: "user-provided" },
                 experimental: true,
-                targetContract: Object.assign(Object.assign({}, _this.contracts), { name: _this.name, description: _this.loadTypes.includes('detailed') ? null : _this.description }),
+                targetContract: _this,
                 targetAsset: {
                     name: _this.loadTypes.includes('detailed') ? { type: "user-provided" } : _this.loadTypes.includes('select') ? { type: "selection-provided" } : "Loading...",
                     image: _this.loadTypes.includes('detailed') ? { type: "user-provided" } : _this.loadTypes.includes('select') ? { type: "selection-provided" } : _this.loading(),
@@ -568,8 +568,11 @@ function templateGuard(input) {
                     errors.push(e.message);
                 }
             }
-            else if (value == "") {
+            else if (value === "") {
                 errors.push(`'${key}' is a required field`);
+            }
+            else if (value === false) {
+                // false is allowed, do nothing
             }
             if (errors.length > 0) {
                 throw new Error(errors.join(", "));
