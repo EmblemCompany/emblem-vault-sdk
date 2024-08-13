@@ -241,6 +241,8 @@ export function generateTemplate(record: any) {
                 return true
             }
 
+
+
             if ((!data || data.length == 0) ) {
                 return false
             }
@@ -249,8 +251,11 @@ export function generateTemplate(record: any) {
             let firstAsset = data[0]
             let assetName = firstAsset?.name ? firstAsset.name : ""
             let message = null
-
-            if (recordName == "Cursed Ordinal") {
+            if (recordName == "Filthy Fiat") {
+                data = _this.filterNativeBalances({balances: data}, _this)
+                allowed = data[0].project == recordName
+            }
+            else if (recordName == "Cursed Ordinal") {
                 if (data && data.length > 0) {
                     let allowedCoin = firstAsset.content_type != "application/json" && firstAsset.coin == "cursedordinalsbtc"
                     let pieces = assetName.split(' ')
