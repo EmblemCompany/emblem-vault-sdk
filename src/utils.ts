@@ -241,8 +241,6 @@ export function generateTemplate(record: any) {
                 return true
             }
 
-
-
             if ((!data || data.length == 0) ) {
                 return false
             }
@@ -327,6 +325,9 @@ export function generateTemplate(record: any) {
                         `Found asset from ${firstAsset.project} collection, expected asset from  ${recordName} collection.`
                 }
                 allowed = allowedChain && allowedProject
+            } else if(_this) {
+                data = _this.filterNativeBalances({balances: data}, _this)
+                allowed = data[0].project == recordName
             }
 
             if (message && msgCallback) {

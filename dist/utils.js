@@ -364,6 +364,10 @@ function generateTemplate(record) {
                 }
                 allowed = allowedChain && allowedProject;
             }
+            else if (_this) {
+                data = _this.filterNativeBalances({ balances: data }, _this);
+                allowed = data[0].project == recordName;
+            }
             if (message && msgCallback) {
                 msgCallback(message);
             }
