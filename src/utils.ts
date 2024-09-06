@@ -351,7 +351,7 @@ export function generateTemplate(record: any) {
             if (hasAnyBalance && recordName != "Rinkeby") {
                 let filteredBalances = _this.filterNativeBalances(ownership_balances, _this)
                 // single
-                if (filteredBalances.length == 1) {
+                if ((_this.vaultCollectionType == "protocol" && filteredBalances.length >=1) || filteredBalances.length == 1) {
                     allowedJump = _this.allowed(filteredBalances, _this)
                 } else {
                     allowedJump = false
