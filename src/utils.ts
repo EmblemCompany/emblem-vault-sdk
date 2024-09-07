@@ -270,16 +270,16 @@ export function generateTemplate(record: any) {
                 if (!allowed) {
                     message = `Load vault with exactly ${balanceQty} ${recordName}`
                 }
-            } else if (recordName == "Counterparty") {
-                let facts = [
-                    {
-                        eval: record.nativeAssets.includes(data[0]?.coin),
-                        msg: `Vaults should only contain assets native to ${recordName}`
-                    },
-                    {eval: data.length == 1, msg: `Vaults should only contain a single item`},
-                    // { eval: data[0].projectName && data[0].projectName == recordName, msg: `Vaults should only contain a single item` }
-                ]
-                allowed = evaluateFacts(allowed, facts, msgCallback)
+            // } else if (recordName == "Counterparty") {
+            //     let facts = [
+            //         {
+            //             eval: record.nativeAssets.includes(data[0]?.coin),
+            //             msg: `Vaults should only contain assets native to ${recordName}`
+            //         },
+            //         {eval: data.length == 1, msg: `Vaults should only contain a single item`},
+            //         // { eval: data[0].projectName && data[0].projectName == recordName, msg: `Vaults should only contain a single item` }
+            //     ]
+            //     allowed = evaluateFacts(allowed, facts, msgCallback)
             } else if (recordName == "Stamps") {
                 let allowedName = assetName.toLowerCase().includes("stamp")
                 allowed = allowedName &&
@@ -350,8 +350,7 @@ export function generateTemplate(record: any) {
             let allowedJump = false
             if (hasAnyBalance && recordName != "Rinkeby") {
                 let filteredBalances = _this.filterNativeBalances(ownership_balances, _this)
-                // single
-                if ((_this.vaultCollectionType == "protocol" && filteredBalances.length >=1) || filteredBalances.length == 1) {
+                if ((_this.vaultCollectionType == "protocol" && filteredBalances.length >= 1 && filteredBalances.every((balance: { coin: string; }) => balance.coin.toLowerCase() == _this.collectionChain.toLowerCase())) || filteredBalances.length == 1) {
                     allowedJump = _this.allowed(filteredBalances, _this)
                 } else {
                     allowedJump = false
