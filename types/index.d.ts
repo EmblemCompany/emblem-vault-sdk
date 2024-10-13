@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { Collection, CuratedCollectionsResponse, MetaData, Vault } from './types';
+import { Collection, CuratedCollectionsResponse, MetaData, Ownership, Vault } from './types';
 declare class EmblemVaultSDK {
     private apiKey;
     private baseUrl;
@@ -17,7 +17,7 @@ declare class EmblemVaultSDK {
     fetchCuratedContracts(hideUnMintable?: boolean, overrideFunc?: Function | boolean): Promise<CuratedCollectionsResponse>;
     fetchCuratedContractByName(name: string, contracts?: any): Promise<Collection | null>;
     createCuratedVault(template: any, callback?: any): Promise<Vault>;
-    refreshOwnershipForTokenId(tokenId: string, callback?: any): Promise<any>;
+    refreshOwnershipForTokenId(tokenId: string, callback?: any): Promise<Ownership[]>;
     fetchMetadata(tokenId: string, callback?: any): Promise<MetaData>;
     refreshBalance(tokenId: string, callback?: any): Promise<MetaData>;
     fetchVaultsOfType(vaultType: string, address: string): Promise<any>;

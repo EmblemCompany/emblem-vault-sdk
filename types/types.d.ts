@@ -117,4 +117,19 @@ export type Vault = {
     network: string;
     live: boolean;
 };
+export type Ownership = {
+    id: number;
+    created_at: string;
+    tokenId: string;
+    owner: string;
+    internalTokenId: string;
+    serialNumber: string | null;
+    contract: string;
+    category: string;
+    blockUpdated: string;
+    createdBy: string;
+    status: string;
+    claimedBy: string | null;
+    network: string;
+};
 export type CuratedCollectionsResponse = Collection[];
