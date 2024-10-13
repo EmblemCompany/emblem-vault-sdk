@@ -17,6 +17,7 @@ declare class EmblemVaultSDK {
     fetchCuratedContracts(hideUnMintable?: boolean, overrideFunc?: Function | boolean): Promise<CuratedCollectionsResponse>;
     fetchCuratedContractByName(name: string, contracts?: any): Promise<Collection | null>;
     createCuratedVault(template: any, callback?: any): Promise<Vault>;
+    refreshOwnershipForTokenId(tokenId: string, callback?: any): Promise<any>;
     fetchMetadata(tokenId: string, callback?: any): Promise<MetaData>;
     refreshBalance(tokenId: string, callback?: any): Promise<MetaData>;
     fetchVaultsOfType(vaultType: string, address: string): Promise<any>;

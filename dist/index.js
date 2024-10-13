@@ -35,7 +35,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const derive_1 = require("./derive");
-const SDK_VERSION = '1.12.3';
+const SDK_VERSION = '1.12.4';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -124,6 +124,14 @@ class EmblemVaultSDK {
                 callback(`created Vault tokenId`, vaultCreationResponse.data.tokenId);
             }
             return vaultCreationResponse.data;
+        });
+    }
+    refreshOwnershipForTokenId(tokenId_1) {
+        return __awaiter(this, arguments, void 0, function* (tokenId, callback = null) {
+            (0, utils_1.genericGuard)(tokenId, "string", "tokenId");
+            let url = `${this.baseUrl}/refreshBalanceForTokenId`;
+            let response = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { tokenId });
+            return response;
         });
     }
     fetchMetadata(tokenId_1) {

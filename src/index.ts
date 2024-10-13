@@ -100,6 +100,13 @@ class EmblemVaultSDK {
         return vaultCreationResponse.data
     }
 
+    async refreshOwnershipForTokenId(tokenId: string, callback: any = null) {
+        genericGuard(tokenId, "string", "tokenId");
+        let url = `${this.baseUrl}/refreshBalanceForTokenId`;
+        let response = await fetchData(url, this.apiKey, 'POST', {tokenId});
+        return response;
+    }
+
     async fetchMetadata(tokenId: string, callback: any = null): Promise<MetaData> {
         genericGuard(tokenId, "string", "tokenId");
         if (callback) { callback('getting Metadata')}  
