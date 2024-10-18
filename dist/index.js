@@ -35,7 +35,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const derive_1 = require("./derive");
-const SDK_VERSION = '1.12.5';
+const SDK_VERSION = '1.12.6';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -131,6 +131,20 @@ class EmblemVaultSDK {
             (0, utils_1.genericGuard)(tokenId, "string", "tokenId");
             let url = `${this.baseUrl}/refreshBalanceForTokenId`;
             let response = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { tokenId });
+            if (callback) {
+                callback(`Refreshed ownership for`, tokenId);
+            }
+            return response;
+        });
+    }
+    refreshOwnershipForAccount(account_1) {
+        return __awaiter(this, arguments, void 0, function* (account, callback = null) {
+            (0, utils_1.genericGuard)(account, "string", "account");
+            let url = `${this.baseUrl}/refreshBalanceForAccount`;
+            let response = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { account });
+            if (callback) {
+                callback(`Refreshed ownership for`, account);
+            }
             return response;
         });
     }

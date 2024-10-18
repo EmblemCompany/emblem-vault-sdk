@@ -104,6 +104,15 @@ class EmblemVaultSDK {
         genericGuard(tokenId, "string", "tokenId");
         let url = `${this.baseUrl}/refreshBalanceForTokenId`;
         let response = await fetchData(url, this.apiKey, 'POST', {tokenId});
+        if (callback) { callback(`Refreshed ownership for`, tokenId)} 
+        return response;
+    }
+
+    async refreshOwnershipForAccount(account: string, callback: any = null): Promise<Ownership[]> {
+        genericGuard(account, "string", "account");
+        let url = `${this.baseUrl}/refreshBalanceForAccount`;
+        let response = await fetchData(url, this.apiKey, 'POST', {account});
+        if (callback) { callback(`Refreshed ownership for`, account)} 
         return response;
     }
 
