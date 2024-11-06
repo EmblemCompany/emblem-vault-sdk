@@ -484,20 +484,27 @@ export function generateTemplate(record: any) {
             return nameAndImage
         },
         generateCreateTemplate: (_this: any) =>{
-            let template: any =  {
+            let template = {
                 fromAddress: { type: "user-provided" },
                 toAddress: { type: "user-provided" },
                 chainId: { type: "user-provided" },
                 experimental: true,
-                targetContract: _this,
+                targetContract: {                    
+                    "name": _this.name,
+                    "description": _this.description,
+                    "fusion": _this.fusion
+                },
                 targetAsset: {
-                    name: _this.loadTypes.includes('detailed') ? { type: "user-provided"}: _this.loadTypes.includes('select')? { type: "selection-provided"}: "Loading...",
-                    image: _this.loadTypes.includes('detailed') ? { type: "user-provided"}: _this.loadTypes.includes('select')? { type: "selection-provided"}: _this.loading(),
-                    description: _this.loadTypes.includes('detailed') ? { type: "user-provided"}: null,
-                    ownedImage: _this.loadTypes.includes('detailed') ? { type: "user-provided"}: null,
-                    projectName: _this.loadTypes.includes('select')? _this.name: null
+                    name: _this.loadTypes.includes('detailed') ? { type: "user-provided" } : _this.loadTypes.includes('select') ? { type: "selection-provided" } : "Loading...",
+                    image: _this.loadTypes.includes('detailed') ? { type: "user-provided" } : _this.loadTypes.includes('select') ? { type: "selection-provided" } : _this.loading(),
+                    description: _this.loadTypes.includes('detailed') ? { type: "user-provided" } : null,
+                    ownedImage: _this.loadTypes.includes('detailed') ? { type: "user-provided" } : null,
+                    projectName: _this.loadTypes.includes('select') ? _this.name : null
                 }
-            }
+            };
+            Object.keys(_this.contracts).forEach(address=>{
+                (template.targetContract as any)[address] = _this.contracts[address]
+            })
             const removeNulls = (obj: { [x: string]: any; }) => {
                 Object.keys(obj).forEach(key => {
                     if (obj[key] && typeof obj[key] === 'object') removeNulls(obj[key]);

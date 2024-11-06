@@ -522,7 +522,11 @@ function generateTemplate(record) {
                 toAddress: { type: "user-provided" },
                 chainId: { type: "user-provided" },
                 experimental: true,
-                targetContract: _this,
+                targetContract: {
+                    "name": _this.name,
+                    "description": _this.description,
+                    "fusion": _this.fusion
+                },
                 targetAsset: {
                     name: _this.loadTypes.includes('detailed') ? { type: "user-provided" } : _this.loadTypes.includes('select') ? { type: "selection-provided" } : "Loading...",
                     image: _this.loadTypes.includes('detailed') ? { type: "user-provided" } : _this.loadTypes.includes('select') ? { type: "selection-provided" } : _this.loading(),
@@ -531,6 +535,9 @@ function generateTemplate(record) {
                     projectName: _this.loadTypes.includes('select') ? _this.name : null
                 }
             };
+            Object.keys(_this.contracts).forEach(address => {
+                template.targetContract[address] = _this.contracts[address];
+            });
             const removeNulls = (obj) => {
                 Object.keys(obj).forEach(key => {
                     if (obj[key] && typeof obj[key] === 'object')
