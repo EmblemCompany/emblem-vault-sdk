@@ -17,7 +17,7 @@ class EmblemVaultSDK {
         }
         this.v1Url = 'https://api2.emblemvault.io';
         this.baseUrl = baseUrl || 'https://v2.emblemvault.io';
-        this.v3Url = 'https://emblemvault-io-v3-6156a7b1ac82.herokuapp.com';
+        this.v3Url = 'https://v3.emblemvault.io';
         this.sigUrl = 'https://tor-us-signer-coval.vercel.app';
     }
 

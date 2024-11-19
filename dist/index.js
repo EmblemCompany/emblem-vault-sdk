@@ -35,7 +35,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const derive_1 = require("./derive");
-const SDK_VERSION = '1.12.7';
+const SDK_VERSION = '2.0.0';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl) {
         this.apiKey = apiKey;
@@ -45,7 +45,7 @@ class EmblemVaultSDK {
         }
         this.v1Url = 'https://api2.emblemvault.io';
         this.baseUrl = baseUrl || 'https://v2.emblemvault.io';
-        this.v3Url = 'https://emblemvault-io-v3-6156a7b1ac82.herokuapp.com';
+        this.v3Url = 'https://v3.emblemvault.io';
         this.sigUrl = 'https://tor-us-signer-coval.vercel.app';
     }
     // Example method structure
