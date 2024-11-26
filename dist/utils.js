@@ -352,7 +352,7 @@ function generateTemplate(record) {
                 let covalAssets = data.filter((item) => item.name == "Circuits of Value");
                 let covalTotalBalance = covalAssets.reduce((acc, item) => acc + item.balance, 0);
                 allowed = possibleBalances.includes(covalTotalBalance) || false;
-                message = `Load vault with 5000, 50000, or 500000 Circuits of Value`;
+                message = !allowed ? `Load vault with 5000, 50000, or 500000 Circuits of Value` : message;
             }
             else if (_this.vaultCollectionType && _this.vaultCollectionType == "collection") {
                 if (recordName == "Bitcoin Punks") {
