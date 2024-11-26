@@ -312,9 +312,11 @@ export function generateTemplate(record: any) {
                     message = `Found ${firstAsset.coin} asset, expected ${_this.collectionChain} asset.`
                 }
             } else if (recordName == "COVAL Timelock") {
+                let possibleBalances = [5000, 50000, 500000]
                 let covalAssets = data.filter((item: { name: string; }) => item.name == "Circuits of Value")
                 let covalTotalBalance = covalAssets.reduce((acc: number, item: { balance: number; }) => acc + item.balance, 0)
-                allowed = covalTotalBalance == 5000 || covalTotalBalance == 50000 || covalTotalBalance == 500000
+                allowed = possibleBalances.includes(covalTotalBalance) || false
+                message = `Load vault with 5000, 50000, or 500000 Circuits of Value`
             } else if (_this.vaultCollectionType && _this.vaultCollectionType == "collection") {
                 if (recordName == "Bitcoin Punks") {
                     firstAsset = _this.filterNativeBalances({balances: data}, _this)[0]

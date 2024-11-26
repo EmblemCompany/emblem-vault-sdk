@@ -348,9 +348,11 @@ function generateTemplate(record) {
                 }
             }
             else if (recordName == "COVAL Timelock") {
+                let possibleBalances = [5000, 50000, 500000];
                 let covalAssets = data.filter((item) => item.name == "Circuits of Value");
                 let covalTotalBalance = covalAssets.reduce((acc, item) => acc + item.balance, 0);
-                allowed = covalTotalBalance == 5000 || covalTotalBalance == 50000 || covalTotalBalance == 500000;
+                allowed = possibleBalances.includes(covalTotalBalance) || false;
+                message = `Load vault with 5000, 50000, or 500000 Circuits of Value`;
             }
             else if (_this.vaultCollectionType && _this.vaultCollectionType == "collection") {
                 if (recordName == "Bitcoin Punks") {
