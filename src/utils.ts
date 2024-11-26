@@ -311,6 +311,10 @@ export function generateTemplate(record: any) {
                 if(!allowed){
                     message = `Found ${firstAsset.coin} asset, expected ${_this.collectionChain} asset.`
                 }
+            } else if (recordName == "COVAL Timelock") {
+                let covalAssets = data.filter((item: { name: string; }) => item.name == "Circuits of Value")
+                let covalTotalBalance = covalAssets.reduce((acc: number, item: { balance: number; }) => acc + item.balance, 0)
+                allowed = covalTotalBalance == 5000 || covalTotalBalance == 50000 || covalTotalBalance == 500000
             } else if (_this.vaultCollectionType && _this.vaultCollectionType == "collection") {
                 if (recordName == "Bitcoin Punks") {
                     firstAsset = _this.filterNativeBalances({balances: data}, _this)[0]
