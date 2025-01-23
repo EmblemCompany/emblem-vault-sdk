@@ -251,19 +251,19 @@ function generateAttributeTemplate(record) {
             {
                 "trait_type": "Element",
                 "value": (metadata) => {
-                    if (Number(metadata.tokenId) > 2 && Number(metadata.tokenId) <= 202) {
+                    if (Number(metadata.targetContract.tokenId) > 2 && Number(metadata.targetContract.tokenId) <= 202) {
                         return "Ether";
                     }
-                    else if (Number(metadata.tokenId) > 202 && Number(metadata.tokenId) <= 402) {
+                    else if (Number(metadata.targetContract.tokenId) > 202 && Number(metadata.targetContract.tokenId) <= 402) {
                         return "Earth";
                     }
-                    else if (Number(metadata.tokenId) > 402 && Number(metadata.tokenId) <= 602) {
+                    else if (Number(metadata.targetContract.tokenId) > 402 && Number(metadata.targetContract.tokenId) <= 602) {
                         return "Fire";
                     }
-                    else if (Number(metadata.tokenId) > 602 && Number(metadata.tokenId) <= 802) {
+                    else if (Number(metadata.targetContract.tokenId) > 602 && Number(metadata.targetContract.tokenId) <= 802) {
                         return "Water";
                     }
-                    else if (Number(metadata.tokenId) > 802 && Number(metadata.tokenId) <= 1002) {
+                    else if (Number(metadata.targetContract.tokenId) > 802 && Number(metadata.targetContract.tokenId) <= 1002) {
                         return "Air";
                     }
                 }
