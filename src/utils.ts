@@ -181,6 +181,53 @@ export function generateAttributeTemplate(record: any) {
                 "key": "values"
             }
         ]
+    } else if (record.name == "Founder Vault") {
+        template = [
+            {
+                "trait_type": "Unlock",
+                "value": "Bitcoin Block 915000"
+            },
+            {
+                "trait_type": "Supply",
+                "value": "2000000"
+            },
+            {
+                "trait_type": "Artist",
+                "value": "Verdandi"
+            },
+            {
+                "trait_type": "Round",
+                "value": (metadata: MetaData) => {
+                    if (Number(metadata.tokenId) > 2 && Number(metadata.tokenId) <= 202) {
+                        return "1"
+                    } else if (Number(metadata.tokenId) > 202 && Number(metadata.tokenId) <= 402) {
+                        return "2"
+                    } else if (Number(metadata.tokenId) > 402 && Number(metadata.tokenId) <= 602) {
+                        return "3"
+                    } else if (Number(metadata.tokenId) > 602 && Number(metadata.tokenId) <= 802) {
+                        return "4"
+                    } else if (Number(metadata.tokenId) > 802 && Number(metadata.tokenId) <= 1002) {
+                        return "5"
+                    }
+                }
+            },
+            {
+                "trait_type": "Element",
+                "value": (metadata: MetaData) => {
+                    if (Number(metadata.tokenId) > 2 && Number(metadata.tokenId) <= 202) {
+                        return "Ether"
+                    } else if (Number(metadata.tokenId) > 202 && Number(metadata.tokenId) <= 402) {
+                        return "Earth"
+                    } else if (Number(metadata.tokenId) > 402 && Number(metadata.tokenId) <= 602) {
+                        return "Fire"
+                    } else if (Number(metadata.tokenId) > 602 && Number(metadata.tokenId) <= 802) {
+                        return "Water"
+                    } else if (Number(metadata.tokenId) > 802 && Number(metadata.tokenId) <= 1002) {
+                        return "Air"
+                    }
+                }
+            }
+        ]
     }
     return template
 }
