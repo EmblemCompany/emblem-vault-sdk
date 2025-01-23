@@ -212,15 +212,21 @@ function generateAttributeTemplate(record) {
         template = [
             {
                 "trait_type": "Unlock",
-                "value": "Bitcoin Block 915000"
+                "value": (metadata) => {
+                    return "Bitcoin Block 915000";
+                }
             },
             {
                 "trait_type": "Supply",
-                "value": "2000000"
+                "value": (metadata) => {
+                    return "2000000";
+                }
             },
             {
                 "trait_type": "Artist",
-                "value": "Verdandi"
+                "value": (metadata) => {
+                    return "Verdandi";
+                }
             },
             {
                 "trait_type": "Round",
