@@ -35,18 +35,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const derive_1 = require("./derive");
-const SDK_VERSION = '2.3.5';
+const SDK_VERSION = '2.3.6';
 class EmblemVaultSDK {
-    constructor(apiKey, baseUrl) {
+    constructor(apiKey, baseUrl, v3Url, sigUrl) {
         this.apiKey = apiKey;
         console.log('EmblemVaultSDK version:', SDK_VERSION);
         if (!apiKey) {
             throw new Error('API key is required');
         }
-        this.v1Url = 'https://api2.emblemvault.io';
         this.baseUrl = baseUrl || 'https://v2.emblemvault.io';
-        this.v3Url = 'https://v3.emblemvault.io';
-        this.sigUrl = 'https://tor-us-signer-coval.vercel.app';
+        this.v3Url = v3Url || 'https://v3.emblemvault.io';
+        this.sigUrl = sigUrl || 'https://tor-us-signer-coval.vercel.app';
     }
     // Example method structure
     generateUploadUrl() {

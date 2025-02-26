@@ -4,9 +4,8 @@ declare class EmblemVaultSDK {
     private apiKey;
     private baseUrl;
     private v3Url;
-    private v1Url;
     private sigUrl;
-    constructor(apiKey: string, baseUrl?: string);
+    constructor(apiKey: string, baseUrl?: string, v3Url?: string, sigUrl?: string);
     generateUploadUrl(): void;
     getAssetMetadata(projectName: string, strict?: boolean): any[];
     getAllAssetMetadata(): any[];

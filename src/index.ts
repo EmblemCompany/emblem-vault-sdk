@@ -8,17 +8,15 @@ const SDK_VERSION = '__SDK_VERSION__';
 class EmblemVaultSDK {
     private baseUrl: string;
     private v3Url: string;
-    private v1Url: string;
     private sigUrl: string;
-    constructor(private apiKey: string, baseUrl?: string) {
+    constructor(private apiKey: string, baseUrl?: string, v3Url?: string, sigUrl?: string) {
         console.log('EmblemVaultSDK version:', SDK_VERSION)
         if (!apiKey) {
             throw new Error('API key is required');
         }
-        this.v1Url = 'https://api2.emblemvault.io';
         this.baseUrl = baseUrl || 'https://v2.emblemvault.io';
-        this.v3Url = 'https://v3.emblemvault.io';
-        this.sigUrl = 'https://tor-us-signer-coval.vercel.app';
+        this.v3Url = v3Url || 'https://v3.emblemvault.io';
+        this.sigUrl = sigUrl || 'https://tor-us-signer-coval.vercel.app';
     }
 
     // Example method structure
