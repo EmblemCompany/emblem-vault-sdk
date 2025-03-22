@@ -534,9 +534,9 @@ export function generateTemplate(record: any) {
 
             let viewOnEmblemFinanceLink = '';
             if (_this.collectionType === "ERC1155") {
-                viewOnEmblemFinanceLink = `\n\n[View on Emblem.finance](https://emblem.finance/nft2?id=${metadata.targetContract.tokenId})`;
+                viewOnEmblemFinanceLink = `\n\n[View on Emblem.finance](https://emblem.vision/vault/${metadata.targetContract.tokenId})`;
             } else if (_this.collectionType === "ERC721a") {
-                viewOnEmblemFinanceLink = `\n\n[View on Emblem.finance](https://emblem.finance/nft2?id=${metadata.tokenId})`;
+                viewOnEmblemFinanceLink = `\n\n[View on Emblem.finance](https://emblem.vision/vault/${metadata.tokenId})`;
             }
             nameAndImage.description = nameAndImage.description + viewOnEmblemFinanceLink;
             
@@ -572,6 +572,9 @@ export function generateTemplate(record: any) {
             };
             removeNulls(template);
             return template
+        },
+        validateTemplate(template: { [x: string]: any; hasOwnProperty: (arg0: string) => any; }) {
+            return record[template.chainId]? templateGuard(template, { throwError: false, returnErrors: true }) : {valid: false, errors: [`Collection ${record.name} not minted on chainId ${template.chainId}`]}
         }
     }
     Object.keys(record.contracts).forEach(key => {
@@ -583,7 +586,7 @@ export function generateTemplate(record: any) {
     return template
 }
 
-export function templateGuard(input: { [x: string]: any; hasOwnProperty: (arg0: string) => any; }) {
+export function templateGuard(input: { [x: string]: any; hasOwnProperty: (arg0: string) => any; }, options: { throwError?: boolean; returnErrors?: boolean } = { throwError: true, returnErrors: false }) {
     if (!input) throw new Error(`No template provided`);
     for (const key in input) {
         if (input.hasOwnProperty(key)) {
@@ -608,10 +611,12 @@ export function templateGuard(input: { [x: string]: any; hasOwnProperty: (arg0: 
                 // false is allowed, do nothing
             }
             if (errors.length > 0) {
-                throw new Error(errors.join(", "));
+                if (options.throwError) throw new Error(errors.join(", "));
+                return { valid: false, errors: errors };
             }
         }
     }
+    return { valid: true, errors: [] };
 }
 
 export function genericGuard(input: any, type: string, key: string) {

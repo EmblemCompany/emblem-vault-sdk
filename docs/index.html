@@ -3,12 +3,30 @@
 <head>
     <title>Emblem Vault SDK Browser Test</title>
     <style>
-        input, select, button {
+        input, select, button, textarea {
             padding: 10px;
             margin: 5px;
         }
         #tokenImage{
             max-width: 300px;
+        }
+        #userInputForm {
+            display: none;
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin: 15px 0;
+            background-color: #f9f9f9;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .required {
+            color: red;
         }
     </style>
 <script src="./bitcoinjs-lib.js"></script>
@@ -93,6 +111,56 @@
         
         async function createVault() {
             document.getElementById('vaultDetails').display = 'none';
+            
+            // Check if this is an open collection and we need to update the template with user input
+            if (window.contract && window.contract.name === "EmblemOpen") {
+                // Get user input values
+                const name = document.getElementById('userInputName').value;
+                const imageUrl = document.getElementById('userInputImage').value;
+                const description = document.getElementById('userInputDescription').value;
+                const ownedImage = document.getElementById('userInputOwnedImage').value;
+                
+                // Validate required fields
+                if (!name) {
+                    alert("Name is a required field");
+                    return;
+                }
+                
+                if (!imageUrl) {
+                    alert("Image URL is a required field");
+                    return;
+                }
+                
+                // Update the template with user input
+                window.template.targetAsset.name = name;
+                window.template.targetAsset.image = imageUrl;
+                
+                // Only add fields that have values, remove empty ones
+                if (description) {
+                    window.template.targetAsset.description = description;
+                } else if (window.template.targetAsset.hasOwnProperty('description')) {
+                    delete window.template.targetAsset.description;
+                }
+                
+                if (ownedImage) {
+                    window.template.targetAsset.ownedImage = ownedImage;
+                } else if (window.template.targetAsset.hasOwnProperty('ownedImage')) {
+                    delete window.template.targetAsset.ownedImage;
+                }
+                
+                // Check for other properties in targetAsset that might be empty or undefined
+                Object.keys(window.template.targetAsset).forEach(key => {
+                    if (window.template.targetAsset[key] === "" || 
+                        window.template.targetAsset[key] === null || 
+                        window.template.targetAsset[key] === undefined) {
+                        delete window.template.targetAsset[key];
+                    }
+                });
+                
+                console.log("--------- Updated Template with User Input ---------");
+                console.log(window.template);
+            }
+            
             let vault = await sdk.createCuratedVault(window.template)
             window.vaults = window.vaults || [];
             window.vaults.push(vault);
@@ -134,6 +202,14 @@
             console.log("--------- Populated Template ---------");            
             console.log(template);
 
+            // Hide the user input form by default
+            document.getElementById('userInputForm').style.display = 'none';
+            
+            // Check if this is an open collection that requires user input
+            if (contract.name === "EmblemOpen") {
+                // Show the user input form
+                document.getElementById('userInputForm').style.display = 'block';
+            }
             
             if (contract.loadTypes.includes('select')) {
                 generateAssetDropdown(contract);
@@ -164,7 +240,7 @@
             document.getElementById('tokenImage').src = window.vaultBody.image;
             document.getElementById('tokenName').textContent = window.vaultBody.name;
             document.getElementById('tokenDescription').textContent = window.vaultBody.description;
-            document.getElementById('tokenLink').href = `https://emblem.finance/nft2?id=${metadata.tokenId}`;
+            document.getElementById('tokenLink').href = `https://emblem.vision/vault/${metadata.tokenId}`;
             document.getElementById('vaultDetails').style.display = 'block';
         }
 
@@ -210,6 +286,27 @@
     <select id="contractSelect" style="display: none;"></select>
 
     <select id="vaultAssetSelect" style="display: none;"></select>
+
+    <!-- User Input Form for Open Collections -->
+    <div id="userInputForm">
+        <h3>Enter Vault Details</h3>
+        <div class="form-group">
+            <label for="userInputName">Name <span class="required">*</span></label>
+            <input type="text" id="userInputName" placeholder="Enter vault name" required>
+        </div>
+        <div class="form-group">
+            <label for="userInputImage">Image URL <span class="required">*</span></label>
+            <input type="text" id="userInputImage" placeholder="Enter image URL" required>
+        </div>
+        <div class="form-group">
+            <label for="userInputDescription">Description</label>
+            <textarea id="userInputDescription" placeholder="Enter description" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="userInputOwnedImage">Owned Image URL (Optional)</label>
+            <input type="text" id="userInputOwnedImage" placeholder="Enter owned image URL (only shown to owner)">
+        </div>
+    </div>
 
     <input type="number" id="vaultCount" min="1" value="1">
     <button id="createButton" onclick="createMultipleVaults()">Create</button>

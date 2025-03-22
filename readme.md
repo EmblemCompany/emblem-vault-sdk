@@ -1,31 +1,27 @@
 # Emblem Vault SDK Documentation
 
-The Emblem Vault SDK is a JavaScript library that provides functionality for interacting with Emblem Vaults, including creating vaults, refreshing balances, and performing minting operations.
+The Emblem Vault SDK is a TypeScript/JavaScript library that provides functionality for interacting with Emblem Vaults, including creating vaults, refreshing balances, and performing minting operations.
 
 ## Table of Contents
 - [Installation](#installation)
 - [Initialization](#initialization)
+- [TypeScript Support](#typescript-support)
+- [Emblem Vault Workflow](#emblem-vault-workflow)
 - [Fetching Curated Contracts](#fetching-curated-contracts)
 - [Creating a Vault](#creating-a-vault)
 - [Refreshing Vault Balance](#refreshing-vault-balance)
 - [Validating Mintability](#validating-mintability)
 - [Performing a Mint](#performing-a-mint)
-- [Utility Functions](#utility-functions)
-  - [generateUploadUrl()](#generateuploadurl)
-  - [generateAttributeTemplate(record: any)](#generateattributetemplaterecord-any)
-  - [generateImageTemplate(record: any)](#generateimagetemplaterecord-any)
-  - [generateTemplate(record: any)](#generatetemplaterecord-any)
-  - [templateGuard(input: { [x: string]: any; hasOwnProperty: (arg0: string) => any; })](#templateguardinput--x-string-any-hasownproperty-arg0-string--any-)
-  - [genericGuard(input: any, type: string, key: string)](#genericguardinput-any-type-string-key-string)
-  - [getQuoteContractObject(web3: any)](#getquotecontractobjectweb3-any)
-  - [getHandlerContract(web3: any)](#gethandlercontractweb3-any)
-  - [getLegacyContract(web3: any)](#getlegacycontractweb3-any)
-  - [checkContentType(url: string)](#checkcontenttypeurl-string)
-  - [getTorusKeys(verifierId: string, idToken: any, cb: any = null)](#gettoruskeysveriferid-string-idtoken-any-cb-any--null)
-  - [decryptKeys(vaultCiphertextV2: any, keys: any, addresses: any[])](#decryptkeysvaultciphertextv2-any-keys-any-addresses-any)
-  - [getSatsConnectAddress()](#getsatsconnectaddress)
-  - [signPSBT(psbtBase64: any, paymentAddress: any, indexes: number[], broadcast: boolean = false)](#signpsbtpsbtbase64-any-paymentaddress-any-indexes-number-broadcast-boolean--false)
+- [Asset Metadata Functions](#asset-metadata-functions)
+- [V3 API Methods](#v3-api-methods)
+- [Bitcoin Functionality](#bitcoin-functionality)
+- [UI Integration Examples](#ui-integration-examples)
+- [Collection-specific Workflows](#collection-specific-workflows)
+- [Multiple Vault Creation](#multiple-vault-creation)
+- [Data Structures and Types](#data-structures-and-types)
+- [Dependencies](#dependencies)
 - [Example Usage](#example-usage)
+- [Utility Functions](#utility-functions)
 
 ## Installation
 
@@ -46,15 +42,162 @@ let EmblemVaultSDK = require('emblem-vault-sdk').default
 To initialize the SDK, create an instance of the `EmblemVaultSDK` class:
 
 ```javascript
-
-const sdk = new EmblemVaultSDK('demo');
+const sdk = new EmblemVaultSDK('your-api-key');
 ```
+
+The constructor accepts the following parameters:
+- `apiKey` (required): Your API key for accessing the Emblem Vault services
+- `baseUrl` (optional): Base URL for the API (default: 'https://v2.emblemvault.io')
+- `v3Url` (optional): V3 API URL (default: 'https://v3.emblemvault.io')
+- `sigUrl` (optional): Signature URL (default: 'https://tor-us-signer-coval.vercel.app')
+
+## TypeScript Support
+
+The Emblem Vault SDK is written in TypeScript and provides type definitions for all its functions and data structures. When using TypeScript, you can import the types from the SDK:
+
+```typescript
+import EmblemVaultSDK, { Vault, VaultAddress, VaultBalance, Metadata } from 'emblem-vault-sdk';
+
+// Create an instance of the SDK with TypeScript type checking
+const sdk: EmblemVaultSDK = new EmblemVaultSDK('your-api-key');
+
+// Use the SDK with type checking
+const fetchVaults = async (address: string): Promise<Vault[]> => {
+  return await sdk.fetchVaults(address);
+};
+```
+
+## Emblem Vault Workflow
+
+The Emblem Vault SDK follows a standard workflow for creating, funding, and minting vaults. This section provides a high-level overview of the key concepts and typical process.
+
+### Key Concepts
+
+- **Curated Collection**: A predefined collection of vault types with specific rules and properties. Each collection has validation rules that determine what assets can be stored in vaults of that collection.
+  
+  A Collection includes:
+  - **Identification**: `id`, `name`, `description`
+  - **Asset Rules**: `nativeAssets` (allowed asset types), `collectionChain` (target blockchain)
+  - **Minting Controls**: `mintable`, `price`, `purchaseMethod`
+  - **Display Properties**: `loadingImages`, `placeholderImages`, `showBalance`
+  - **Functional Handlers**: `generateVaultBody` and `generateCreateTemplate` functions
+  - **Validation Logic**: Rules for checking if a vault's contents are valid for the collection
+
+- **Vault**: A digital container that can hold various crypto assets. Each vault has a unique deposit address where assets can be sent, and a corresponding NFT that represents ownership of the vault and its contents.
+
+- **Vault Balance**: The assets currently stored in a vault. A vault can contain multiple assets of different types, depending on the rules of its curated collection.
+
+- **Template**: A configuration object that defines the properties of a vault to be created, including target contract, chain ID, and user addresses.
+
+- **Mint**: The process of converting a created and funded vault into an NFT on the blockchain, making it tradable and transferable.
+
+- **Claim**: The process of extracting the contents or private keys from a vault, allowing the owner to access the underlying assets.
+
+### Contract Types and Collection Types
+
+#### Contract Types
+
+- **ERC1155**: These contracts support semi-fungible tokens that can stack (have multiple copies). In Emblem Vault:
+  - Used for collections where each item can have multiple editions
+  - For example, in a collection "DiamondHands", there might be a total supply of 10 "Yeet" items and 2 "Jeet" items
+  - To maintain ERC1155 compliance while ensuring uniqueness, Emblem introduced **serial numbers**
+  - Each serial number links back to a specific vault record in a 1:1 relationship
+  - This approach makes each item both unique and fungible at the same time
+
+- **ERC721/ERC721a**: These contracts support non-fungible tokens (NFTs) that do not stack and are completely unique:
+  - Each token has a 1:1 link back to a vault record ID
+  - For ERC721, on-chain IDs include the chain ID at the end (e.g., vault ID 1337 becomes 13371 for Ethereum mainnet)
+  - For ERC721a (which mint sequentially for gas efficiency), the serial number links back to a specific vault record
+  - This preserves the linkage between the on-chain token and the underlying vault data
+
+#### Collection Types
+
+Different collection types have specific rules for what assets they can contain and how they're validated:
+
+- **Protocol Collections**: These collections require assets from a specific blockchain protocol
+- **Standard Collections**: These enforce specific asset types and quantities
+- **Open Collections**: These allow more flexibility in what assets can be stored
+- **Specialized Collections**: These have unique rules for specific use cases (e.g., Embels, Bitcoin Ordinals)
+
+The collection type determines the validation rules applied when checking if a vault is mintable, and influences how the vault is displayed and interacted with.
+
+### Workflow Overview
+
+#### 1. Creating a Vault
+
+The vault creation process begins with selecting a curated collection and generating a template. The SDK provides methods to fetch available curated contracts and create a template based on the selected contract. The template is then used to create a vault, which generates a unique deposit address for receiving assets.
+
+When a vault is created, the SDK returns a comprehensive metadata record that includes:
+- **Basic Information**: `name`, `description`, `image`, `tokenId`
+- **Deposit Information**: `addresses` array containing blockchain addresses for depositing assets
+- **Contract Details**: `targetContract` and `targetAsset` information
+- **Status Information**: `status`, `live`, `sealed`, etc.
+- **Security Elements**: `ciphertextV2` for encrypted data, `signature` for verification
+
+This metadata record is essential for subsequent operations like checking balances and minting.
+
+#### 2. Checking Vault Balance
+
+After creating a vault, the next step is to fund it by sending assets to the deposit address. The SDK provides methods to refresh and check the vault's balance to verify that assets have been successfully deposited. Different curated collections may have specific requirements for what assets must be deposited.
+
+#### 3. Minting the Vault
+
+Once the vault has been funded with the appropriate assets, it can be minted as an NFT on the blockchain. The minting process involves:
+- Verifying that the vault contains the correct assets according to the curated collection's rules
+- Obtaining signatures from both the user and the Emblem server
+- Getting a price quote for the minting fee
+- Executing the mint transaction on the blockchain
+
+#### 4. Claiming Vault Contents
+
+Vault owners can claim the contents of their vaults to access the underlying assets. The claiming process involves:
+- Authenticating the owner through wallet signatures
+- Obtaining a claim token from the Emblem server
+- Retrieving and decrypting the vault's private keys
+- Using these keys to access or transfer the vault's contents
+
+This workflow provides a secure way to package, transfer, and trade digital assets using the Emblem Vault system. The specific implementation details for each step can be found in the respective sections of this documentation.
 
 ## Fetching Curated Contracts
 To fetch the curated contracts, use the fetchCuratedContracts method:
 ```javascript
 sdk.fetchCuratedContracts(false).then(curatedContracts => {
     // Use the curated contracts
+});
+```
+
+Parameters:
+- `hideUnMintable` (optional): Boolean to filter out non-mintable contracts (default: false)
+- `overrideFunc` (optional): Function to override the default behavior
+
+Returns:
+- A Promise that resolves to an array of curated contract objects
+
+Example with overrideFunc:
+```javascript
+// Override the default data fetching with custom data
+const customDataFetcher = async () => {
+  // You could fetch from a different source or use cached data
+  return [
+    {
+      name: "Custom Collection",
+      description: "A custom curated collection",
+      mintable: true,
+      // Other required properties...
+    }
+  ];
+};
+
+// Use the custom data fetcher
+sdk.fetchCuratedContracts(false, customDataFetcher).then(curatedContracts => {
+  console.log('Custom curated contracts:', curatedContracts);
+});
+```
+
+To fetch a specific curated contract by name:
+```javascript
+sdk.fetchCuratedContractByName('Bitcoin DeGods').then(contractObject => {
+    // Use the contract object
 });
 ```
 
@@ -82,12 +225,28 @@ let contractTemplate = {
 
 vaultData = await sdk.createCuratedVault(contractTemplate, updateLogCallback);
 ```
+
+Parameters:
+- `template`: The template object containing vault creation details
+- `callback` (optional): A callback function to handle progress updates
+
+Returns:
+- A Promise that resolves to a Vault object
+
 ## Refreshing Vault Balance
 To refresh the balance of a vault, use the refreshBalance method:
 
 ```javascript
 vaultBalance = await sdk.refreshBalance(vaultData.tokenId, updateLogCallback);
 ```
+
+Parameters:
+- `tokenId`: The ID of the vault token
+- `callback` (optional): A callback function to handle progress updates
+
+Returns:
+- A Promise that resolves to an array of VaultBalance objects
+
 ## Validating Mintability
 To validate if a vault is mintable, use the allowed method of the curated contract object:
 
@@ -95,6 +254,7 @@ To validate if a vault is mintable, use the allowed method of the curated contra
 let contractObject = await sdk.fetchCuratedContractByName(contractTemplate.targetContract.name);
 let mintable = contractObject.allowed(vaultBalance, contractObject);
 ```
+
 ## Performing a Mint
 To perform a mint, use the performMintChain method:
 
@@ -107,10 +267,203 @@ sdk.performMintChain(web3, vaultData.tokenId, contractTemplate.targetContract.na
         // Handle error
     });
 ```
-## Utility Functions
-#### `generateUploadUrl()`
 
-Generates a URL for uploading files.
+Parameters:
+- `web3`: The Web3 instance
+- `tokenId`: The ID of the vault token
+- `collectionName`: The name of the collection
+- `callback` (optional): A callback function to handle progress updates
+
+Returns:
+- A Promise that resolves to the mint response
+
+## Asset Metadata Functions
+
+The SDK provides several functions for working with asset metadata:
+
+### getAssetMetadata(projectName: string)
+Gets metadata for a specific project.
+
+Parameters:
+- `projectName`: The name of the project
+
+Returns:
+- An array of asset metadata objects
+
+```javascript
+const metadata = sdk.getAssetMetadata('Bitcoin DeGods');
+```
+
+### getAllAssetMetadata()
+Gets all asset metadata.
+
+Returns:
+- An object containing all asset metadata
+
+```javascript
+const allMetadata = sdk.getAllAssetMetadata();
+```
+
+### getRemoteAssetMetadataProjectList()
+Gets the project list from the remote API.
+
+Returns:
+- A Promise that resolves to an array of project names
+
+```javascript
+sdk.getRemoteAssetMetadataProjectList().then(projectList => {
+    // Use the project list
+});
+```
+
+### getRemoteAssetMetadata(asset: string)
+Gets asset metadata for a specific asset from the remote API.
+
+Parameters:
+- `asset`: The asset name
+
+Returns:
+- A Promise that resolves to the asset metadata
+
+```javascript
+sdk.getRemoteAssetMetadata('Bitcoin DeGods').then(metadata => {
+    // Use the metadata
+});
+```
+
+## V3 API Methods
+
+The SDK provides several methods for interacting with the V3 API:
+
+### fetchVaultsByQueryV3(query: string, callback: any = null)
+Fetches vaults by query using the V3 API.
+
+Parameters:
+- `query`: The query string
+- `callback` (optional): A callback function to handle progress updates
+
+Returns:
+- A Promise that resolves to an array of Vault objects
+
+```javascript
+sdk.fetchVaultsByQueryV3('bitcoin').then(vaults => {
+    // Use the vaults
+});
+```
+
+### fetchVaultsByAddressV3(address: string, callback: any = null)
+Fetches vaults by address using the V3 API.
+
+Parameters:
+- `address`: The address to fetch vaults for
+- `callback` (optional): A callback function to handle progress updates
+
+Returns:
+- A Promise that resolves to an array of Vault objects
+
+```javascript
+sdk.fetchVaultsByAddressV3('0x123...').then(vaults => {
+    // Use the vaults
+});
+```
+
+### fetchVaultsByTokenIdsV3(tokenIds: string[], callback: any = null)
+Fetches vaults by token IDs using the V3 API.
+
+Parameters:
+- `tokenIds`: An array of token IDs
+- `callback` (optional): A callback function to handle progress updates
+
+Returns:
+- A Promise that resolves to an array of Vault objects
+
+```javascript
+sdk.fetchVaultsByTokenIdsV3(['123', '456']).then(vaults => {
+    // Use the vaults
+});
+```
+
+### fetchMetadataV3(tokenId: string, callback: any = null)
+Fetches metadata using the V3 API.
+
+Parameters:
+- `tokenId`: The ID of the token
+- `callback` (optional): A callback function to handle progress updates
+
+Returns:
+- A Promise that resolves to the metadata
+
+```javascript
+sdk.fetchMetadataV3('123').then(metadata => {
+    // Use the metadata
+});
+```
+
+### refreshBalanceV3(tokenId: string, callback: any = null)
+Refreshes balance using the V3 API.
+
+Parameters:
+- `tokenId`: The ID of the token
+- `callback` (optional): A callback function to handle progress updates
+
+Returns:
+- A Promise that resolves to the balance data
+
+```javascript
+sdk.refreshBalanceV3('123').then(balance => {
+    // Use the balance
+});
+```
+
+## Bitcoin Functionality
+
+The SDK provides functions for working with Bitcoin:
+
+### generateTaprootAddressFromMnemonic(phrase: string)
+Generates a Taproot address from a mnemonic phrase.
+
+Parameters:
+- `phrase`: The mnemonic phrase
+
+Returns:
+- An object containing p2tr, tweakedSigner, pubKey, path, and coin properties
+
+```javascript
+const taprootAddress = await sdk.generateTaprootAddressFromMnemonic('your mnemonic phrase');
+```
+
+### getPsbtTxnSize(phrase: string, psbtBase64: string)
+Gets the virtual size of a PSBT transaction.
+
+Parameters:
+- `phrase`: The mnemonic phrase
+- `psbtBase64`: The base64-encoded PSBT
+
+Returns:
+- The virtual size of the transaction
+
+```javascript
+const txnSize = await sdk.getPsbtTxnSize('your mnemonic phrase', 'base64-encoded-psbt');
+```
+
+## Utility Functions
+
+#### `fetchData(url: string, apiKey: string, method: string = 'GET', body: any = null)`
+
+Fetches data from an API endpoint.
+
+Parameters:
+- `url`: The URL to fetch data from
+- `apiKey`: The API key for authentication
+- `method` (optional): The HTTP method to use (default: 'GET')
+- `body` (optional): The request body for POST requests
+
+Returns:
+- A Promise that resolves to the parsed JSON response
+
+```javascript
+const data = await sdk.fetchData('https://api.example.com/endpoint', 'your-api-key', 'GET');
+```
 
 #### `generateAttributeTemplate(record: any)`
 
@@ -252,6 +605,216 @@ Signs a Partially Signed Bitcoin Transaction (PSBT) using the provided PSBT base
 * Returns:
     * A promise that resolves to the signed PSBT response.
 
+## UI Integration Examples
+
+The SDK can be integrated with UI components to provide a seamless user experience. Here are some examples:
+
+### Basic UI Integration
+
+For a simple integration of the SDK into a web application, you can create basic UI elements that allow users to interact with the core functionality.
+
+For a complete working example of a basic implementation, refer to the [index.html](./docs/index.html) file included in the SDK. This example demonstrates:
+
+- Setting up the SDK with your API key
+- Creating UI elements for vault operations
+- Handling user interactions through event listeners
+- Providing feedback through a logging area
+- Implementing the core vault creation, balance checking, and minting functions
+
+This basic approach provides a foundation that you can customize and extend to suit your specific application needs.
+
+### Step-by-Step UI Integration
+
+For a more guided user experience, you can implement a step-by-step UI flow that walks users through the process of creating, funding, and minting a vault. This approach provides clear guidance and feedback at each stage of the process.
+
+For a complete working example of a step-by-step implementation, refer to the [steps.html](./docs/steps.html) file included in the SDK. This example demonstrates:
+
+- Creating UI elements for each step
+- Managing button states based on progress
+- Providing user feedback through logging
+- Handling the complete vault creation, funding, and minting workflow
+
+The step-by-step approach is particularly useful for applications where users may be unfamiliar with the vault creation process or where you want to provide a more structured experience.
+
+## Collection-specific Workflows
+
+The SDK supports simplified workflows for specific collections. Here's an example for the "Embels" collection:
+
+```javascript
+// Initialize the SDK
+const sdk = new EmblemVaultSDK('your-api-key');
+
+// Define the template for Embels
+let embelsTemplate = {
+    "fromAddress": null,
+    "toAddress": null,
+    "chainId": 1,
+    "experimental": true,
+    "targetContract": {
+        "1": "0x25e6CfD042294a716FF60603ca01e92555cA9426",
+        "name": "Embels",
+        "description": "EmBells is a collection of 10,000 Bellinals from the Bellscoin blockchain. Art is created by Viva La Vandal and this collection is curated by Emblem Vault."
+    },
+    "targetAsset": {
+        "name": "Inscribing...",
+        "image": "https://emblem.finance/embells.png"
+    }
+};
+
+// Combined create and mint function
+async function performCreateAndMint() {
+    // Load Web3 if needed
+    if (!defaultAccount) {
+        await sdk.loadWeb3();
+        defaultAccount = await web3.eth.getAccounts().then(accounts => accounts[0]);
+    }
+    
+    // Populate the template
+    embelsTemplate.toAddress = defaultAccount;
+    embelsTemplate.fromAddress = defaultAccount;
+    
+    // Create a vault
+    let vaultData = await sdk.createCuratedVault(embelsTemplate, updateLogCallback);
+    
+    if (vaultData.tokenId) {
+        // Perform Mint steps
+        sdk.performMintChain(web3, vaultData.tokenId, embelsTemplate.targetContract.name, updateLogCallback)
+            .then(result => {
+                updateLogCallback('Minting success', 'tokenId: ' + vaultData.tokenId);
+            })
+            .catch(error => {
+                updateLogCallback('', error.message);
+            });
+    }
+}
+```
+
+## Multiple Vault Creation
+
+The SDK supports creating multiple vaults in sequence:
+
+```javascript
+// Initialize the SDK
+const sdk = new EmblemVaultSDK('your-api-key');
+
+// Create multiple vaults
+async function createMultipleVaults(index = 0, vaultCount = 5) {
+    if (index < vaultCount) {
+        try {
+            // Create a single vault
+            let vault = await sdk.createCuratedVault(template);
+            console.log(`Vault ${index + 1} created successfully.`);
+            
+            // Store the vault data
+            vaults.push(vault);
+            
+            // Update UI or data as needed
+            updateVaultData();
+            
+            // Create the next vault
+            createMultipleVaults(index + 1, vaultCount);
+        } catch (error) {
+            console.error(`Failed to create vault at index ${index + 1}:`, error);
+        }
+    }
+}
+
+// Function to update UI or data
+function updateVaultData() {
+    // Generate CSV or update UI
+    let csvData = 'Token ID, Deposit Address\n';
+    vaults.forEach(vault => {
+        csvData += `${vault.tokenId}, ${getDepositAddress(vault)}\n`;
+    });
+    
+    // Update UI
+    document.getElementById('csvData').textContent = csvData;
+}
+
+// Start creating multiple vaults
+createMultipleVaults(0, document.getElementById('vaultCount').value);
+```
+
+## Data Structures and Types
+
+The SDK provides TypeScript type definitions for all its data structures. Here are the key types:
+
+### Vault
+Represents a vault with properties like tokenId, addresses, and metadata.
+
+```typescript
+interface Vault {
+    tokenId: string;
+    addresses: VaultAddress[];
+    metadata: Metadata;
+    // Other properties...
+}
+```
+
+### VaultAddress
+Represents an address in a vault with properties like coin, address, and balance.
+
+```typescript
+interface VaultAddress {
+    coin: string;
+    address: string;
+    balance?: number;
+    // Other properties...
+}
+```
+
+### VaultBalance
+Represents a balance in a vault with properties like coin, balance, and usd.
+
+```typescript
+interface VaultBalance {
+    coin: string;
+    balance: number;
+    usd?: number;
+    // Other properties...
+}
+```
+
+### Metadata
+Represents metadata for a vault with properties like name, description, and image.
+
+```typescript
+interface Metadata {
+    name: string;
+    description: string;
+    image: string;
+    attributes: MetadataAttribute[];
+    // Other properties...
+}
+```
+
+### CuratedContract
+Represents a curated contract with properties like name, description, and address.
+
+```typescript
+interface CuratedContract {
+    name: string;
+    description: string;
+    address: (addresses: any[]) => string;
+    // Other properties...
+}
+```
+
+## Dependencies
+
+The SDK depends on the following libraries:
+
+- **Web3**: For Ethereum blockchain interactions
+- **ethers**: For Ethereum utilities
+- **bip32** and **bip39**: For Bitcoin key derivation
+- **@bitcoin-js/tiny-secp256k1-asmjs**: For elliptic curve operations
+- **sats-connect**: For Bitcoin wallet connections
+- **axios** or **node-fetch**: For HTTP requests
+
+Browser Requirements:
+- The SDK requires a browser environment for some functionality, particularly for Bitcoin operations that use the global `window.bitcoin` object.
+- For Node.js environments, additional configuration may be required.
+
 ## Example Usage
 Here's an example of how to use the Emblem Vault SDK to create a vault, refresh its balance, validate mintability, and perform a mint:    
 ```javascript
@@ -303,4 +866,3 @@ async function performMint() {
 }
 ```
 This example demonstrates the step-by-step process of creating a vault, refreshing its balance, validating mintability, and performing a mint using the Emblem Vault SDK.
-

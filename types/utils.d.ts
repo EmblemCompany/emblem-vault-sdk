@@ -22,7 +22,13 @@ export declare function generateTemplate(record: any): any;
 export declare function templateGuard(input: {
     [x: string]: any;
     hasOwnProperty: (arg0: string) => any;
-}): void;
+}, options?: {
+    throwError?: boolean;
+    returnErrors?: boolean;
+}): {
+    valid: boolean;
+    errors: any[];
+};
 export declare function genericGuard(input: any, type: string, key: string): void;
 export declare function getQuoteContractObject(web3: any): Promise<any>;
 export declare function getHandlerContract(web3: any): Promise<any>;
