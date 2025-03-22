@@ -358,16 +358,6 @@ function generateTemplate(record) {
                 if (!allowed) {
                     message = `Load vault with exactly ${balanceQty} ${recordName}`;
                 }
-                // } else if (recordName == "Counterparty") {
-                //     let facts = [
-                //         {
-                //             eval: record.nativeAssets.includes(data[0]?.coin),
-                //             msg: `Vaults should only contain assets native to ${recordName}`
-                //         },
-                //         {eval: data.length == 1, msg: `Vaults should only contain a single item`},
-                //         // { eval: data[0].projectName && data[0].projectName == recordName, msg: `Vaults should only contain a single item` }
-                //     ]
-                //     allowed = evaluateFacts(allowed, facts, msgCallback)
             }
             else if (recordName == "Stamps") {
                 let allowedName = assetName.toLowerCase().includes("stamp");

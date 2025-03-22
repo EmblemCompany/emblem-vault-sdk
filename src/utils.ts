@@ -323,16 +323,6 @@ export function generateTemplate(record: any) {
                 if (!allowed) {
                     message = `Load vault with exactly ${balanceQty} ${recordName}`
                 }
-            // } else if (recordName == "Counterparty") {
-            //     let facts = [
-            //         {
-            //             eval: record.nativeAssets.includes(data[0]?.coin),
-            //             msg: `Vaults should only contain assets native to ${recordName}`
-            //         },
-            //         {eval: data.length == 1, msg: `Vaults should only contain a single item`},
-            //         // { eval: data[0].projectName && data[0].projectName == recordName, msg: `Vaults should only contain a single item` }
-            //     ]
-            //     allowed = evaluateFacts(allowed, facts, msgCallback)
             } else if (recordName == "Stamps") {
                 let allowedName = assetName.toLowerCase().includes("stamp")
                 allowed = allowedName &&
@@ -435,7 +425,6 @@ export function generateTemplate(record: any) {
         },
         generateVaultBody: (metadata: any, balance: any, _this: any, msgCallback: any) => {
             let nameAndImage: any = {name: metadata.targetAsset.name, image: metadata.targetAsset.image || _this.loading()}
-
             let filtered = balance && balance.length > 0 && _this.filterNativeBalances? _this.filterNativeBalances({balances: balance}, _this) : balance
             let externalUrl = false
             if (_this.autoLoad && balance && balance.length > 0) { // Is auto load and has a balance
@@ -693,45 +682,6 @@ export function checkContentType(url: string) {
         });
     });
 }
-// export function checkContentType(url: string) {
-//     return new Promise((resolve, reject) => {
-//         // Making a HTTP HEAD request to get only the headers
-//         type ReturnVal = { valid?: boolean, contentType?: string | null, extension?: string, embed?: boolean, method?: string};
-//         let returnVal: ReturnVal = {valid: false};
-//         function fetchUrl(method: string) {
-//             fetch(url, { method: method })
-//                 .then(response => {
-//                     if (!response.ok) {
-//                         returnVal.valid = false                    
-//                     } 
-//                     else if (response.status === 200) {
-//                         const contentType = response.headers.get('content-type');
-//                         if (!contentType) {
-//                             return fetchUrl('GET')
-//                         } else {
-//                             let extension = getFileExtensionFromMimeType(contentType)
-//                             returnVal.valid = true
-//                             returnVal.contentType = contentType
-//                             returnVal.extension = extension 
-//                             returnVal.method = method
-//                             returnVal.embed = !isValidDirect(extension)
-//                             console.log('Content-Type:', contentType);
-//                         }
-//                     } 
-//                     return resolve(returnVal);
-//                 })
-//                 .catch(error => {
-//                     console.error('Error while fetching URL:', error);
-//                     resolve(returnVal);
-//                 });                
-//         }
-//         try {
-//             fetchUrl('HEAD');
-//         } catch (error) {
-
-//         }
-//     });
-// }
 
 function isValidDirect(extension: string) {
     switch (extension) {
@@ -908,5 +858,3 @@ export async function signPSBT(psbtBase64: any, paymentAddress: any, indexes: nu
         });
     });
 }
-
-

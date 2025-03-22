@@ -25,18 +25,23 @@ describe('Allowed Function for Counterparty', () => {
             expect(curatedContract.allowed(balanceValues, curatedContract)).toBeFalsy()
         })
 
-        it('Allows any native coin', async () => {
+        it('Allows collection chain asset', async () => {
             const curatedContract: any = await sdk.fetchCuratedContractByName('Counterparty')
             const balanceValues = JSON.parse(fs.readFileSync("tests/fixtures/counterparty/balance.json"))
-            for (var nativeAsset of curatedContract.nativeAssets) {
-                balanceValues[0].coin = nativeAsset
-                expect(curatedContract.allowed(balanceValues, curatedContract)).toBeTruthy()
-            }
+            // For protocol collections, only the collectionChain asset is allowed
+            balanceValues[0].coin = curatedContract.collectionChain
+            expect(curatedContract.allowed(balanceValues, curatedContract)).toBeTruthy()
+            
+            // Test case insensitivity
+            balanceValues[0].coin = curatedContract.collectionChain.toUpperCase()
+            expect(curatedContract.allowed(balanceValues, curatedContract)).toBeTruthy()
         })
 
         it('Allows valid balance', async () => {
             const curatedContract: any = await sdk.fetchCuratedContractByName('Counterparty')
             const balanceValues = JSON.parse(fs.readFileSync("tests/fixtures/counterparty/balance.json"))
+            // Make sure the coin matches the collectionChain for protocol collections
+            balanceValues[0].coin = curatedContract.collectionChain
             expect(curatedContract.allowed(balanceValues, curatedContract)).toBeTruthy()
         })
 
