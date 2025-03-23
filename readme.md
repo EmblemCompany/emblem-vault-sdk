@@ -234,14 +234,44 @@ contractTemplate = selectedContract.generateCreateTemplate(selectedContract);
 
 In this example, "selection-provided" indicates that the collection only allows specific assets with pre-defined names and images within the collection. The user cannot freely set these values.
 
+### Method 3: Validating a Template
+After creating a template, you can validate it to ensure it meets the requirements for the selected contract:
+
+```javascript
+// Validate the template
+selectedContract.validateTemplate(contractTemplate, (validatedTemplate) => {
+    if (validatedTemplate.valid) {
+        console.log("Template is valid!");
+        // Proceed with vault creation
+    } else {
+        console.error("Template validation failed:", validatedTemplate.errors);
+        // Handle validation errors
+    }
+});
+```
+
+The `validateTemplate` method performs several checks:
+- Verifies the template structure against required fields
+- Ensures the chainId is valid for the selected contract
+- Validates image URLs if provided in the targetAsset
+- Returns a validation result object with a boolean `valid` property and any error messages
+
+Parameters:
+- `template`: The template object to validate
+- `callback`: A callback function that receives the validation result
+
+Returns via callback:
+- A validation result object with properties:
+  - `valid`: Boolean indicating if the template is valid
+  - `errors`: Array of error messages if validation failed
+  - `imageValidation`: Boolean indicating if image validation was performed
+  - `imageUrl`: The validated image URL (if applicable)
+
 ## Getting Assets for Selection-Provided Templates
 
 When populating a template that requires "selection-provided" values, you must get the list of items the particular collection supports. Use the `getAssetMetadata` method to retrieve available assets:
 
 ```javascript
-// Get available assets for a specific collection
-const assets = await sdk.getAssetMetadata(collectionName);
-
 // Example usage
 const assets = await sdk.getAssetMetadata("Dank Rares");
 console.log(assets);
@@ -382,43 +412,17 @@ console.log(assets);
   }
 ]
 */
-```
 
-### getAllAssetMetadata()
-Gets all asset metadata.
+// To use a selected asset in your template:
+const selectedAssetIndex = 0; // Index of the selected asset
+const selectedAsset = assets[selectedAssetIndex];
 
-Returns:
-- An object containing all asset metadata
-
-```javascript
-const allMetadata = sdk.getAllAssetMetadata();
-```
-
-### getRemoteAssetMetadataProjectList()
-Gets the project list from the remote API.
-
-Returns:
-- A Promise that resolves to an array of project names
-
-```javascript
-sdk.getRemoteAssetMetadataProjectList().then(projectList => {
-    // Use the project list
-});
-```
-
-### getRemoteAssetMetadata(asset: string)
-Gets asset metadata for a specific asset from the remote API.
-
-Parameters:
-- `asset`: The asset name
-
-Returns:
-- A Promise that resolves to the asset metadata
-
-```javascript
-sdk.getRemoteAssetMetadata('Bitcoin DeGods').then(metadata => {
-    // Use the metadata
-});
+// Update your template with the selected asset
+if (contractTemplate.targetAsset) {
+  contractTemplate.targetAsset.name = selectedAsset.assetName;
+  contractTemplate.targetAsset.image = selectedAsset.image;
+  // Add other properties as needed
+}
 ```
 
 ## V3 API Methods
