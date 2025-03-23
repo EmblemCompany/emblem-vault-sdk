@@ -590,7 +590,6 @@ function generateTemplate(record) {
                     name: _this.loadTypes.includes('detailed') ? { type: "user-provided" } : _this.loadTypes.includes('select') ? { type: "selection-provided" } : "Loading...",
                     image: _this.loadTypes.includes('detailed') ? { type: "user-provided" } : _this.loadTypes.includes('select') ? { type: "selection-provided" } : _this.loading(),
                     description: _this.loadTypes.includes('detailed') ? { type: "user-provided" } : null,
-                    ownedImage: _this.loadTypes.includes('detailed') ? { type: "user-provided" } : null,
                     projectName: _this.loadTypes.includes('select') ? _this.name : null
                 }
             };
@@ -608,8 +607,43 @@ function generateTemplate(record) {
             removeNulls(template);
             return template;
         },
-        validateTemplate(template) {
-            return record[template.chainId] ? templateGuard(template, { throwError: false, returnErrors: true }) : { valid: false, errors: [`Collection ${record.name} not minted on chainId ${template.chainId}`] };
+        validateTemplate(template, callback) {
+            // Check if template has chainId and if it's valid for this record
+            if (!record[template.chainId]) {
+                return callback({ valid: false, errors: [`Collection ${record.name} not minted on chainId ${template.chainId}`] });
+            }
+            // Check if image is valid
+            if (template.targetAsset && template.targetAsset.image && typeof template.targetAsset.image === 'string') {
+                return checkContentType(template.targetAsset.image).then((imageResult) => {
+                    if (!imageResult.valid) {
+                        return callback({ valid: false, errors: [`Invalid image format`] });
+                    }
+                    return checkGuard();
+                });
+            }
+            else {
+                return checkGuard();
+            }
+            function checkGuard() {
+                // Perform template structure validation
+                const templateValidation = templateGuard(template, { throwError: false, returnErrors: true });
+                // If template structure is invalid, return that result
+                if (!templateValidation.valid) {
+                    return callback(templateValidation);
+                }
+                // If no image to validate, we're done
+                if (!template.targetAsset || !template.targetAsset.image) {
+                    return callback({ valid: true, errors: [] });
+                }
+                // If we have an image, we need to validate it
+                // But since we can't do this synchronously, we'll return an object
+                // that indicates the template is structurally valid
+                return callback({
+                    valid: true,
+                    imageValidation: true,
+                    imageUrl: template.targetAsset.image
+                });
+            }
         }
     };
     Object.keys(record.contracts).forEach(key => {
@@ -623,7 +657,14 @@ function generateTemplate(record) {
 function templateGuard(input, options = { throwError: true, returnErrors: false }) {
     if (!input)
         throw new Error(`No template provided`);
+    // Remove empty fields
     for (const key in input) {
+        if (!input[key] ||
+            input[key] === "" ||
+            input[key] === null ||
+            input[key] === undefined) {
+            delete input[key];
+        }
         if (input.hasOwnProperty(key)) {
             const value = input[key];
             // Check if the value is an object and has a "type" property
@@ -733,44 +774,6 @@ function checkContentType(url) {
         });
     });
 }
-// export function checkContentType(url: string) {
-//     return new Promise((resolve, reject) => {
-//         // Making a HTTP HEAD request to get only the headers
-//         type ReturnVal = { valid?: boolean, contentType?: string | null, extension?: string, embed?: boolean, method?: string};
-//         let returnVal: ReturnVal = {valid: false};
-//         function fetchUrl(method: string) {
-//             fetch(url, { method: method })
-//                 .then(response => {
-//                     if (!response.ok) {
-//                         returnVal.valid = false                    
-//                     } 
-//                     else if (response.status === 200) {
-//                         const contentType = response.headers.get('content-type');
-//                         if (!contentType) {
-//                             return fetchUrl('GET')
-//                         } else {
-//                             let extension = getFileExtensionFromMimeType(contentType)
-//                             returnVal.valid = true
-//                             returnVal.contentType = contentType
-//                             returnVal.extension = extension 
-//                             returnVal.method = method
-//                             returnVal.embed = !isValidDirect(extension)
-//                             console.log('Content-Type:', contentType);
-//                         }
-//                     } 
-//                     return resolve(returnVal);
-//                 })
-//                 .catch(error => {
-//                     console.error('Error while fetching URL:', error);
-//                     resolve(returnVal);
-//                 });                
-//         }
-//         try {
-//             fetchUrl('HEAD');
-//         } catch (error) {
-//         }
-//     });
-// }
 function isValidDirect(extension) {
     switch (extension) {
         case '.png':

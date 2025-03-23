@@ -86,7 +86,7 @@
             selectElement().style.display = 'block';
         }
 
-        function generateAssetDropdown(curatedContract) {
+        async function generateAssetDropdown(curatedContract) {
             const selectElement = function () { return document.getElementById('vaultAssetSelect') }
             // let hide = document.getElementById('hideNotMintableCheckbox').checked
             while (selectElement().firstChild) {
@@ -96,7 +96,7 @@
             defaultOptionElement.value = '0';
             defaultOptionElement.text = 'Select asset';
             selectElement().appendChild(defaultOptionElement);
-            let assets = sdk.getAssetMetadata(curatedContract.name)
+            let assets = await sdk.getAssetMetadata(curatedContract.name)
             window.assets = assets
             assets.forEach((contract, index) => {                
                 // if (!hide || (hide && contract.mintable)) {
@@ -206,7 +206,7 @@
             document.getElementById('userInputForm').style.display = 'none';
             
             // Check if this is an open collection that requires user input
-            if (contract.name === "EmblemOpen") {
+            if (contract.loadTypes.includes("detailed")) {
                 // Show the user input form
                 document.getElementById('userInputForm').style.display = 'block';
             }

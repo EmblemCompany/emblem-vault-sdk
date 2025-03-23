@@ -8,6 +8,7 @@ The Emblem Vault SDK is a TypeScript/JavaScript library that provides functional
 - [TypeScript Support](#typescript-support)
 - [Emblem Vault Workflow](#emblem-vault-workflow)
 - [Fetching Curated Contracts](#fetching-curated-contracts)
+- [Creating a Vault Template](#creating-a-vault-template)
 - [Creating a Vault](#creating-a-vault)
 - [Refreshing Vault Balance](#refreshing-vault-balance)
 - [Validating Mintability](#validating-mintability)
@@ -21,7 +22,6 @@ The Emblem Vault SDK is a TypeScript/JavaScript library that provides functional
 - [Data Structures and Types](#data-structures-and-types)
 - [Dependencies](#dependencies)
 - [Example Usage](#example-usage)
-- [Utility Functions](#utility-functions)
 
 ## Installation
 
@@ -82,6 +82,7 @@ The Emblem Vault SDK follows a standard workflow for creating, funding, and mint
   - **Display Properties**: `loadingImages`, `placeholderImages`, `showBalance`
   - **Functional Handlers**: `generateVaultBody` and `generateCreateTemplate` functions
   - **Validation Logic**: Rules for checking if a vault's contents are valid for the collection
+  - **Load Types**: `loadTypes` (detailed, select, empty)
 
 - **Vault**: A digital container that can hold various crypto assets. Each vault has a unique deposit address where assets can be sent, and a corresponding NFT that represents ownership of the vault and its contents.
 
@@ -168,31 +169,10 @@ sdk.fetchCuratedContracts(false).then(curatedContracts => {
 
 Parameters:
 - `hideUnMintable` (optional): Boolean to filter out non-mintable contracts (default: false)
-- `overrideFunc` (optional): Function to override the default behavior
+- `overrideFunc` (optional): Function to override the default behavior (for testing or using on server side with an alternate data feed)
 
 Returns:
 - A Promise that resolves to an array of curated contract objects
-
-Example with overrideFunc:
-```javascript
-// Override the default data fetching with custom data
-const customDataFetcher = async () => {
-  // You could fetch from a different source or use cached data
-  return [
-    {
-      name: "Custom Collection",
-      description: "A custom curated collection",
-      mintable: true,
-      // Other required properties...
-    }
-  ];
-};
-
-// Use the custom data fetcher
-sdk.fetchCuratedContracts(false, customDataFetcher).then(curatedContracts => {
-  console.log('Custom curated contracts:', curatedContracts);
-});
-```
 
 To fetch a specific curated contract by name:
 ```javascript
@@ -201,9 +181,10 @@ sdk.fetchCuratedContractByName('Bitcoin DeGods').then(contractObject => {
 });
 ```
 
-## Creating a Vault
-To create a vault, prepare a contract template object and call the createCuratedVault method:
+## Creating a Vault Template
+To create a vault, first prepare a contract template object. There are two ways to create a template:
 
+### Method 1: Manual Template Creation
 ```javascript
 let contractTemplate = {
     fromAddress: null,
@@ -222,7 +203,83 @@ let contractTemplate = {
         xtra: "anything else you need here"
     }
 };
+```
 
+### Method 2: Using generateCreateTemplate
+Often it's easier to generate a template from an existing contract and then populate it:
+
+```javascript
+// Generate template from selected contract
+contractTemplate = selectedContract.generateCreateTemplate(selectedContract);
+
+// Note on template field types:
+// - "user-provided": Fields that must be filled in by the developer/user
+// - "selection-provided": Fields that are restricted to specific pre-defined values from the collection
+//
+// Example of a template with selection-provided fields and user provided fields:
+
+{
+  "fromAddress": {"type": "user-provided"},
+  "toAddress": {"type": "user-provided"},
+  "chainId": {"type": "user-provided"},
+  "experimental": true,
+  "targetContract": { ... }, // pre-filled by the collection
+  "targetAsset": {
+    "name": {"type": "selection-provided"},
+    "image": {"type": "selection-provided"},
+    "projectName": "Dank Rares" // pre-filled by the collection
+  }
+}
+```
+
+In this example, "selection-provided" indicates that the collection only allows specific assets with pre-defined names and images within the collection. The user cannot freely set these values.
+
+## Getting Assets for Selection-Provided Templates
+
+When populating a template that requires "selection-provided" values, you must get the list of items the particular collection supports. Use the `getAssetMetadata` method to retrieve available assets:
+
+```javascript
+// Get available assets for a specific collection
+const assets = await sdk.getAssetMetadata(collectionName);
+
+// Example usage
+const assets = await sdk.getAssetMetadata("Dank Rares");
+console.log(assets);
+
+// Sample output structure:
+/*
+[
+  {
+    assetName: "Asset 1",
+    image: "https://example.com/asset1.jpg",
+    description: "Description for Asset 1",
+    // other metadata...
+  },
+  {
+    assetName: "Asset 2",
+    image: "https://example.com/asset2.jpg",
+    description: "Description for Asset 2",
+    // other metadata...
+  }
+]
+*/
+
+// To use a selected asset in your template:
+const selectedAssetIndex = 0; // Index of the selected asset
+const selectedAsset = assets[selectedAssetIndex];
+
+// Update your template with the selected asset
+if (contractTemplate.targetAsset) {
+  contractTemplate.targetAsset.name = selectedAsset.assetName;
+  contractTemplate.targetAsset.image = selectedAsset.image;
+  // Add other properties as needed
+}
+```
+
+## Creating a Vault
+After preparing your template, call the createCuratedVault method to create the vault:
+
+```javascript
 vaultData = await sdk.createCuratedVault(contractTemplate, updateLogCallback);
 ```
 

@@ -546,7 +546,6 @@ export function generateTemplate(record: any) {
                     name: _this.loadTypes.includes('detailed') ? { type: "user-provided" } : _this.loadTypes.includes('select') ? { type: "selection-provided" } : "Loading...",
                     image: _this.loadTypes.includes('detailed') ? { type: "user-provided" } : _this.loadTypes.includes('select') ? { type: "selection-provided" } : _this.loading(),
                     description: _this.loadTypes.includes('detailed') ? { type: "user-provided" } : null,
-                    ownedImage: _this.loadTypes.includes('detailed') ? { type: "user-provided" } : null,
                     projectName: _this.loadTypes.includes('select') ? _this.name : null
                 }
             };
@@ -562,8 +561,46 @@ export function generateTemplate(record: any) {
             removeNulls(template);
             return template
         },
-        validateTemplate(template: { [x: string]: any; hasOwnProperty: (arg0: string) => any; }) {
-            return record[template.chainId]? templateGuard(template, { throwError: false, returnErrors: true }) : {valid: false, errors: [`Collection ${record.name} not minted on chainId ${template.chainId}`]}
+        validateTemplate(template: { [x: string]: any; hasOwnProperty: (arg0: string) => any; }, callback: any) {
+            // Check if template has chainId and if it's valid for this record
+            if (!record[template.chainId]) {
+                return callback({ valid: false, errors: [`Collection ${record.name} not minted on chainId ${template.chainId}`] });
+            }
+
+            // Check if image is valid
+            if (template.targetAsset && template.targetAsset.image && typeof template.targetAsset.image === 'string') {
+                return checkContentType(template.targetAsset.image).then((imageResult: any)=>{
+                    if (!imageResult.valid) {
+                        return callback({ valid: false, errors: [`Invalid image format`] });
+                    }
+                    return checkGuard()
+                })
+            } else {
+                return checkGuard()
+            }
+            function checkGuard(){
+                // Perform template structure validation
+                const templateValidation = templateGuard(template, { throwError: false, returnErrors: true });
+                            
+                // If template structure is invalid, return that result
+                if (!templateValidation.valid) {
+                    return callback(templateValidation);
+                }
+
+                // If no image to validate, we're done
+                if (!template.targetAsset || !template.targetAsset.image) {
+                    return callback({ valid: true, errors: [] });
+                }
+
+                // If we have an image, we need to validate it
+                // But since we can't do this synchronously, we'll return an object
+                // that indicates the template is structurally valid
+                return callback({ 
+                    valid: true, 
+                    imageValidation: true,
+                    imageUrl: template.targetAsset.image
+                });
+            }
         }
     }
     Object.keys(record.contracts).forEach(key => {
@@ -577,7 +614,14 @@ export function generateTemplate(record: any) {
 
 export function templateGuard(input: { [x: string]: any; hasOwnProperty: (arg0: string) => any; }, options: { throwError?: boolean; returnErrors?: boolean } = { throwError: true, returnErrors: false }) {
     if (!input) throw new Error(`No template provided`);
+    // Remove empty fields
     for (const key in input) {
+        if (!input[key] || 
+            input[key] === "" || 
+            input[key] === null || 
+            input[key] === undefined) {
+            delete input[key];
+        }
         if (input.hasOwnProperty(key)) {
             const value = input[key];
 

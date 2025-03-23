@@ -97,7 +97,7 @@
         }
         
         // Handle contract selection
-        function selectContract() {
+        async function selectContract() {
             const selectElement = document.getElementById('contractSelect');
             const selectedIndex = selectElement.value;
             
@@ -133,49 +133,25 @@
                 updateLogCallback('Contract template populated with chainId:', contractTemplate.chainId);
                 
                 // Validate template after population
-                validateContractTemplate();
+                await validateContractTemplate();
             }
             
             // Call the function to populate the template
-            populateTemplateWithAccountInfo();
+            await populateTemplateWithAccountInfo();
             
             // Hide the user input form by default
             document.getElementById('userInputForm').style.display = 'none';
+            document.getElementById('assetSelectContainer').style.display = 'none';
             
             // Check if this is an open collection that requires user input
-            if (selectedContract.name === "EmblemOpen" || selectedContract.collectionType === "open") {
+            if (selectedContract.loadTypes.includes("detailed")) {
                 // Show the user input form
                 document.getElementById('userInputForm').style.display = 'block';
-                
-                // Update form fields with any existing values from the template
-                if (contractTemplate.targetAsset) {
-                    // Clear existing values first
-                    document.getElementById('userInputName').value = '';
-                    document.getElementById('userInputImage').value = '';
-                    document.getElementById('userInputDescription').value = '';
-                    document.getElementById('userInputOwnedImage').value = '';
-                    
-                    // Only set string values, not objects
-                    if (typeof contractTemplate.targetAsset.name === 'string') {
-                        document.getElementById('userInputName').value = contractTemplate.targetAsset.name;
-                    }
-                    
-                    if (typeof contractTemplate.targetAsset.image === 'string') {
-                        document.getElementById('userInputImage').value = contractTemplate.targetAsset.image;
-                    }
-                    
-                    if (typeof contractTemplate.targetAsset.description === 'string') {
-                        document.getElementById('userInputDescription').value = contractTemplate.targetAsset.description;
-                    }
-                    
-                    if (typeof contractTemplate.targetAsset.ownedImage === 'string') {
-                        document.getElementById('userInputOwnedImage').value = contractTemplate.targetAsset.ownedImage;
-                    }
-                }
+            } else if (selectedContract.loadTypes.includes("select")) {
+                // Show the asset selection dropdown
+                document.getElementById('assetSelectContainer').style.display = 'block';
+                await loadAssetsForSelection();
             }
-            
-            // Check validation and enable Step 1 button if valid
-            validateContractTemplate();
         }
         
         // Function to update template from form inputs
@@ -183,43 +159,71 @@
             if (!contractTemplate || !contractTemplate.targetAsset) return;
             
             // Get user input values
-            const imageInput = document.getElementById('userInputImage').value? document.getElementById('userInputImage').value.trim(): null;
-            if (imageInput) contractTemplate.targetAsset.image = imageInput;
-            const ownedImage = !document.getElementById('userInputOwnedImage').value? null: document.getElementById('userInputOwnedImage').value.trim();
-            if (ownedImage) contractTemplate.targetAsset.ownedImage = ownedImage;
-
+            if (document.getElementById('userInputName') && document.getElementById('userInputName').value){
+                const nameInput = document.getElementById('userInputName').value? document.getElementById('userInputName').value.trim(): null;
+                if (nameInput) contractTemplate.targetAsset.name = nameInput;
+            }
             
-            contractTemplate.targetAsset.name = document.getElementById('userInputName').value? document.getElementById('userInputName').value.trim(): null;
-            contractTemplate.targetAsset.description = document.getElementById('userInputDescription').value? document.getElementById('userInputDescription').value.trim(): null;
-
-            // Remove empty fields
-            Object.keys(contractTemplate.targetAsset).forEach(key => {
-                if (!contractTemplate.targetAsset[key] || 
-                    contractTemplate.targetAsset[key] === "" || 
-                    contractTemplate.targetAsset[key] === null || 
-                    contractTemplate.targetAsset[key] === undefined) {
-                    delete contractTemplate.targetAsset[key];
-                }
-            });
-            // IMPORTANT TO REMOVE OPTIONAL OWNED IMAGE IF NOT PROVIDED
-            !ownedImage? delete contractTemplate.targetAsset.ownedImage : contractTemplate.targetAsset.ownedImage = ownedImage;
-            
-            updateLogCallback('Contract template updated with target asset:', contractTemplate.targetAsset);
-            
-            // Validate the template after updating
-            if (imageInput || ownedImage) {
-                let validImage = await sdk.contentTypeReport(imageInput)
-                let validOwnedImage = ownedImage ? await sdk.contentTypeReport(ownedImage) : null;
-                if (!validImage.valid || ownedImage && !validOwnedImage.valid) {
-                    document.getElementById('step1Button').disabled = true;
-                    updateLogCallback('Contract template validation failed', 'Invalid image format');
-                    return;
-                } 
-            }            
-            validateContractTemplate();
+            if (document.getElementById('userInputImage') && document.getElementById('userInputImage').value){
+                const imageInput = document.getElementById('userInputImage').value? document.getElementById('userInputImage').value.trim(): null;
+                if (imageInput) contractTemplate.targetAsset.image = imageInput;
+            } 
+            if (document.getElementById('userInputDescription') && document.getElementById('userInputDescription').value){
+                const descriptionInput = document.getElementById('userInputDescription').value? document.getElementById('userInputDescription').value.trim(): null;
+                if (descriptionInput) contractTemplate.targetAsset.description = descriptionInput;
+            }
+            updateLogCallback('Contract template updated with target asset:', contractTemplate.targetAsset);       
+            await validateContractTemplate();
         }
         
-        function validateContractTemplate() {
+        // Function to load assets for selection
+        async function loadAssetsForSelection() {
+            const assets = sdk.getAssetMetadata(selectedContract.name);
+            const selectElement = document.getElementById('vaultAssetSelect');
+            selectElement.innerHTML = ''; // Clear existing options
+            
+            // Add default option
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.text = 'Select an asset';
+            selectElement.appendChild(defaultOption);
+            
+            // Add asset options
+            assets.forEach((asset, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.text = asset.assetName;
+                selectElement.appendChild(option);
+            });
+            
+            // Store assets in window for later use
+            window.assets = assets;
+        }
+        
+        // Function to update template from selected asset
+        async function updateTemplateFromSelectedAsset() {
+            const selectElement = document.getElementById('vaultAssetSelect');
+            const selectedIndex = selectElement.value;
+            
+            if (selectedIndex === '') {
+                updateLogCallback('Error', 'Please select an asset');
+                return;
+            }
+            
+            const selectedAsset = window.assets[selectedIndex];
+            
+            // Update the template with the selected asset
+            if (contractTemplate.targetAsset) {
+                if (selectedAsset.assetName) contractTemplate.targetAsset.name = selectedAsset.assetName;
+                if (selectedAsset.image) contractTemplate.targetAsset.image = selectedAsset.image;
+                if (selectedAsset.description) contractTemplate.targetAsset.description = selectedAsset.description;
+            }
+            
+            updateLogCallback('Contract template updated with selected asset:', contractTemplate.targetAsset);
+            await validateContractTemplate();
+        }
+        
+        async function validateContractTemplate() {
             if (!contractTemplate || !contractTemplate.targetContract ||!selectedContract) {
                 document.getElementById('step1Button').disabled = true;
                 updateLogCallback('Contract template validation failed', 'Template or contract not initialized');
@@ -227,26 +231,28 @@
             }
             console.log('contractTemplate', contractTemplate);
             
-            let validatedCtemplate = selectedContract.validateTemplate(contractTemplate);
-            if (validatedCtemplate.valid) {
-                document.getElementById('step1Button').disabled = false;
-                updateLogCallback('Contract template validated successfully', JSON.stringify(validatedCtemplate.valid));
-            } else {
-                document.getElementById('step1Button').disabled = true;
-                // Format errors for better readability - simple approach
-                let errorText = '';
-                try {
-                    // Just get the first error for simplicity
-                    if (validatedCtemplate.errors && validatedCtemplate.errors.length > 0) {
-                        // Get the raw error text and strip ALL quotes and formatting
-                        const rawError = validatedCtemplate.errors[0].toString();
-                        errorText = rawError.replace(/['"]/g, '');
+            selectedContract.validateTemplate(contractTemplate, (validatedCtemplate) => {
+                if (validatedCtemplate.valid) {
+                    document.getElementById('step1Button').disabled = false;
+                    updateLogCallback('Contract template validated successfully', JSON.stringify(validatedCtemplate.valid));
+                } else {
+                    document.getElementById('step1Button').disabled = true;
+                    // Format errors for better readability - simple approach
+                    let errorText = '';
+                    try {
+                        // Just get the first error for simplicity
+                        if (validatedCtemplate.errors && validatedCtemplate.errors.length > 0) {
+                            // Get the raw error text and strip ALL quotes and formatting
+                            const rawError = validatedCtemplate.errors[0].toString();
+                            errorText = rawError.replace(/['"]/g, '');
+                        }
+                    } catch (e) {
+                        errorText = 'Invalid template format';
                     }
-                } catch (e) {
-                    errorText = 'Invalid template format';
+                    updateLogCallback('Contract template validation failed', errorText);
                 }
-                updateLogCallback('Contract template validation failed', errorText);
-            }
+            });
+            
         }
         
         // Function to format object for logging
@@ -281,12 +287,67 @@
             logElement.innerHTML += `<div><strong>${title}:</strong> ${formattedMessage}</div>`;
             logElement.scrollTop = logElement.scrollHeight;
         }
+        
+        // Function to fetch metadata for an existing vault
+        async function fetchExistingVault() {
+            const tokenId = document.getElementById('existingVaultId').value.trim();
+            if (!tokenId) {
+                updateLogCallback('Error', 'Please enter a valid token ID');
+                return;
+            }
+            
+            try {
+                updateLogCallback('Fetching metadata for token ID', tokenId);
+                const metadata = await sdk.fetchMetadata(tokenId);
+                
+                if (metadata) {
+                    vaultData = metadata;
+                    updateLogCallback('Metadata fetched successfully', metadata);
+                    
+                    // Log all deposit addresses
+                    if (metadata.addresses && metadata.addresses.length > 0) {
+                        updateLogCallback('Available Deposit Addresses:', '');
+                        metadata.addresses.forEach(addr => {
+                            updateLogCallback(`${addr.coin} Address:`, addr.address);
+                        });
+                    }
+                    
+                    // Enable step 2 button
+                    document.getElementById('step1Button').disabled = true;
+                    document.getElementById('step2Button').disabled = false;
+                    
+                    // Find the contract for this vault
+                    if (metadata.targetContract && metadata.targetContract.name) {
+                        const contractName = metadata.targetContract.name;
+                        const contract = await sdk.fetchCuratedContractByName(contractName);
+                        if (contract) {
+                            selectedContract = contract;
+                            contractTemplate = { targetContract: { name: contractName } };
+                            updateLogCallback('Found contract for vault', contractName);
+                        }
+                    }
+                } else {
+                    updateLogCallback('Error', 'No metadata found for this token ID');
+                }
+            } catch (error) {
+                updateLogCallback('Error fetching metadata', error.message || 'Unknown error');
+            }
+        }
     </script>
 
     <div id="contractSelectContainer">
         <h3>Step 0: Select a Contract</h3>
         <select id="contractSelect"></select>
     </div>
+    
+    <!-- <div id="existingVaultContainer" style="margin: 15px 0; padding: 15px; border: 1px solid #ccc; background-color: #f9f9f9;">
+        <h3>Or Load an Existing Vault</h3>
+        <div class="form-group">
+            <label for="existingVaultId">Enter Vault Token ID:</label>
+            <input type="text" id="existingVaultId" placeholder="Enter token ID">
+            <button onclick="fetchExistingVault()" class="step-button">Load Vault</button>
+        </div>
+    </div> -->
 
     <!-- User Input Form for Open Collections -->
     <div id="userInputForm">
@@ -303,9 +364,14 @@
             <label for="userInputDescription">Description</label>
             <textarea id="userInputDescription" placeholder="Enter description" rows="3" onchange="updateTemplateFromForm()"></textarea>
         </div>
+    </div>
+
+    <!-- Asset Selection Dropdown for Select Collections -->
+    <div id="assetSelectContainer" style="display: none;">
+        <h3>Select Asset</h3>
         <div class="form-group">
-            <label for="userInputOwnedImage">Owned Image URL (Optional)</label>
-            <input type="text" id="userInputOwnedImage" placeholder="Enter owned image URL (only shown to owner)" onchange="updateTemplateFromForm()">
+            <label for="vaultAssetSelect">Available Assets <span class="required">*</span></label>
+            <select id="vaultAssetSelect" onchange="updateTemplateFromSelectedAsset()"></select>
         </div>
     </div>
 
@@ -317,10 +383,7 @@
     <script>
         async function Step1() {
             if (!vaultData) {
-                // Validate required fields for open collections
-                if (contractTemplate.targetContract.name === "EmblemOpen" || 
-                    contractTemplate.targetContract.vaultCollectionType === "open" || 
-                    contractTemplate.targetContract.collectionType === "open") {
+                if (contractTemplate.targetContract.vaultCollectionType === "open") {
                     
                     const nameInput = document.getElementById('userInputName').value;
                     const imageInput = document.getElementById('userInputImage').value;
@@ -337,13 +400,22 @@
                 // Create a vault
                 updateLogCallback("Creating vault for contract", contractTemplate.targetContract.name);
                 vaultData = await sdk.createCuratedVault(contractTemplate, updateLogCallback).catch(err=>console.log(err));
+                // disable and add timer to button
+                document.getElementById('step1Button').disabled = true;
+                document.getElementById('step1Button').textContent = "Creating...";
                 if (!vaultData || vaultData.err) {
                     updateLogCallback("Error creating vault", vaultData ? vaultData.err : "Unknown error");
                     setTimeout(Step1, 1000); // should Back off and try again
                 } else {
                     const depositAddress = vaultData.addresses.find(address => address.coin === 'TAP')?.address;
                     updateLogCallback("Vault created successfully", "Token ID: " + vaultData.tokenId);
-                    updateLogCallback("Deposit Address", depositAddress);
+                    
+                    // Log all deposit addresses
+                    updateLogCallback("Available Deposit Addresses:", "");
+                    vaultData.addresses.forEach(addr => {
+                        updateLogCallback(`${addr.coin} Address:`, addr.address);
+                    });
+                    
                     document.getElementById('step1Button').disabled = true;
                     document.getElementById('step2Button').disabled = false;
                 }                
@@ -380,7 +452,7 @@
             if (vaultBalance.length > 0) {
                performMint();
             } else {
-                updateLogCallback("Error", "No balance found");
+               updateLogCallback("Error", "No balance found");
             }    
         }
 

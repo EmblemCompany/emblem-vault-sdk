@@ -78,6 +78,16 @@ export interface MetaData {
     ownershipInfo?: any;
     alpha?: boolean;
 }
+export type Balance = {
+    coin: string;
+    name?: string;
+    balance: number;
+    symbol?: string;
+    address: string;
+    type?: string;
+    image?: string;
+    qty?: number;
+};
 export type Address = {
     path?: string;
     address: string;

@@ -170,9 +170,9 @@ class EmblemVaultSDK {
             let url = `${this.v3Url}/vault/balance/${tokenId}?live=true`;
             let balance = yield (0, utils_1.fetchData)(url, this.apiKey);
             if (callback) {
-                callback('received Balance', balance.balances);
+                callback('received Balance', balance.values);
             }
-            return (balance === null || balance === void 0 ? void 0 : balance.balances) || [];
+            return (balance === null || balance === void 0 ? void 0 : balance.values) || [];
         });
     }
     fetchVaultsOfType(vaultType, address) {

@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { Collection, CuratedCollectionsResponse, MetaData, Ownership, Vault } from './types';
+import { Balance, Collection, CuratedCollectionsResponse, MetaData, Ownership, Vault } from './types';
 import { NFT_DATA, checkContentType, decryptKeys, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getSatsConnectAddress, getTorusKeys, metadataAllProjects, metadataObj2Arr, pad, signPSBT, templateGuard } from './utils';
 import { getAddress, BitcoinNetworkType, AddressPurpose, signTransaction } from "sats-connect";
 import { generateTaprootAddressFromMnemonic, getPsbtTxnSize } from './derive';
@@ -123,13 +123,13 @@ class EmblemVaultSDK {
         return metadata;
     }
 
-    async refreshBalance(tokenId: string, callback: any = null): Promise<MetaData> {
+    async refreshBalance(tokenId: string, callback: any = null): Promise<Balance[]> {
         genericGuard(tokenId, "string", "tokenId");
         if (callback) { callback('refreshing Balance')}  
         let url = `${this.v3Url}/vault/balance/${tokenId}?live=true`;
         let balance = await fetchData(url, this.apiKey);
-        if (callback) { callback('received Balance', balance.balances)}
-        return balance?.balances || [];
+        if (callback) { callback('received Balance', balance.values)}
+        return balance?.values || [];
     }
 
     async fetchVaultsOfType(vaultType: string, address: string): Promise<any> {

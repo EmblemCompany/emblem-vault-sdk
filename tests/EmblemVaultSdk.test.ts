@@ -1,5 +1,5 @@
 import EmblemVaultSDK from '../src/';
-const TEST_ADDRESS = "0x9dE9ffB62c159A10cbcC19BdAc7962e9C19a1baa"
+const TEST_ADDRESS = "0xb0573e14D92755DE30281f7b10d0F3a5DD3e747B"
 
 describe('EmblemVaultSDK', () => {
     const apiKey = 'DEMO_KEY';
@@ -19,6 +19,7 @@ describe('EmblemVaultSDK', () => {
             const sdk = new EmblemVaultSDK(apiKey);
             const contracts = await sdk.fetchCuratedContracts();
             expect(Array.isArray(contracts)).toBeTruthy();
+            expect(contracts.length).toBeGreaterThan(0);
         });
     
         test('should make template with functions', async () => {
@@ -60,27 +61,46 @@ describe('EmblemVaultSDK', () => {
     describe('Vault Creation', () => {
         jest.setTimeout(30000); // Extend timeout
 
-        test.skip('should create vault (load type empty)', async () => {        
+        test('should create vault (load type empty)', async () => {        
             const sdk = new EmblemVaultSDK(apiKey);
             const contracts = await sdk.fetchCuratedContracts();
             let populatedTemplate: any = mocks.empty_create_template
             populatedTemplate.fromAddress = TEST_ADDRESS
             populatedTemplate.toAddress = TEST_ADDRESS
+            populatedTemplate.chainId = "1" // Add Ethereum mainnet chainId
             let vault = await sdk.createCuratedVault(populatedTemplate);
-            expect(vault).toBeInstanceOf(Object);
+            expect(typeof vault).toBe('object');
         });
 
-        test.skip('should create vault (load type detailed)', async () => {        
+        test('should create vault (load type detailed)', async () => {        
             const sdk = new EmblemVaultSDK(apiKey);
             const contracts = await sdk.fetchCuratedContracts();
             let populatedTemplate: any = mocks.emblemopen_create_template
             populatedTemplate.fromAddress = TEST_ADDRESS
             populatedTemplate.toAddress = TEST_ADDRESS
+            populatedTemplate.chainId = "1" // Add Ethereum mainnet chainId
+            populatedTemplate.targetAsset.name = "Test Asset"
+            populatedTemplate.targetAsset.image = "https://emblem.finance/stamps.png"
+            populatedTemplate.targetAsset.description = "Test Asset Description"
+            populatedTemplate.targetAsset.ownedImage = "https://emblem.finance/stamps.png" // Add required ownedImage field
+            let vault = await sdk.createCuratedVault(populatedTemplate);
+            expect(typeof vault).toBe('object');
+            expect(vault.targetAsset.name).toEqual("Test Asset");
+            expect(vault.targetAsset.image).toEqual("https://emblem.finance/stamps.png");
+            expect(vault.targetAsset.description).toEqual("Test Asset Description");
+        });
+        test('should not require ownedImage', async () => {        
+            const sdk = new EmblemVaultSDK(apiKey);
+            const contracts = await sdk.fetchCuratedContracts();
+            let populatedTemplate: any = mocks.emblemopen_create_template
+            populatedTemplate.fromAddress = TEST_ADDRESS
+            populatedTemplate.toAddress = TEST_ADDRESS
+            populatedTemplate.chainId = "1" // Add Ethereum mainnet chainId
             populatedTemplate.targetAsset.name = "Test Asset"
             populatedTemplate.targetAsset.image = "https://emblem.finance/stamps.png"
             populatedTemplate.targetAsset.description = "Test Asset Description"
             let vault = await sdk.createCuratedVault(populatedTemplate);
-            expect(vault).toBeInstanceOf(Object);
+            expect(typeof vault).toBe('object');
             expect(vault.targetAsset.name).toEqual("Test Asset");
             expect(vault.targetAsset.image).toEqual("https://emblem.finance/stamps.png");
             expect(vault.targetAsset.description).toEqual("Test Asset Description");
@@ -105,8 +125,7 @@ const mocks = {
         "targetAsset": {
             "name": { "type": "user-provided" },
             "image": { "type": "user-provided" },
-            "description": { "type": "user-provided" },
-            "ownedImage": { "type": "user-provided" }
+            "description": { "type": "user-provided" }
         }
     },
     empty_create_template: { 
