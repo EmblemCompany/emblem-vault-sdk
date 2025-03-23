@@ -302,7 +302,20 @@ Parameters:
 - `callback` (optional): A callback function to handle progress updates
 
 Returns:
-- A Promise that resolves to an array of VaultBalance objects
+- A Promise that resolves to an array of Balance objects
+
+Example of a Balance object:
+```javascript
+{
+  "coin": "ETH",       // Blockchain/network
+  "name": "Chickencoin", // Token name
+  "balance": 3947058.6768, // Numerical balance
+  "symbol": "CHKN",    // Token symbol
+  "address": "0xd55210bb6898c021a19de1f58d27b71f095921ee", // Contract address
+  "type": "token",     // Asset type
+  "image": "https://static.alchemyapi.io/images/assets/29999.png" // Token image URL
+}
+```
 
 ## Validating Mintability
 To validate if a vault is mintable, use the allowed method of the curated contract object:
@@ -339,16 +352,36 @@ Returns:
 The SDK provides several functions for working with asset metadata:
 
 ### getAssetMetadata(projectName: string)
-Gets metadata for a specific project.
+Gets metadata for a specific project. This is an asynchronous method that retrieves asset information for collections that require selection-provided values.
 
 Parameters:
 - `projectName`: The name of the project
 
 Returns:
-- An array of asset metadata objects
+- A Promise that resolves to an array of asset metadata objects
 
 ```javascript
-const metadata = sdk.getAssetMetadata('Bitcoin DeGods');
+// Example usage
+const assets = await sdk.getAssetMetadata("Dank Rares");
+console.log(assets);
+
+// Sample output structure:
+/*
+[
+  {
+    assetName: "Asset 1",
+    image: "https://example.com/asset1.jpg",
+    description: "Description for Asset 1",
+    // other metadata...
+  },
+  {
+    assetName: "Asset 2",
+    image: "https://example.com/asset2.jpg",
+    description: "Description for Asset 2",
+    // other metadata...
+  }
+]
+*/
 ```
 
 ### getAllAssetMetadata()
