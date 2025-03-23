@@ -377,6 +377,72 @@ Parameters:
 Returns:
 - A Promise that resolves to the mint response
 
+### Minting Process Component Functions
+
+The `performMintChain` method encapsulates a multi-step process that involves several component functions. If you need more control over the minting process, you can use these individual functions:
+
+#### requestLocalMintSignature
+Gets a signature from the user's wallet for the mint operation.
+
+```javascript
+const signature = await sdk.requestLocalMintSignature(web3, tokenId, callback);
+```
+
+Parameters:
+- `web3`: The Web3 instance
+- `tokenId`: The ID of the vault token
+- `callback` (optional): A callback function for progress updates
+
+Returns:
+- A Promise that resolves to the user's signature
+
+#### requestRemoteMintSignature
+Gets a signature from the Emblem server for the mint operation using the buyWithSignedPrice method.
+
+```javascript
+const remoteMintSig = await sdk.requestRemoteMintSignature(web3, tokenId, signature, callback);
+```
+
+Parameters:
+- `web3`: The Web3 instance
+- `tokenId`: The ID of the vault token
+- `signature`: The user's signature obtained from requestLocalMintSignature
+- `callback` (optional): A callback function for progress updates
+
+Returns:
+- A Promise that resolves to the server's signature data
+
+#### getQuote
+Gets a price quote for the mint operation based on the contract price or the server-provided price.
+
+```javascript
+const quote = await sdk.getQuote(web3, amount, callback);
+```
+
+Parameters:
+- `web3`: The Web3 instance
+- `amount`: The price amount (from collection or remoteMintSig)
+- `callback` (optional): A callback function for progress updates
+
+Returns:
+- A Promise that resolves to a BigNumber representing the quote
+
+#### performMint
+Executes the actual mint transaction on the blockchain using the signatures and quote.
+
+```javascript
+const mintResponse = await sdk.performMint(web3, ethToSend, remoteMintSig, callback);
+```
+
+Parameters:
+- `web3`: The Web3 instance
+- `ethToSend`: The amount of ETH to send with the transaction
+- `remoteMintSig`: The signature data from the server
+- `callback` (optional): A callback function for progress updates
+
+Returns:
+- A Promise that resolves to the transaction response
+
 ## Asset Metadata Functions
 
 The SDK provides several functions for working with asset metadata:
