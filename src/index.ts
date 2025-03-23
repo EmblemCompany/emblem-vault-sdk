@@ -310,7 +310,7 @@ class EmblemVaultSDK {
         if (callback) { callback('requesting Remote Mint signature')}  
         const chainId = await web3.eth.getChainId();
         let url = `${this.baseUrl}/mint-curated`;
-        let remoteMintResponse = await fetchData(url, this.apiKey, 'POST',  {method: 'buyWithQuote', tokenId: tokenId, signature: signature, chainId: chainId.toString()});
+        let remoteMintResponse = await fetchData(url, this.apiKey, 'POST',  {method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString()});
         if (remoteMintResponse.error) {
             throw new Error(remoteMintResponse.error)
         }
