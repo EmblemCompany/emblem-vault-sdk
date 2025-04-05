@@ -3,7 +3,7 @@
  * Tests for the Counterparty collection's allowed function
  */
 
-const EmblemVaultSDK = require('../../dist/index').default;
+const { EmblemVaultSDK } = require('../../dist/index');
 const fs = require('fs');
 const path = require('path');
 const { expect } = require('chai');
@@ -11,7 +11,10 @@ const { expect } = require('chai');
 // Test constants
 const API_KEY = 'DEMO_KEY';
 
-describe('Allowed Function for Counterparty', () => {
+describe('Allowed Function for Counterparty', function() {
+  // Increase timeout for API calls
+  this.timeout(10000);
+  
   const sdk = new EmblemVaultSDK(API_KEY);
   
   // Helper function to get fixture path

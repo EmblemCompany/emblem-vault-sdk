@@ -1,4 +1,4 @@
-import EmblemVaultSDK from '../src/';
+import { EmblemVaultSDK } from '../src/';
 
 
 describe('Allowed Function for Embels',() => {

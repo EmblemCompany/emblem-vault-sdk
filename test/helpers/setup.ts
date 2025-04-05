@@ -3,7 +3,6 @@
  * Provides common utilities and configurations for tests
  */
 
-import chai from 'chai';
 import { expect } from 'chai';
 
 // Export chai expect for use in tests

@@ -5,7 +5,7 @@ import { getAddress, BitcoinNetworkType, AddressPurpose, signTransaction } from 
 import { generateTaprootAddressFromMnemonic, getPsbtTxnSize } from './derive';
 const SDK_VERSION = '__SDK_VERSION__'; 
 
-class EmblemVaultSDK {
+export class EmblemVaultSDK {
     private baseUrl: string;
     private v3Url: string;
     private sigUrl: string;
@@ -26,43 +26,52 @@ class EmblemVaultSDK {
 
     // ** Asset Metadata **
     //
-    getAssetMetadata(projectName: string, strict: boolean = false) {
+    async getAssetMetadata(projectName: string, strict: boolean = false, overrideFunc: Function | boolean = false) {
         genericGuard(projectName, "string", "projectName");
-        const NFT_DATA_ARR = metadataObj2Arr(NFT_DATA)
+        const url = `${this.v3Url}/asset_metadata/projects`;
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? await overrideFunc() : await fetchData(url, this.apiKey);
+        // const NFT_DATA_ARR = metadataObj2Arr(NFT_DATA)
         let filtered = strict ? 
-            NFT_DATA_ARR.filter(item => item.projectName === projectName) :
-            NFT_DATA_ARR.filter(item => item.projectName.toLowerCase() === projectName.toLowerCase());
+            NFT_DATA_ARR.filter((item: any) => item.projectName === projectName) :
+            NFT_DATA_ARR.filter((item: any) => item.projectName.toLowerCase() === projectName.toLowerCase());
         return filtered
     }
 
     getAllAssetMetadata() {
-        return metadataObj2Arr(NFT_DATA)
+        const NFT_DATA_ARR = metadataObj2Arr(NFT_DATA);
+        return NFT_DATA_ARR
     }
 
-    getRemoteAssetMetadataProjectList() {
-        return fetchData(`${this.v3Url}/asset_metadata/projects`, this.apiKey);
+    getRemoteAssetMetadataProjectList(overrideFunc: Function | null = null) {
+        const url = `${this.v3Url}/asset_metadata/projects`;
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : fetchData(url, this.apiKey);
+        return NFT_DATA_ARR
     }
 
-    getRemoteAssetMetadata(asset_name: string) {
-        return fetchData(`${this.v3Url}/asset_metadata/${asset_name}`, this.apiKey);
+    getRemoteAssetMetadata(asset_name: string, overrideFunc: Function | null = null) {
+        const url = `${this.v3Url}/asset_metadata/${asset_name}`;
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : fetchData(url, this.apiKey);
+        return NFT_DATA_ARR
     }
 
-    getRemoteAssetMetadataVaultedProjectList() {
-        return fetchData(`${this.v3Url}/asset_metadata/projects/vaulted`, this.apiKey);
+    getRemoteAssetMetadataVaultedProjectList(overrideFunc: Function | null = null) {
+        const url = `${this.v3Url}/asset_metadata/projects/vaulted`;
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : fetchData(url, this.apiKey);
+        return NFT_DATA_ARR
     }
 
-    getAllProjects() {
-        const NFT_DATA_ARR = metadataObj2Arr(NFT_DATA)
+    getAllProjects(overrideFunc: Function | null = null) {
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : metadataObj2Arr(NFT_DATA)
         const projects = metadataAllProjects(NFT_DATA_ARR)
         return projects
     }
 
     // ** Curated **
     //
-    async fetchCuratedContracts(hideUnMintable: boolean = false, overrideFunc: Function | boolean = false): Promise<CuratedCollectionsResponse> {
+    async fetchCuratedContracts(hideUnMintable: boolean = false, overrideFunc: Function | null = null): Promise<CuratedCollectionsResponse> {
         let url = `${this.baseUrl}/curated`;
         // Fetch using URL or override function
-        let data = typeof overrideFunc === 'function' ? await overrideFunc() : await fetchData(url, this.apiKey);
+        let data = overrideFunc? await overrideFunc(this.apiKey) : await fetchData(url, this.apiKey);
         // Filter out collections that are not mintable
         data = hideUnMintable? data.filter((collection: Collection) => collection.mintable): data;
         
@@ -82,76 +91,76 @@ class EmblemVaultSDK {
         return data
     }
 
-    async fetchCuratedContractByName(name: string, contracts: any = false): Promise<Collection | null> {
-        !contracts ? contracts = await this.fetchCuratedContracts(): null
+    async fetchCuratedContractByName(name: string, contracts: any = false, overrideFunc: Function | null = null): Promise<Collection | null> {
+        !contracts ? contracts = overrideFunc? await overrideFunc(this.apiKey, {name}) : await this.fetchCuratedContracts(): null
         let contract = contracts.find((contract: Collection) => contract.name === name);
         return contract || null;
     }
     
-    async createCuratedVault(template: any, callback: any = null): Promise<Vault> {
+    async createCuratedVault(template: any, callback: any = null, overrideFunc: Function | null = null): Promise<Vault> {
         templateGuard(template);
         template.chainId == 1? delete template.targetContract[5]: delete template.targetContract[1]
         let url = `${this.baseUrl}/create-curated`;
         if (callback) { callback(`creating Vault for user`, template.toAddress)}     
-        let vaultCreationResponse = await fetchData(url, this.apiKey, 'POST', template);
+        let vaultCreationResponse = overrideFunc? await overrideFunc(this.apiKey, template): await fetchData(url, this.apiKey, 'POST', template);
         if (callback) { callback(`created Vault tokenId`, vaultCreationResponse.data.tokenId)}    
         return vaultCreationResponse.data
     }
 
-    async refreshOwnershipForTokenId(tokenId: string, callback: any = null): Promise<Ownership[]> {
+    async refreshOwnershipForTokenId(tokenId: string, callback: any = null, overrideFunc: Function | null = null): Promise<Ownership[]> {
         genericGuard(tokenId, "string", "tokenId");
         let url = `${this.baseUrl}/refreshBalanceForTokenId`;
-        let response = await fetchData(url, this.apiKey, 'POST', {tokenId});
+        let response = overrideFunc? await overrideFunc(this.apiKey, {tokenId}):  await fetchData(url, this.apiKey, 'POST', {tokenId});
         if (callback) { callback(`Refreshed ownership for`, tokenId)} 
         return response;
     }
 
-    async refreshOwnershipForAccount(account: string, callback: any = null): Promise<Ownership[]> {
+    async refreshOwnershipForAccount(account: string, callback: any = null, overrideFunc: Function | null = null): Promise<Ownership[]> {
         genericGuard(account, "string", "account");
         let url = `${this.baseUrl}/refreshBalanceForAccount`;
-        let response = await fetchData(url, this.apiKey, 'POST', {account});
+        let response = overrideFunc? await overrideFunc(this.apiKey, {account}):  await fetchData(url, this.apiKey, 'POST', {account});
         if (callback) { callback(`Refreshed ownership for`, account)} 
         return response;
     }
 
-    async fetchMetadata(tokenId: string, callback: any = null): Promise<MetaData> {
+    async fetchMetadata(tokenId: string, callback: any = null, overrideFunc: Function | null = null): Promise<MetaData> {
         genericGuard(tokenId, "string", "tokenId");
         if (callback) { callback('getting Metadata')}  
         let url = `${this.baseUrl}/meta/${tokenId}`;
-        let metadata = await fetchData(url, this.apiKey);
+        let metadata = overrideFunc? await overrideFunc(this.apiKey, {tokenId}): await fetchData(url, this.apiKey);
         if (callback) { callback('received Metadata', metadata.tokenId)}  
         return metadata;
     }
 
-    async refreshBalance(tokenId: string, callback: any = null): Promise<Balance[]> {
+    async refreshBalance(tokenId: string, callback: any = null, overrideFunc: Function | null = null): Promise<Balance[]> {
         genericGuard(tokenId, "string", "tokenId");
         if (callback) { callback('refreshing Balance')}  
         let url = `${this.v3Url}/vault/balance/${tokenId}?live=true`;
-        let balance = await fetchData(url, this.apiKey);
+        let balance = overrideFunc? await overrideFunc(this.apiKey, {tokenId}): await fetchData(url, this.apiKey);
         if (callback) { callback('received Balance', balance.values)}
         return balance?.values || [];
     }
 
-    async fetchVaultsOfType(vaultType: string, address: string): Promise<any> {
+    async fetchVaultsOfType(vaultType: string, address: string, overrideFunc: Function | null = null): Promise<any> {
         genericGuard(vaultType, "string", "vaultType");
         genericGuard(address, "string", "address");
         let url = `${this.baseUrl}/myvaults/${address}?vaultType=${vaultType}`;
-        let vaults = await fetchData(url, this.apiKey);
+        let vaults = overrideFunc? await overrideFunc(this.apiKey, {vaultType, address}): await fetchData(url, this.apiKey);
         return vaults;
     }
 
-    async generateJumpReport(address: string, hideUnMintable: boolean = false) {
+    async generateJumpReport(address: string, hideUnMintable: boolean = false, overrideFunc: Function | null = null) {
         let vaultType = "unclaimed"
         let curated = await this.fetchCuratedContracts();
         return new Promise(async (resolve, reject) => {
             try {
                 let map: { [key: string]: any } = {};
-                let vaults = await this.fetchVaultsOfType(vaultType, address);
+                let vaults = overrideFunc? await overrideFunc('vaults_of_type', this.apiKey, {vaultType, address}): await this.fetchVaultsOfType(vaultType, address);
                 for (let vaultIndex = 0; vaultIndex < vaults.length; vaultIndex++) {
                     let item = vaults[vaultIndex];
                     let balances = item.ownership.balances || [];                        
                     if (item.targetContract) {
-                        let vaultTargetContract: any = await this.fetchCuratedContractByName(item.targetContract.name, curated);
+                        let vaultTargetContract: any = overrideFunc? await overrideFunc('curated_contract_by_name', this.apiKey, {name: item.targetContract.name}): await this.fetchCuratedContractByName(item.targetContract.name, curated);
                         let to = [];
                         for (let contractIndex = 0; contractIndex < curated.length; contractIndex++) {                            
                             let contract: any = curated[contractIndex];
@@ -177,15 +186,15 @@ class EmblemVaultSDK {
         });
     }
 
-    async generateMintReport(address: string, hideUnMintable: boolean = false) {
-        let vaults = await this.fetchVaultsOfType("created", address)
+    async generateMintReport(address: string, hideUnMintable: boolean = false, overrideFunc: Function | null = null) {
+        let vaults = await this.fetchVaultsOfType("created", address, overrideFunc)
         let curated = await this.fetchCuratedContracts();
         let map: { [key: string]: any } = {};
         return new Promise(async (resolve, reject) => {
             try {
                 vaults.forEach(async (vault: any) => {
                     if (vault.targetContract) {                        
-                        let targetVault: any = await this.fetchCuratedContractByName(vault.targetContract.name, curated);
+                        let targetVault: any = overrideFunc? await overrideFunc(this.apiKey, {name: vault.targetContract.name}): await this.fetchCuratedContractByName(vault.targetContract.name, curated);
                         let balance = vault.balances && vault.balances.length > 0 ? vault.balances : vault.ownership && vault.ownership.balances && vault.ownership.balances.length > 0? vault.ownership.balances: []
                         let allowed = targetVault.allowed(balance, targetVault)
                         if (allowed || !hideUnMintable) {
@@ -206,18 +215,18 @@ class EmblemVaultSDK {
         });
     }
 
-    async generateMigrateReport(address: string, hideUnMintable: boolean = false) {
+    async generateMigrateReport(address: string, hideUnMintable: boolean = false, overrideFunc: Function | null = null) {
         let vaultType = "unclaimed"
         let curated = await this.fetchCuratedContracts();
         return new Promise(async (resolve, reject) => {
             try {
                 let map: { [key: string]: any } = {};
-                let vaults = await this.fetchVaultsOfType(vaultType, address);
+                let vaults = overrideFunc? await overrideFunc(this.apiKey, {vaultType, address}): await this.fetchVaultsOfType(vaultType, address);
                 for (let vaultIndex = 0; vaultIndex < vaults.length; vaultIndex++) {
                     let item = vaults[vaultIndex];
                     let balances = item.ownership.balances || [];                        
                     if (!item.targetContract) {
-                        // let vaultTargetContract: any = await this.fetchCuratedContractByName(item.targetContract.name, curated);
+                        // let vaultTargetContract: any = await this.fetchCuratedContractByName(item.targetContract.name);
                         let to = [];
                         for (let contractIndex = 0; contractIndex < curated.length; contractIndex++) {                            
                             let contract: any = curated[contractIndex];
@@ -306,11 +315,11 @@ class EmblemVaultSDK {
         return signature;
     }
 
-    async requestRemoteMintSignature(web3: any, tokenId: string, signature: string, callback: any = null) {
+    async requestRemoteMintSignature(web3: any, tokenId: string, signature: string, callback: any = null, overrideFunc: Function | null = null) {
         if (callback) { callback('requesting Remote Mint signature')}  
         const chainId = await web3.eth.getChainId();
         let url = `${this.baseUrl}/mint-curated`;
-        let remoteMintResponse = await fetchData(url, this.apiKey, 'POST',  {method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString()});
+        let remoteMintResponse = overrideFunc? await overrideFunc(this.apiKey, {method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString()}): await fetchData(url, this.apiKey, 'POST',  {method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString()});
         if (remoteMintResponse.error) {
             throw new Error(remoteMintResponse.error)
         }
@@ -318,30 +327,34 @@ class EmblemVaultSDK {
         return remoteMintResponse
     }    
 
-    async requestRemoteClaimToken(web3: any, tokenId: string, signature: string, callback: any = null) {
+    async requestRemoteClaimToken(web3: any, tokenId: string, signature: string, callback: any = null, overrideFunc: Function | null = null) {
         if (callback) { callback('requesting Remote Claim token')}
         const chainId = await web3.eth.getChainId();
         let url = `${this.sigUrl}/sign`;
-        let remoteClaimResponse = await fetchData(url, this.apiKey, 'POST',  {signature: signature, tokenId: tokenId}, {chainid: chainId.toString()});
+        let remoteClaimResponse = overrideFunc? await overrideFunc(this.apiKey, {signature: signature, tokenId: tokenId, chainid: chainId.toString()}): await fetchData(url, this.apiKey, 'POST',  {signature: signature, tokenId: tokenId}, {chainid: chainId.toString()});
         if (callback) { callback(`remote Claim token`, remoteClaimResponse)}
         return remoteClaimResponse
     }
 
-    async requestRemoteKey(tokenId: string, jwt: any, callback: any = null) {
+    async requestRemoteKey(tokenId: string, jwt: any, callback: any = null, overrideFunc: Function | null = null) {
         if (callback) { callback('requesting Remote Key')}
-        let dkeys = await getTorusKeys(tokenId, jwt.token)
+        let dkeys = overrideFunc? await overrideFunc(this.apiKey, {tokenId: tokenId, jwt: jwt.token}): await getTorusKeys(tokenId, jwt.token)
         if (callback) { callback(`remote Key`, dkeys)}
         return dkeys
     }
 
-    async decryptVaultKeys(tokenId: string, dkeys: any, callback: any = null) {
+    async decryptVaultKeys(tokenId: string, dkeys: any, callback: any = null, overrideFunc: Function | null = null) {
         if (callback) { callback('decrypting Vault Keys')}
-        let metadata: any = await this.fetchMetadata(tokenId);
+        let metadata: any = overrideFunc? await overrideFunc(this.apiKey, {tokenId: tokenId}): await this.fetchMetadata(tokenId);
         let ukeys = await decryptKeys(metadata.ciphertextV2, dkeys, metadata.addresses)
         if (callback) { callback(`remote Key`, ukeys)}
         return ukeys
     }
 
+    /**
+     * @deprecated This method is deprecated and will be removed in a future version.
+     * Please use alternative methods for price quotation.
+     */
     async getQuote(web3: any, amount: number, callback: any = null) {
         if (callback) { callback('requesting Quote')}
         let quoteContract = await getQuoteContractObject(web3);
@@ -351,6 +364,7 @@ class EmblemVaultSDK {
         return quote
     }
 
+    // todo add contract overrides
     async performMint(web3: any, quote: any, remoteMintSig: any, callback: any = null) {
     // async performMint(web3, quote, remoteMintSig, callback = null) {
         if (callback) { callback('performing Mint') }
@@ -601,5 +615,3 @@ declare global {
 if (typeof window !== 'undefined') {
     window.EmblemVaultSDK = EmblemVaultSDK;
 }
-
-export default EmblemVaultSDK;

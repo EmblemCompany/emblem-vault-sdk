@@ -1,4 +1,4 @@
-import EmblemVaultSDK from '../src/';
+import { EmblemVaultSDK } from '../src/';
 import { NFT_DATA } from '../src/utils';
 
 const fs = require('fs');

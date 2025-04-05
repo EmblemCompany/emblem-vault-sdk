@@ -1,4 +1,4 @@
-import EmblemVaultSDK from '../src/';
+import { EmblemVaultSDK } from '../src/';
 
 // Add TypeScript global declaration for garbage collection
 declare global {
@@ -9,7 +9,7 @@ declare global {
   }
 }
 
-describe.skip('Resource Monitor', () => {
+describe('Resource Monitor', () => {
   // Function to get current memory usage in MB
   const getMemoryUsage = (): number => {
     const memoryUsage = process.memoryUsage();

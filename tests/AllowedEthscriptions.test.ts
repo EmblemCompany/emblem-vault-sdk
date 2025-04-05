@@ -1,4 +1,4 @@
-import EmblemVaultSDK from '../src/';
+import { EmblemVaultSDK } from '../src/';
 
 const fs = require('fs');
 

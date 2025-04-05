@@ -32,10 +32,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.EmblemVaultSDK = void 0;
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const derive_1 = require("./derive");
-const SDK_VERSION = '2.3.6';
+const SDK_VERSION = '3.0.0';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl, v3Url, sigUrl) {
         this.apiKey = apiKey;
@@ -53,38 +54,49 @@ class EmblemVaultSDK {
     }
     // ** Asset Metadata **
     //
-    getAssetMetadata(projectName, strict = false) {
-        (0, utils_1.genericGuard)(projectName, "string", "projectName");
-        const NFT_DATA_ARR = (0, utils_1.metadataObj2Arr)(utils_1.NFT_DATA);
-        let filtered = strict ?
-            NFT_DATA_ARR.filter(item => item.projectName === projectName) :
-            NFT_DATA_ARR.filter(item => item.projectName.toLowerCase() === projectName.toLowerCase());
-        return filtered;
+    getAssetMetadata(projectName_1) {
+        return __awaiter(this, arguments, void 0, function* (projectName, strict = false, overrideFunc = false) {
+            (0, utils_1.genericGuard)(projectName, "string", "projectName");
+            const url = `${this.v3Url}/asset_metadata/projects`;
+            const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? yield overrideFunc() : yield (0, utils_1.fetchData)(url, this.apiKey);
+            // const NFT_DATA_ARR = metadataObj2Arr(NFT_DATA)
+            let filtered = strict ?
+                NFT_DATA_ARR.filter((item) => item.projectName === projectName) :
+                NFT_DATA_ARR.filter((item) => item.projectName.toLowerCase() === projectName.toLowerCase());
+            return filtered;
+        });
     }
     getAllAssetMetadata() {
-        return (0, utils_1.metadataObj2Arr)(utils_1.NFT_DATA);
-    }
-    getRemoteAssetMetadataProjectList() {
-        return (0, utils_1.fetchData)(`${this.v3Url}/asset_metadata/projects`, this.apiKey);
-    }
-    getRemoteAssetMetadata(asset_name) {
-        return (0, utils_1.fetchData)(`${this.v3Url}/asset_metadata/${asset_name}`, this.apiKey);
-    }
-    getRemoteAssetMetadataVaultedProjectList() {
-        return (0, utils_1.fetchData)(`${this.v3Url}/asset_metadata/projects/vaulted`, this.apiKey);
-    }
-    getAllProjects() {
         const NFT_DATA_ARR = (0, utils_1.metadataObj2Arr)(utils_1.NFT_DATA);
+        return NFT_DATA_ARR;
+    }
+    getRemoteAssetMetadataProjectList(overrideFunc = null) {
+        const url = `${this.v3Url}/asset_metadata/projects`;
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : (0, utils_1.fetchData)(url, this.apiKey);
+        return NFT_DATA_ARR;
+    }
+    getRemoteAssetMetadata(asset_name, overrideFunc = null) {
+        const url = `${this.v3Url}/asset_metadata/${asset_name}`;
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : (0, utils_1.fetchData)(url, this.apiKey);
+        return NFT_DATA_ARR;
+    }
+    getRemoteAssetMetadataVaultedProjectList(overrideFunc = null) {
+        const url = `${this.v3Url}/asset_metadata/projects/vaulted`;
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : (0, utils_1.fetchData)(url, this.apiKey);
+        return NFT_DATA_ARR;
+    }
+    getAllProjects(overrideFunc = null) {
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : (0, utils_1.metadataObj2Arr)(utils_1.NFT_DATA);
         const projects = (0, utils_1.metadataAllProjects)(NFT_DATA_ARR);
         return projects;
     }
     // ** Curated **
     //
     fetchCuratedContracts() {
-        return __awaiter(this, arguments, void 0, function* (hideUnMintable = false, overrideFunc = false) {
+        return __awaiter(this, arguments, void 0, function* (hideUnMintable = false, overrideFunc = null) {
             let url = `${this.baseUrl}/curated`;
             // Fetch using URL or override function
-            let data = typeof overrideFunc === 'function' ? yield overrideFunc() : yield (0, utils_1.fetchData)(url, this.apiKey);
+            let data = overrideFunc ? yield overrideFunc(this.apiKey) : yield (0, utils_1.fetchData)(url, this.apiKey);
             // Filter out collections that are not mintable
             data = hideUnMintable ? data.filter((collection) => collection.mintable) : data;
             // Sort the data by the name property in ascending order
@@ -104,21 +116,21 @@ class EmblemVaultSDK {
         });
     }
     fetchCuratedContractByName(name_1) {
-        return __awaiter(this, arguments, void 0, function* (name, contracts = false) {
-            !contracts ? contracts = yield this.fetchCuratedContracts() : null;
+        return __awaiter(this, arguments, void 0, function* (name, contracts = false, overrideFunc = null) {
+            !contracts ? contracts = overrideFunc ? yield overrideFunc(this.apiKey, { name }) : yield this.fetchCuratedContracts() : null;
             let contract = contracts.find((contract) => contract.name === name);
             return contract || null;
         });
     }
     createCuratedVault(template_1) {
-        return __awaiter(this, arguments, void 0, function* (template, callback = null) {
+        return __awaiter(this, arguments, void 0, function* (template, callback = null, overrideFunc = null) {
             (0, utils_1.templateGuard)(template);
             template.chainId == 1 ? delete template.targetContract[5] : delete template.targetContract[1];
             let url = `${this.baseUrl}/create-curated`;
             if (callback) {
                 callback(`creating Vault for user`, template.toAddress);
             }
-            let vaultCreationResponse = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', template);
+            let vaultCreationResponse = overrideFunc ? yield overrideFunc(this.apiKey, template) : yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', template);
             if (callback) {
                 callback(`created Vault tokenId`, vaultCreationResponse.data.tokenId);
             }
@@ -126,10 +138,10 @@ class EmblemVaultSDK {
         });
     }
     refreshOwnershipForTokenId(tokenId_1) {
-        return __awaiter(this, arguments, void 0, function* (tokenId, callback = null) {
+        return __awaiter(this, arguments, void 0, function* (tokenId, callback = null, overrideFunc = null) {
             (0, utils_1.genericGuard)(tokenId, "string", "tokenId");
             let url = `${this.baseUrl}/refreshBalanceForTokenId`;
-            let response = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { tokenId });
+            let response = overrideFunc ? yield overrideFunc(this.apiKey, { tokenId }) : yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { tokenId });
             if (callback) {
                 callback(`Refreshed ownership for`, tokenId);
             }
@@ -137,10 +149,10 @@ class EmblemVaultSDK {
         });
     }
     refreshOwnershipForAccount(account_1) {
-        return __awaiter(this, arguments, void 0, function* (account, callback = null) {
+        return __awaiter(this, arguments, void 0, function* (account, callback = null, overrideFunc = null) {
             (0, utils_1.genericGuard)(account, "string", "account");
             let url = `${this.baseUrl}/refreshBalanceForAccount`;
-            let response = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { account });
+            let response = overrideFunc ? yield overrideFunc(this.apiKey, { account }) : yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { account });
             if (callback) {
                 callback(`Refreshed ownership for`, account);
             }
@@ -148,13 +160,13 @@ class EmblemVaultSDK {
         });
     }
     fetchMetadata(tokenId_1) {
-        return __awaiter(this, arguments, void 0, function* (tokenId, callback = null) {
+        return __awaiter(this, arguments, void 0, function* (tokenId, callback = null, overrideFunc = null) {
             (0, utils_1.genericGuard)(tokenId, "string", "tokenId");
             if (callback) {
                 callback('getting Metadata');
             }
             let url = `${this.baseUrl}/meta/${tokenId}`;
-            let metadata = yield (0, utils_1.fetchData)(url, this.apiKey);
+            let metadata = overrideFunc ? yield overrideFunc(this.apiKey, { tokenId }) : yield (0, utils_1.fetchData)(url, this.apiKey);
             if (callback) {
                 callback('received Metadata', metadata.tokenId);
             }
@@ -162,41 +174,41 @@ class EmblemVaultSDK {
         });
     }
     refreshBalance(tokenId_1) {
-        return __awaiter(this, arguments, void 0, function* (tokenId, callback = null) {
+        return __awaiter(this, arguments, void 0, function* (tokenId, callback = null, overrideFunc = null) {
             (0, utils_1.genericGuard)(tokenId, "string", "tokenId");
             if (callback) {
                 callback('refreshing Balance');
             }
             let url = `${this.v3Url}/vault/balance/${tokenId}?live=true`;
-            let balance = yield (0, utils_1.fetchData)(url, this.apiKey);
+            let balance = overrideFunc ? yield overrideFunc(this.apiKey, { tokenId }) : yield (0, utils_1.fetchData)(url, this.apiKey);
             if (callback) {
                 callback('received Balance', balance.values);
             }
             return (balance === null || balance === void 0 ? void 0 : balance.values) || [];
         });
     }
-    fetchVaultsOfType(vaultType, address) {
-        return __awaiter(this, void 0, void 0, function* () {
+    fetchVaultsOfType(vaultType_1, address_1) {
+        return __awaiter(this, arguments, void 0, function* (vaultType, address, overrideFunc = null) {
             (0, utils_1.genericGuard)(vaultType, "string", "vaultType");
             (0, utils_1.genericGuard)(address, "string", "address");
             let url = `${this.baseUrl}/myvaults/${address}?vaultType=${vaultType}`;
-            let vaults = yield (0, utils_1.fetchData)(url, this.apiKey);
+            let vaults = overrideFunc ? yield overrideFunc(this.apiKey, { vaultType, address }) : yield (0, utils_1.fetchData)(url, this.apiKey);
             return vaults;
         });
     }
     generateJumpReport(address_1) {
-        return __awaiter(this, arguments, void 0, function* (address, hideUnMintable = false) {
+        return __awaiter(this, arguments, void 0, function* (address, hideUnMintable = false, overrideFunc = null) {
             let vaultType = "unclaimed";
             let curated = yield this.fetchCuratedContracts();
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     let map = {};
-                    let vaults = yield this.fetchVaultsOfType(vaultType, address);
+                    let vaults = overrideFunc ? yield overrideFunc('vaults_of_type', this.apiKey, { vaultType, address }) : yield this.fetchVaultsOfType(vaultType, address);
                     for (let vaultIndex = 0; vaultIndex < vaults.length; vaultIndex++) {
                         let item = vaults[vaultIndex];
                         let balances = item.ownership.balances || [];
                         if (item.targetContract) {
-                            let vaultTargetContract = yield this.fetchCuratedContractByName(item.targetContract.name, curated);
+                            let vaultTargetContract = overrideFunc ? yield overrideFunc('curated_contract_by_name', this.apiKey, { name: item.targetContract.name }) : yield this.fetchCuratedContractByName(item.targetContract.name, curated);
                             let to = [];
                             for (let contractIndex = 0; contractIndex < curated.length; contractIndex++) {
                                 let contract = curated[contractIndex];
@@ -224,15 +236,15 @@ class EmblemVaultSDK {
         });
     }
     generateMintReport(address_1) {
-        return __awaiter(this, arguments, void 0, function* (address, hideUnMintable = false) {
-            let vaults = yield this.fetchVaultsOfType("created", address);
+        return __awaiter(this, arguments, void 0, function* (address, hideUnMintable = false, overrideFunc = null) {
+            let vaults = yield this.fetchVaultsOfType("created", address, overrideFunc);
             let curated = yield this.fetchCuratedContracts();
             let map = {};
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     vaults.forEach((vault) => __awaiter(this, void 0, void 0, function* () {
                         if (vault.targetContract) {
-                            let targetVault = yield this.fetchCuratedContractByName(vault.targetContract.name, curated);
+                            let targetVault = overrideFunc ? yield overrideFunc(this.apiKey, { name: vault.targetContract.name }) : yield this.fetchCuratedContractByName(vault.targetContract.name, curated);
                             let balance = vault.balances && vault.balances.length > 0 ? vault.balances : vault.ownership && vault.ownership.balances && vault.ownership.balances.length > 0 ? vault.ownership.balances : [];
                             let allowed = targetVault.allowed(balance, targetVault);
                             if (allowed || !hideUnMintable) {
@@ -256,18 +268,18 @@ class EmblemVaultSDK {
         });
     }
     generateMigrateReport(address_1) {
-        return __awaiter(this, arguments, void 0, function* (address, hideUnMintable = false) {
+        return __awaiter(this, arguments, void 0, function* (address, hideUnMintable = false, overrideFunc = null) {
             let vaultType = "unclaimed";
             let curated = yield this.fetchCuratedContracts();
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     let map = {};
-                    let vaults = yield this.fetchVaultsOfType(vaultType, address);
+                    let vaults = overrideFunc ? yield overrideFunc(this.apiKey, { vaultType, address }) : yield this.fetchVaultsOfType(vaultType, address);
                     for (let vaultIndex = 0; vaultIndex < vaults.length; vaultIndex++) {
                         let item = vaults[vaultIndex];
                         let balances = item.ownership.balances || [];
                         if (!item.targetContract) {
-                            // let vaultTargetContract: any = await this.fetchCuratedContractByName(item.targetContract.name, curated);
+                            // let vaultTargetContract: any = await this.fetchCuratedContractByName(item.targetContract.name);
                             let to = [];
                             for (let contractIndex = 0; contractIndex < curated.length; contractIndex++) {
                                 let contract = curated[contractIndex];
@@ -370,13 +382,13 @@ class EmblemVaultSDK {
         });
     }
     requestRemoteMintSignature(web3_1, tokenId_1, signature_1) {
-        return __awaiter(this, arguments, void 0, function* (web3, tokenId, signature, callback = null) {
+        return __awaiter(this, arguments, void 0, function* (web3, tokenId, signature, callback = null, overrideFunc = null) {
             if (callback) {
                 callback('requesting Remote Mint signature');
             }
             const chainId = yield web3.eth.getChainId();
             let url = `${this.baseUrl}/mint-curated`;
-            let remoteMintResponse = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString() });
+            let remoteMintResponse = overrideFunc ? yield overrideFunc(this.apiKey, { method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString() }) : yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString() });
             if (remoteMintResponse.error) {
                 throw new Error(remoteMintResponse.error);
             }
@@ -387,13 +399,13 @@ class EmblemVaultSDK {
         });
     }
     requestRemoteClaimToken(web3_1, tokenId_1, signature_1) {
-        return __awaiter(this, arguments, void 0, function* (web3, tokenId, signature, callback = null) {
+        return __awaiter(this, arguments, void 0, function* (web3, tokenId, signature, callback = null, overrideFunc = null) {
             if (callback) {
                 callback('requesting Remote Claim token');
             }
             const chainId = yield web3.eth.getChainId();
             let url = `${this.sigUrl}/sign`;
-            let remoteClaimResponse = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { signature: signature, tokenId: tokenId }, { chainid: chainId.toString() });
+            let remoteClaimResponse = overrideFunc ? yield overrideFunc(this.apiKey, { signature: signature, tokenId: tokenId, chainid: chainId.toString() }) : yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { signature: signature, tokenId: tokenId }, { chainid: chainId.toString() });
             if (callback) {
                 callback(`remote Claim token`, remoteClaimResponse);
             }
@@ -401,11 +413,11 @@ class EmblemVaultSDK {
         });
     }
     requestRemoteKey(tokenId_1, jwt_1) {
-        return __awaiter(this, arguments, void 0, function* (tokenId, jwt, callback = null) {
+        return __awaiter(this, arguments, void 0, function* (tokenId, jwt, callback = null, overrideFunc = null) {
             if (callback) {
                 callback('requesting Remote Key');
             }
-            let dkeys = yield (0, utils_1.getTorusKeys)(tokenId, jwt.token);
+            let dkeys = overrideFunc ? yield overrideFunc(this.apiKey, { tokenId: tokenId, jwt: jwt.token }) : yield (0, utils_1.getTorusKeys)(tokenId, jwt.token);
             if (callback) {
                 callback(`remote Key`, dkeys);
             }
@@ -413,11 +425,11 @@ class EmblemVaultSDK {
         });
     }
     decryptVaultKeys(tokenId_1, dkeys_1) {
-        return __awaiter(this, arguments, void 0, function* (tokenId, dkeys, callback = null) {
+        return __awaiter(this, arguments, void 0, function* (tokenId, dkeys, callback = null, overrideFunc = null) {
             if (callback) {
                 callback('decrypting Vault Keys');
             }
-            let metadata = yield this.fetchMetadata(tokenId);
+            let metadata = overrideFunc ? yield overrideFunc(this.apiKey, { tokenId: tokenId }) : yield this.fetchMetadata(tokenId);
             let ukeys = yield (0, utils_1.decryptKeys)(metadata.ciphertextV2, dkeys, metadata.addresses);
             if (callback) {
                 callback(`remote Key`, ukeys);
@@ -425,6 +437,10 @@ class EmblemVaultSDK {
             return ukeys;
         });
     }
+    /**
+     * @deprecated This method is deprecated and will be removed in a future version.
+     * Please use alternative methods for price quotation.
+     */
     getQuote(web3_1, amount_1) {
         return __awaiter(this, arguments, void 0, function* (web3, amount, callback = null) {
             if (callback) {
@@ -439,6 +455,7 @@ class EmblemVaultSDK {
             return quote;
         });
     }
+    // todo add contract overrides
     performMint(web3_1, quote_1, remoteMintSig_1) {
         return __awaiter(this, arguments, void 0, function* (web3, quote, remoteMintSig, callback = null) {
             // async performMint(web3, quote, remoteMintSig, callback = null) {
@@ -655,8 +672,8 @@ class EmblemVaultSDK {
         });
     }
 }
+exports.EmblemVaultSDK = EmblemVaultSDK;
 if (typeof window !== 'undefined') {
     window.EmblemVaultSDK = EmblemVaultSDK;
 }
-exports.default = EmblemVaultSDK;
 //# sourceMappingURL=index.js.map
