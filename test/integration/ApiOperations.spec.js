@@ -6,12 +6,8 @@ const API_KEY = process.env.API_KEY || 'DEMO_KEY';
 const TEST_ADDRESS = "0xb0573e14D92755DE30281f7b10d0F3a5DD3e747B";
 
 describe('API Operations Integration Tests', function() {
-  let sdk;
-  
-  before(function() {
-    sdk = new EmblemVaultSDK(API_KEY);
-  });
-  
+  const sdk = new EmblemVaultSDK(API_KEY);
+
   // Increase timeout for these tests as they make API calls
   this.timeout(15000);
   
