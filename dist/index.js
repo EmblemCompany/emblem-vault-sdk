@@ -659,3 +659,4 @@ if (typeof window !== 'undefined') {
     window.EmblemVaultSDK = EmblemVaultSDK;
 }
 exports.default = EmblemVaultSDK;
+//# sourceMappingURL=index.js.map

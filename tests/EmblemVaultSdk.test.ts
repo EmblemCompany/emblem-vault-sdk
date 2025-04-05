@@ -32,6 +32,7 @@ describe('EmblemVaultSDK', () => {
             const sdk = new EmblemVaultSDK(apiKey);
             const contracts = await sdk.fetchCuratedContracts();
             let contract = contracts.find(contract => contract.name === "EmblemOpen");
+            console.log(contract?.generateCreateTemplate(contract));
             expect(contract?.generateCreateTemplate(contract)).toEqual(mocks.emblemopen_create_template);
         });
     

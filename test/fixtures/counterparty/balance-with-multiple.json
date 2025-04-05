@@ -1,0 +1,47 @@
+[
+  {
+    "coin": "XCP",
+    "name": "GADSDENPEPE",
+    "balance": 1,
+    "type": "nft",
+    "external_url": "https://xchain.io/asset/GADSDENPEPE",
+    "image": "https://raw.githubusercontent.com/EmblemCompany/vaultImages/master/collection/rare-pepes/GADSDENPEPE.jpg",
+    "description": "t tread on memes",
+    "project": "Rare Pepe",
+    "projectLogo": "rare-pepe.jpg",
+    "projectSite": "http://rarepepedirectory.com/",
+    "traits": [
+      {
+        "trait_type": "Series #",
+        "value": 2
+      },
+      {
+        "trait_type": "Series # 2 Card #",
+        "value": 43
+      },
+      {
+        "trait_type": "Total Supply",
+        "value": "500"
+      },
+      {
+        "trait_type": "Supply Range",
+        "value": "100 - 500"
+      },
+      {
+        "trait_type": "Year",
+        "value": "2016"
+      }
+    ],
+    "assetName": "GADSDENPEPE",
+    "series": 2,
+    "order": 43,
+    "issued": 500,
+    "burned": 0,
+    "circulating": 500
+  },
+  {
+    "coin": "XCP",
+    "name": "XCP",
+    "balance": 1
+  }
+]

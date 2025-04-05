@@ -8,8 +8,12 @@
     "skipLibCheck": true,                                /* Skip type checking all .d.ts files. */
     "resolveJsonModule": true,                           /* Include this to allow importing of .json files. */
     "declaration": true,                                 /* Generates corresponding '.d.ts' file. */
-    "declarationMap": false,                              /* Generates a sourcemap for each corresponding '.d.ts' file. */
-    "outDir": "./dist"                                  /* Redirect output structure to the directory. */
+    "declarationMap": false,                             /* Generates a sourcemap for each corresponding '.d.ts' file. */
+    "outDir": "./dist",                                  /* Redirect output structure to the directory. */
+    "rootDir": "./src",                                  /* Specify the root directory of input files. */
+    "sourceMap": true,                                   /* Generate source maps for debugging. */
+    "removeComments": false                              /* Do not remove comments in the compiled output. */
   },
-  "exclude": ["**/*.test.ts"]
+  "include": ["src/**/*"],
+  "exclude": ["**/*.test.ts", "node_modules", "dist", "test"]
 }

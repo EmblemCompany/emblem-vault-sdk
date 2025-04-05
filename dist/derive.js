@@ -121,3 +121,4 @@ const getPsbtTxnSize = (phrase, psbtBase64) => {
     return psbt.extractTransaction().virtualSize();
 };
 exports.getPsbtTxnSize = getPsbtTxnSize;
+//# sourceMappingURL=derive.js.map

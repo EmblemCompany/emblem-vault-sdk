@@ -1,0 +1,25 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "outDir": "../dist-test",
+    "rootDir": "./",
+    "strict": false,
+    "declaration": false,
+    "sourceMap": true,
+    "baseUrl": "..",
+    "paths": {
+      "*": ["*"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.json"
+  ],
+  "references": [
+    { "path": ".." }
+  ]
+}

@@ -940,3 +940,4 @@ function signPSBT(psbtBase64_1, paymentAddress_1, indexes_1) {
         });
     });
 }
+//# sourceMappingURL=utils.js.map

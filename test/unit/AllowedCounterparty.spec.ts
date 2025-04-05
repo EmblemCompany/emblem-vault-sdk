@@ -1,0 +1,60 @@
+/**
+ * Counterparty Collection Tests
+ * Tests for the Counterparty collection's allowed function
+ */
+
+import EmblemVaultSDK from '../../src/';
+import { expect, API_KEY } from '../helpers/setup';
+import * as fs from 'fs';
+import * as path from 'path';
+
+describe('Allowed Function for Counterparty', () => {
+  const sdk = new EmblemVaultSDK(API_KEY);
+  
+  // Helper function to get fixture path
+  const getFixturePath = (filename: string) => {
+    return path.join(__dirname, '../fixtures/counterparty', filename);
+  };
+
+  it('Does not allow empty balance', async () => {
+    const curatedContract: any = await sdk.fetchCuratedContractByName('Counterparty');
+    expect(curatedContract.allowed(null, curatedContract)).to.be.false;
+    expect(curatedContract.allowed([], curatedContract)).to.be.false;
+  });
+
+  it('Does not allow more than one asset', async () => {
+    const curatedContract: any = await sdk.fetchCuratedContractByName('Counterparty');
+    const balanceValues = JSON.parse(fs.readFileSync(getFixturePath("balance-with-multiple.json"), 'utf8'));
+    balanceValues[0].coin = 'invalid coin';
+    expect(curatedContract.allowed(balanceValues, curatedContract)).to.be.false;
+  });
+
+  it('Does not allow non-native coin', async () => {
+    const curatedContract: any = await sdk.fetchCuratedContractByName('Counterparty');
+    const balanceValues = JSON.parse(fs.readFileSync(getFixturePath("balance.json"), 'utf8'));
+    balanceValues[0].coin = 'invalid coin';
+    expect(curatedContract.allowed(balanceValues, curatedContract)).to.be.false;
+  });
+
+  it('Allows collection chain asset', async () => {
+    const curatedContract: any = await sdk.fetchCuratedContractByName('Counterparty');
+    const balanceValues = JSON.parse(fs.readFileSync(getFixturePath("balance.json"), 'utf8'));
+    
+    // For protocol collections, only the collectionChain asset is allowed
+    balanceValues[0].coin = curatedContract.collectionChain;
+    expect(curatedContract.allowed(balanceValues, curatedContract)).to.be.true;
+    
+    // Test case insensitivity
+    balanceValues[0].coin = curatedContract.collectionChain.toUpperCase();
+    expect(curatedContract.allowed(balanceValues, curatedContract)).to.be.true;
+  });
+
+  it('Allows valid balance', async () => {
+    const curatedContract: any = await sdk.fetchCuratedContractByName('Counterparty');
+    const balanceValues = JSON.parse(fs.readFileSync(getFixturePath("balance.json"), 'utf8'));
+    
+    // Make sure the coin matches the collectionChain for protocol collections
+    balanceValues[0].coin = curatedContract.collectionChain;
+    expect(curatedContract.allowed(balanceValues, curatedContract)).to.be.true;
+  });
+});
