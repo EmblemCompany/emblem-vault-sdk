@@ -376,7 +376,7 @@ class EmblemVaultSDK {
             }
             const chainId = yield web3.eth.getChainId();
             let url = `${this.baseUrl}/mint-curated`;
-            let remoteMintResponse = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { method: 'buyWithQuote', tokenId: tokenId, signature: signature, chainId: chainId.toString() });
+            let remoteMintResponse = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString() });
             if (remoteMintResponse.error) {
                 throw new Error(remoteMintResponse.error);
             }
