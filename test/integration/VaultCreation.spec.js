@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const { EmblemVaultSDK } = require('../../dist');
-const mocks = require('../mocks');
+const mocks = require('../../test/mocks');
 
 // Test constants
 const API_KEY = process.env.API_KEY || 'DEMO_KEY';
