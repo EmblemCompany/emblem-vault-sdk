@@ -56,7 +56,7 @@
     <script>
         const sdk = new EmblemVaultSDK('demo'); // Instantiate SDK
         let defaultAccount, vaultBalance, vaultData;
-        let contractTemplate = {};
+        let mintTemplate = {};
         let curatedContracts = [];
         let selectedContract = null;
         
@@ -110,9 +110,9 @@
             selectedContract = curatedContracts[selectedIndex];
             updateLogCallback('Selected contract', selectedContract.name);
             
-            // Generate template using the contract's built-in method
-            contractTemplate = selectedContract.generateCreateTemplate(selectedContract);
-            updateLogCallback('Contract template generated', contractTemplate);
+            // Get mint template from contract
+            mintTemplate = selectedContract.mintTemplate
+            updateLogCallback('Mint template acquired', mintTemplate);
             
             // Function to populate template with account info
             async function populateTemplateWithAccountInfo() {
@@ -125,15 +125,15 @@
                 let chainId = Number(await web3.eth.net.getId());
                 
                 // populate the template
-                contractTemplate.toAddress = defaultAccount;
-                contractTemplate.fromAddress = defaultAccount;
-                contractTemplate.chainId = chainId;
-                updateLogCallback('Contract template fromAddress populated with default account:', contractTemplate.fromAddress);
-                updateLogCallback('Contract template toAddress populated with default account:', contractTemplate.toAddress);
-                updateLogCallback('Contract template populated with chainId:', contractTemplate.chainId);
+                mintTemplate.toAddress = defaultAccount;
+                mintTemplate.fromAddress = defaultAccount;
+                mintTemplate.chainId = chainId;
+                updateLogCallback('Mint template fromAddress populated with default account:', mintTemplate.fromAddress);
+                updateLogCallback('Mint template toAddress populated with default account:', mintTemplate.toAddress);
+                updateLogCallback('Mint template populated with chainId:', mintTemplate.chainId);
                 
                 // Validate template after population
-                await validateContractTemplate();
+                await validateMintTemplate();
             }
             
             // Call the function to populate the template
@@ -156,24 +156,24 @@
         
         // Function to update template from form inputs
         async function updateTemplateFromForm() {
-            if (!contractTemplate || !contractTemplate.targetAsset) return;
+            if (!mintTemplate || !mintTemplate.targetAsset) return;
             
             // Get user input values
             if (document.getElementById('userInputName') && document.getElementById('userInputName').value){
                 const nameInput = document.getElementById('userInputName').value? document.getElementById('userInputName').value.trim(): null;
-                if (nameInput) contractTemplate.targetAsset.name = nameInput;
+                if (nameInput) mintTemplate.targetAsset.name = nameInput;
             }
             
             if (document.getElementById('userInputImage') && document.getElementById('userInputImage').value){
                 const imageInput = document.getElementById('userInputImage').value? document.getElementById('userInputImage').value.trim(): null;
-                if (imageInput) contractTemplate.targetAsset.image = imageInput;
+                if (imageInput) mintTemplate.targetAsset.image = imageInput;
             } 
             if (document.getElementById('userInputDescription') && document.getElementById('userInputDescription').value){
                 const descriptionInput = document.getElementById('userInputDescription').value? document.getElementById('userInputDescription').value.trim(): null;
-                if (descriptionInput) contractTemplate.targetAsset.description = descriptionInput;
+                if (descriptionInput) mintTemplate.targetAsset.description = descriptionInput;
             }
-            updateLogCallback('Contract template updated with target asset:', contractTemplate.targetAsset);       
-            await validateContractTemplate();
+            updateLogCallback('Mint template updated with target asset:', mintTemplate.targetAsset);       
+            await validateMintTemplate();
         }
         
         // Function to load assets for selection
@@ -213,43 +213,43 @@
             const selectedAsset = window.assets[selectedIndex];
             
             // Update the template with the selected asset
-            if (contractTemplate.targetAsset) {
-                if (selectedAsset.assetName) contractTemplate.targetAsset.name = selectedAsset.assetName;
-                if (selectedAsset.image) contractTemplate.targetAsset.image = selectedAsset.image;
-                if (selectedAsset.description) contractTemplate.targetAsset.description = selectedAsset.description;
+            if (mintTemplate.targetAsset) {
+                if (selectedAsset.assetName) mintTemplate.targetAsset.name = selectedAsset.assetName;
+                if (selectedAsset.image) mintTemplate.targetAsset.image = selectedAsset.image;
+                if (selectedAsset.description) mintTemplate.targetAsset.description = selectedAsset.description;
             }
             
-            updateLogCallback('Contract template updated with selected asset:', contractTemplate.targetAsset);
-            await validateContractTemplate();
+            updateLogCallback('Mint template updated with selected asset:', mintTemplate.targetAsset);
+            await validateMintTemplate();
         }
         
-        async function validateContractTemplate() {
-            if (!contractTemplate || !contractTemplate.targetContract ||!selectedContract) {
+        async function validateMintTemplate() {
+            if (!mintTemplate || !mintTemplate.targetContract ||!selectedContract) {
                 document.getElementById('step1Button').disabled = true;
-                updateLogCallback('Contract template validation failed', 'Template or contract not initialized');
+                updateLogCallback('Mint template validation failed', 'Template or contract not initialized');
                 return;
             }
-            console.log('contractTemplate', contractTemplate);
+            console.log('mintTemplate', mintTemplate);
             
-            selectedContract.validateTemplate(contractTemplate, (validatedCtemplate) => {
-                if (validatedCtemplate.valid) {
+            selectedContract.validateTemplate(mintTemplate, (mintTemplateValidation) => {
+                if (mintTemplateValidation.valid) {
                     document.getElementById('step1Button').disabled = false;
-                    updateLogCallback('Contract template validated successfully', JSON.stringify(validatedCtemplate.valid));
+                    updateLogCallback('Mint template validated successfully', JSON.stringify(mintTemplateValidation.valid));
                 } else {
                     document.getElementById('step1Button').disabled = true;
                     // Format errors for better readability - simple approach
                     let errorText = '';
                     try {
                         // Just get the first error for simplicity
-                        if (validatedCtemplate.errors && validatedCtemplate.errors.length > 0) {
+                        if (mintTemplateValidation.errors && mintTemplateValidation.errors.length > 0) {
                             // Get the raw error text and strip ALL quotes and formatting
-                            const rawError = validatedCtemplate.errors[0].toString();
+                            const rawError = mintTemplateValidation.errors[0].toString();
                             errorText = rawError.replace(/['"]/g, '');
                         }
                     } catch (e) {
                         errorText = 'Invalid template format';
                     }
-                    updateLogCallback('Contract template validation failed', errorText);
+                    updateLogCallback('Mint template validation failed', errorText);
                 }
             });
             
@@ -322,7 +322,7 @@
                         const contract = await sdk.fetchCuratedContractByName(contractName);
                         if (contract) {
                             selectedContract = contract;
-                            contractTemplate = { targetContract: { name: contractName } };
+                            mintTemplate = { targetContract: { name: contractName } };
                             updateLogCallback('Found contract for vault', contractName);
                         }
                     }
@@ -383,7 +383,7 @@
     <script>
         async function Step1() {
             if (!vaultData) {
-                if (contractTemplate.targetContract.vaultCollectionType === "open") {
+                if (mintTemplate.targetContract.vaultCollectionType === "open") {
                     
                     const nameInput = document.getElementById('userInputName').value;
                     const imageInput = document.getElementById('userInputImage').value;
@@ -398,8 +398,8 @@
                 }
                 
                 // Create a vault
-                updateLogCallback("Creating vault for contract", contractTemplate.targetContract.name);
-                vaultData = await sdk.createCuratedVault(contractTemplate, updateLogCallback).catch(err=>console.log(err));
+                updateLogCallback("Creating vault for contract", mintTemplate.targetContract.name);
+                vaultData = await sdk.createCuratedVault(mintTemplate, updateLogCallback).catch(err=>console.log(err));
                 // disable and add timer to button
                 document.getElementById('step1Button').disabled = true;
                 document.getElementById('step1Button').textContent = "Creating...";
@@ -430,8 +430,8 @@
                     updateLogCallback('Balance refreshed', JSON.stringify(vaultBalance));
                     
                     // Check if the vault is mintable
-                    updateLogCallback("Validating mintability for", contractTemplate.targetContract.name);
-                    let contractObject = await sdk.fetchCuratedContractByName(contractTemplate.targetContract.name);
+                    updateLogCallback("Validating mintability for", mintTemplate.targetContract.name);
+                    let contractObject = await sdk.fetchCuratedContractByName(mintTemplate.targetContract.name);
                     let mintable = contractObject.allowed(vaultBalance, contractObject);
                     
                     if (mintable) {
@@ -460,7 +460,7 @@
             if (vaultData.tokenId) {
                 // Perform Mint steps
                 updateLogCallback("Starting mint process for token ID", vaultData.tokenId);
-                sdk.performMintChain(web3, vaultData.tokenId, contractTemplate.targetContract.name, updateLogCallback).then(result => {
+                sdk.performMintChain(web3, vaultData.tokenId, mintTemplate.targetContract.name, updateLogCallback).then(result => {
                     updateLogCallback('Minting success',  'tokenId: ' + vaultData.tokenId);
                 })
                 .catch(error => {

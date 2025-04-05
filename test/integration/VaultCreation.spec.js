@@ -1,47 +1,90 @@
 const { expect } = require('chai');
-const { EmblemVaultSDK } = require('../../dist');
-const mocks = require('../../test/mocks');
+const { getSDK } = require('../helpers/sdkLoader');
 
 // Test constants
-const API_KEY = process.env.API_KEY || 'DEMO_KEY';
 const TEST_ADDRESS = "0xb0573e14D92755DE30281f7b10d0F3a5DD3e747B";
+const CONTRACT_NAME = "EmblemOpen";
 
 describe('Vault Creation Integration Tests', function() {
-  let sdk;
-  
-  before(function() {
-    sdk = new EmblemVaultSDK(API_KEY);
-  });
+  // Get SDK instance using the loader
+  const sdk = getSDK();
   
   // Increase timeout for these tests as they make API calls
-  this.timeout(15000);
+  this.timeout(155000);
   
-  beforeEach(function() {
-    // Skip vault creation tests when using demo key
-    if (API_KEY === 'DEMO_KEY') {
-      this.skip();
-    }
-  });
-  
-  it('should create vault (load type empty)', async () => {        
+  it('should create vault using contract template', async () => {
+    // Get all contracts
     const contracts = await sdk.fetchCuratedContracts();
-    let populatedTemplate = JSON.parse(JSON.stringify(mocks.empty_create_template));
-    populatedTemplate.fromAddress = TEST_ADDRESS;
-    populatedTemplate.toAddress = TEST_ADDRESS;
-    populatedTemplate.chainId = "1"; // Add Ethereum mainnet chainId
+    expect(contracts).to.be.an('array');
+    expect(contracts.length).to.be.greaterThan(0);
     
-    let vault = await sdk.createCuratedVault(populatedTemplate);
+    // Find the Emblem Open contract
+    const contract = contracts.find(contract => contract.name === CONTRACT_NAME);
+    expect(contract).to.be.an('object');
+    
+    // Generate a template using the contract's generateCreateTemplate function
+    const template = contract.generateCreateTemplate(contract);
+    expect(template).to.be.an('object');
+    
+    // Populate the template with test data
+    template.fromAddress = TEST_ADDRESS
+    template.toAddress = TEST_ADDRESS
+    template.chainId = "1" // Add Ethereum mainnet chainId
+    template.targetAsset.name = "Test Asset"
+    template.targetAsset.image = "https://emblem.finance/stamps.png"
+    template.targetAsset.description = "Test Asset Description"
+    template.targetAsset.ownedImage = "https://emblem.finance/stamps.png" // Add required ownedImage field
+    
+    // Create the vault using the populated template
+    const vault = await sdk.createCuratedVault(template);
+    
+    // Verify the created vault
     expect(vault).to.be.an('object');
+    expect(vault).to.have.property('tokenId');
   });
   
-  // Add more integration tests for other vault creation scenarios
-  it('should fetch vault details after creation', async () => {
-    // This test depends on the previous test creating a vault
-    // In a real integration test, you might want to create a vault first
-    // and then use its ID to fetch details
+  it('should create vault with asset details', async () => {
+    // Get all contracts
+    const contracts = await sdk.fetchCuratedContracts();
+    expect(contracts).to.be.an('array');
     
-    // For now, we'll just check if fetchVaultsOfAddress works
-    const vaults = await sdk.fetchVaultsOfAddress(TEST_ADDRESS);
+    // Find the Emblem Open contract
+    const contract = contracts.find(contract => contract.name === CONTRACT_NAME);
+    expect(contract).to.be.an('object');
+    
+    // Generate a template using the contract's generateCreateTemplate function
+    const template = contract.generateCreateTemplate(contract);
+    expect(template).to.be.an('object');
+    
+    // Populate the template with test data
+    template.name = `Test Vault with Asset ${Date.now()}`;
+    template.description = 'Test vault with asset created by integration tests';
+    template.fromAddress = TEST_ADDRESS;
+    template.toAddress = TEST_ADDRESS;
+    template.chainId = "1"; // Ethereum mainnet
+    
+    // Add asset details
+    template.targetAsset = {
+      name: "Test Asset",
+      image: "https://emblem.finance/stamps.png",
+      description: "Test Asset Description",
+      ownedImage: "https://emblem.finance/stamps.png"
+    };
+    
+    // Create the vault using the populated template
+    const vault = await sdk.createCuratedVault(template);
+    
+    // Verify the created vault
+    expect(vault).to.be.an('object');
+    expect(vault).to.have.property('tokenId');
+    expect(vault.targetAsset.name).to.equal("Test Asset");
+    expect(vault.targetAsset.image).to.equal("https://emblem.finance/stamps.png");
+    expect(vault.targetAsset.description).to.equal("Test Asset Description");
+  });
+  
+  it('should fetch vault details after creation', async () => {
+    // Fetch vaults for the test address
+    const vaults = await sdk.fetchVaultsOfType("created", TEST_ADDRESS);
     expect(vaults).to.be.an('array');
     
     if (vaults.length > 0) {

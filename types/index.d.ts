@@ -6,13 +6,20 @@ export declare class EmblemVaultSDK {
     private v3Url;
     private sigUrl;
     constructor(apiKey: string, baseUrl?: string, v3Url?: string, sigUrl?: string);
-    generateUploadUrl(): void;
-    getAssetMetadata(projectName: string, strict?: boolean, overrideFunc?: Function | boolean): Promise<any>;
-    getAllAssetMetadata(): any[];
-    getRemoteAssetMetadataProjectList(overrideFunc?: Function | null): any;
-    getRemoteAssetMetadata(asset_name: string, overrideFunc?: Function | null): any;
-    getRemoteAssetMetadataVaultedProjectList(overrideFunc?: Function | null): any;
-    getAllProjects(overrideFunc?: Function | null): any[];
+    getCuratedAssetMetadata(projectName: string, strict?: boolean, overrideFunc?: Function | null): any[];
+    getAssetMetadata(projectName: string, strict?: boolean, overrideFunc?: Function | null): any[];
+    getAllCuratedAssetMetadata(overrideFunc?: Function | null): any;
+    getAllAssetMetadata(overrideFunc?: Function | null): any;
+    /**
+     * @deprecated
+     * This method is deprecated and will be removed in a future version.
+     * Please use `getInventoryAssetMetadataProject` instead.
+     */
+    getRemoteAssetMetadataProjectList(overrideFunc?: Function | null): Promise<any>;
+    getInventoryAssetMetadataProject(projectName?: string, overrideFunc?: Function | null): Promise<any>;
+    getInventoryAssetMetadata(asset_name: string, overrideFunc?: Function | null): Promise<any>;
+    getInventoryAssetMetadataVaultedProjectList(overrideFunc?: Function | null): Promise<any>;
+    getAllCuratedProjects(overrideFunc?: Function | null): any[];
     fetchCuratedContracts(hideUnMintable?: boolean, overrideFunc?: Function | null): Promise<CuratedCollectionsResponse>;
     fetchCuratedContractByName(name: string, contracts?: any, overrideFunc?: Function | null): Promise<Collection | null>;
     createCuratedVault(template: any, callback?: any, overrideFunc?: Function | null): Promise<Vault>;

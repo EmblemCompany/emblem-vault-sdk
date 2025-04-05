@@ -185,20 +185,47 @@
             }
         }
 
+        async function createMultipleVaultsAsync(vaultCount = parseInt(document.getElementById('vaultCount').value, 10)) {
+            try {
+                // Create an array of promises for vault creation
+                const vaultPromises = Array.from({ length: vaultCount }, async (_, index) => {
+                    try {
+                        await createVault();
+                        console.log(`Vault ${index + 1} created successfully.`);
+                        updateCsvData();
+                        return { success: true, index };
+                    } catch (error) {
+                        console.error(`Failed to create vault at index ${index + 1}:`, error);
+                        return { success: false, index, error };
+                    }
+                });
+                
+                // Execute all vault creation promises in parallel
+                const results = await Promise.all(vaultPromises);
+                
+                // Log summary of results
+                const successCount = results.filter(r => r.success).length;
+                console.log(`Completed vault creation: ${successCount} of ${vaultCount} successful`);
+            } catch (error) {
+                console.error("Error in batch vault creation:", error);
+            }
+        }
+
 
         function selectContract(index) {
             let contract = window.curatedContracts[index];
-            let template = contract.generateCreateTemplate(contract)
+            let template = contract.mintTemplate
+            console.log("--------- Contract Details ---------");
+            console.log(contract);
+            console.log("---------- Mint Template ----------");
+            console.log(contract.mintTemplate);
+
             template.chainId = 1
             template.toAddress = document.getElementById('ethAddress').value;
             template.fromAddress = document.getElementById('ethAddress').value;
             window.contract = contract;
-            window.template = template;
+            window.template = template;          
             
-            console.log("--------- Contract Details ---------");
-            console.log(contract);
-            console.log("---------- Create Template ----------");
-            console.log(template);
             console.log("--------- Populated Template ---------");            
             console.log(template);
 
@@ -309,7 +336,7 @@
     </div>
 
     <input type="number" id="vaultCount" min="1" value="1">
-    <button id="createButton" onclick="createMultipleVaults()">Create</button>
+    <button id="createButton" onclick="createMultipleVaultsAsync()">Create</button>
 
     <hr>
 

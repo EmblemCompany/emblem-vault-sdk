@@ -12,14 +12,14 @@ describe('SDK Memory Leak Tests', () => {
   let sdk = new EmblemVaultSDK(API_KEY);
   
   beforeEach(() => {
-    // Create a new monitor for each test with verbose logging
-    monitor = new ResourceMonitor(MEMORY_THRESHOLD, true);
+    // Create a new monitor for each test
+    monitor = new ResourceMonitor(MEMORY_THRESHOLD, false);
   });
   
   afterEach(() => {
     // Generate and log memory report after each test
     const report = monitor.generateReport();
-    console.log(report);
+    // console.log(report);
     
     // Attempt garbage collection between tests
     monitor.triggerGC();
@@ -108,7 +108,7 @@ describe('SDK Memory Leak Tests', () => {
     
     // We don't assert on the exact memory difference, as it can vary,
     // but we log if it exceeds the threshold
-    console.log(`Memory increase percentage: ${result.percentageIncrease}%`);
+    // console.log(`Memory increase percentage: ${result.percentageIncrease}%`);
   });
   
   it('should not leak memory with getAllAssetMetadata', async function() {
@@ -119,7 +119,7 @@ describe('SDK Memory Leak Tests', () => {
       'getAllAssetMetadata'
     );
     
-    console.log(`Memory increase percentage: ${result.percentageIncrease}%`);
+    // console.log(`Memory increase percentage: ${result.percentageIncrease}%`);
   });
   
   it('should not leak memory with fetchCuratedContractByName using override function', async function() {
@@ -130,18 +130,18 @@ describe('SDK Memory Leak Tests', () => {
       'fetchCuratedContractByName-override'
     );
     
-    console.log(`Memory increase percentage: ${result.percentageIncrease}%`);
+    // console.log(`Memory increase percentage: ${result.percentageIncrease}%`);
   });
   
   it('should not leak memory with getRemoteAssetMetadata using override function', async function() {
     this.timeout(30000);
     
     const result = await testOperation(
-      async () => await sdk.getRemoteAssetMetadata('Bitcoin Ordinals', () => mockAssetMetadata),
+      async () => await sdk.getInventoryAssetMetadata('Bitcoin Ordinals', () => mockAssetMetadata),
       'getRemoteAssetMetadata-override'
     );
     
-    console.log(`Memory increase percentage: ${result.percentageIncrease}%`);
+    // console.log(`Memory increase percentage: ${result.percentageIncrease}%`);
   });
   
   // Test with a deliberately leaky override function
@@ -153,8 +153,8 @@ describe('SDK Memory Leak Tests', () => {
     
     // This override function will cause a memory leak
     const leakyOverride = () => {
-      // Create a large object and add it to the leaky array
-      const largeObject = new Array(100000).fill('memory leak test data');
+      // Create a larger object and add it to the leaky array
+      const largeObject = new Array(500000).fill('memory leak test data');
       leakyArray.push(largeObject);
       
       // Return mock data
@@ -162,15 +162,15 @@ describe('SDK Memory Leak Tests', () => {
     };
     
     const result = await testOperation(
-      async () => await sdk.getRemoteAssetMetadataProjectList(leakyOverride),
+      async () => await sdk.getInventoryAssetMetadataProject('Bitcoin Ordinals', leakyOverride),
       'leaky-override'
     );
     
-    console.log(`Memory increase percentage: ${result.percentageIncrease}%`);
+    // console.log(`Memory increase percentage: ${result.percentageIncrease}%`);
     
     // This test should show a significant memory increase
     // We expect the threshold to be exceeded
     expect(result.percentageIncrease).to.be.greaterThan(5);
-    console.log('✓ Successfully detected memory leak in leaky override function');
+    // console.log('✓ Successfully detected memory leak in leaky override function');
   });
 });

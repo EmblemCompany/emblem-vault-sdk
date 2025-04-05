@@ -48,45 +48,67 @@ class EmblemVaultSDK {
         this.v3Url = v3Url || 'https://v3.emblemvault.io';
         this.sigUrl = sigUrl || 'https://tor-us-signer-coval.vercel.app';
     }
-    // Example method structure
-    generateUploadUrl() {
-        // Implementation goes here
-    }
     // ** Asset Metadata **
     //
-    getAssetMetadata(projectName_1) {
-        return __awaiter(this, arguments, void 0, function* (projectName, strict = false, overrideFunc = false) {
-            (0, utils_1.genericGuard)(projectName, "string", "projectName");
-            const url = `${this.v3Url}/asset_metadata/projects`;
-            const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? yield overrideFunc() : yield (0, utils_1.fetchData)(url, this.apiKey);
-            // const NFT_DATA_ARR = metadataObj2Arr(NFT_DATA)
-            let filtered = strict ?
-                NFT_DATA_ARR.filter((item) => item.projectName === projectName) :
-                NFT_DATA_ARR.filter((item) => item.projectName.toLowerCase() === projectName.toLowerCase());
-            return filtered;
-        });
+    getCuratedAssetMetadata(projectName, strict = false, overrideFunc = null) {
+        return this.getAssetMetadata(projectName, strict, overrideFunc);
     }
-    getAllAssetMetadata() {
+    // @deprecated
+    getAssetMetadata(projectName, strict = false, overrideFunc = null) {
+        (0, utils_1.genericGuard)(projectName, "string", "projectName");
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? (0, utils_1.metadataObj2Arr)(overrideFunc()) : (0, utils_1.metadataObj2Arr)(utils_1.NFT_DATA);
+        let filtered = strict ?
+            NFT_DATA_ARR.filter((item) => item.projectName === projectName) :
+            NFT_DATA_ARR.filter((item) => item.projectName.toLowerCase() === projectName.toLowerCase());
+        return filtered;
+    }
+    getAllCuratedAssetMetadata(overrideFunc = null) {
+        return this.getAllAssetMetadata(overrideFunc);
+    }
+    // @deprecated    
+    getAllAssetMetadata(overrideFunc = null) {
+        if (overrideFunc && typeof overrideFunc === 'function') {
+            return overrideFunc();
+        }
         const NFT_DATA_ARR = (0, utils_1.metadataObj2Arr)(utils_1.NFT_DATA);
         return NFT_DATA_ARR;
     }
-    getRemoteAssetMetadataProjectList(overrideFunc = null) {
-        const url = `${this.v3Url}/asset_metadata/projects`;
-        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : (0, utils_1.fetchData)(url, this.apiKey);
-        return NFT_DATA_ARR;
+    /**
+     * @deprecated
+     * This method is deprecated and will be removed in a future version.
+     * Please use `getInventoryAssetMetadataProject` instead.
+     */
+    getRemoteAssetMetadataProjectList() {
+        return __awaiter(this, arguments, void 0, function* (overrideFunc = null) {
+            const url = `${this.v3Url}/asset_metadata/projects`;
+            const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : yield (0, utils_1.fetchData)(url, this.apiKey);
+            return NFT_DATA_ARR;
+        });
     }
-    getRemoteAssetMetadata(asset_name, overrideFunc = null) {
-        const url = `${this.v3Url}/asset_metadata/${asset_name}`;
-        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : (0, utils_1.fetchData)(url, this.apiKey);
-        return NFT_DATA_ARR;
+    getInventoryAssetMetadataProject(projectName_1) {
+        return __awaiter(this, arguments, void 0, function* (projectName, overrideFunc = null) {
+            const url = `${this.v3Url}/asset_metadata/projects`;
+            const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey, { project: projectName }) : yield (0, utils_1.fetchData)(url, this.apiKey, projectName ? 'POST' : undefined, projectName ? { project: projectName } : undefined);
+            NFT_DATA_ARR && (yield NFT_DATA_ARR).map((item) => { item.asset_name = item.assetName; }); // Backward compatibility
+            return NFT_DATA_ARR;
+        });
     }
-    getRemoteAssetMetadataVaultedProjectList(overrideFunc = null) {
-        const url = `${this.v3Url}/asset_metadata/projects/vaulted`;
-        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : (0, utils_1.fetchData)(url, this.apiKey);
-        return NFT_DATA_ARR;
+    getInventoryAssetMetadata(asset_name_1) {
+        return __awaiter(this, arguments, void 0, function* (asset_name, overrideFunc = null) {
+            const url = `${this.v3Url}/asset_metadata/${asset_name}`;
+            const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : yield (0, utils_1.fetchData)(url, this.apiKey);
+            return NFT_DATA_ARR;
+        });
     }
-    getAllProjects(overrideFunc = null) {
-        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : (0, utils_1.metadataObj2Arr)(utils_1.NFT_DATA);
+    getInventoryAssetMetadataVaultedProjectList() {
+        return __awaiter(this, arguments, void 0, function* (overrideFunc = null) {
+            const url = `${this.v3Url}/asset_metadata/projects/vaulted`;
+            const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : yield (0, utils_1.fetchData)(url, this.apiKey);
+            return NFT_DATA_ARR;
+        });
+    }
+    getAllCuratedProjects(overrideFunc = null) {
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? (0, utils_1.metadataObj2Arr)(overrideFunc()) : (0, utils_1.metadataObj2Arr)(utils_1.NFT_DATA);
         const projects = (0, utils_1.metadataAllProjects)(NFT_DATA_ARR);
         return projects;
     }
@@ -109,8 +131,8 @@ class EmblemVaultSDK {
                         item[key] = template[key];
                 });
                 // Return a new object that combines the properties of the item and the template
-                // return { ...item, ...template };  
-                return item;
+                return Object.assign(Object.assign(Object.assign({}, item), template), { mintTemplate: template.generateCreateTemplate(item) });
+                // return item;
             });
             return data;
         });

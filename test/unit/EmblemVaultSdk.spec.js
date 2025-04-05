@@ -69,44 +69,39 @@ describe('EmblemVaultSDK', () => {
     it('should get asset metadata for a project', async () => {
       // Create a mock override function that returns predefined data
       // This is necessary because the real API might return unexpected data format
-      const mockData = [
-        { projectName: 'Emblem', description: 'Emblem project' },
-        { projectName: 'Other', description: 'Another project' }
-      ];
+      const mockData = {
+        "EVTESTCOMMON": {
+          "image": "https://emblem.finance/EVTESTCOMMON.gif",
+          "projectName": "Emblem Test"
+        },
+        "EVTESTEPIC": {
+          "image": "https://emblem.finance/EVTESTEPIC.gif",
+          "projectName": "Emblem Test"
+        },
+        "EVTESTLEGEND": {
+          "image": "https://emblem.finance/EVTESTLEGEND.jpg",
+          "projectName": "Emblem Test"
+        }
+      };
       
-      const overrideFunc = async () => mockData;
+      const overrideFunc = () => mockData
       
-      const metadata = await sdk.getAssetMetadata('Emblem', false, overrideFunc);
+      const metadata = await sdk.getAssetMetadata('Emblem Test', false, overrideFunc);
       expect(metadata).to.be.an('array');
-      expect(metadata.length).to.equal(1);
-      expect(metadata[0].projectName).to.equal('Emblem');
-    });
-
-    it('should get asset metadata using an override function', async () => {
-      // Create a mock override function that returns predefined data
-      const mockData = [
-        { projectName: 'MockProject', description: 'This is a mock project' },
-        { projectName: 'AnotherMock', description: 'Another mock project' }
-      ];
-      
-      const overrideFunc = async () => mockData;
-      
-      // Call getAssetMetadata with the override function
-      const metadata = await sdk.getAssetMetadata('MockProject', false, overrideFunc);
-      
-      expect(metadata).to.be.an('array');
-      expect(metadata).to.have.lengthOf(1);
-      expect(metadata[0].projectName).to.equal('MockProject');
-      expect(metadata[0].description).to.equal('This is a mock project');
+      expect(metadata.length).to.equal(3);
+      expect(metadata[0].projectName).to.equal('Emblem Test');
     });
 
     it('should get asset metadata with case-insensitive matching by default', async () => {
       // Create a mock override function that returns predefined data
-      const mockData = [
-        { projectName: 'CaseSensitive', description: 'This tests case sensitivity' }
-      ];
+      const mockData = {
+        "EVTESTLEGEND": {
+          "image": "https://emblem.finance/EVTESTLEGEND.jpg",
+          "projectName": "CaseSensitive"
+        }
+      };
       
-      const overrideFunc = async () => mockData;
+      const overrideFunc = () => mockData;
       
       // Call with different case but strict=false (default)
       const metadata = await sdk.getAssetMetadata('casesensitive', false, overrideFunc);

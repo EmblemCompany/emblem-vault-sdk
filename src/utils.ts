@@ -8,6 +8,7 @@ import { AddressPurpose, BitcoinNetworkType, getAddress, signTransaction } from 
 // import { phrasePathToKey } from './derive'
 
 export const NFT_DATA: any = Object.assign(metadataJson, darkfarmsMetadataJson, dot_idMetadataJson);
+// console.log(NFT_DATA);
 // PROJECTS_DATA is list of projects i.e. curated collection names
 // that are present in metadataJson file
 const PROJECTS_DATA = projectsFromMetadataJson()

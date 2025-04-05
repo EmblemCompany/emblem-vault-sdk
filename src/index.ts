@@ -1,7 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Balance, Collection, CuratedCollectionsResponse, MetaData, Ownership, Vault } from './types';
-import { NFT_DATA, checkContentType, decryptKeys, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getSatsConnectAddress, getTorusKeys, metadataAllProjects, metadataObj2Arr, pad, signPSBT, templateGuard } from './utils';
-import { getAddress, BitcoinNetworkType, AddressPurpose, signTransaction } from "sats-connect";
+import { NFT_DATA, checkContentType, decryptKeys, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getSatsConnectAddress, getTorusKeys, metadataAllProjects, metadataObj2Arr, signPSBT, templateGuard } from './utils';
 import { generateTaprootAddressFromMnemonic, getPsbtTxnSize } from './derive';
 const SDK_VERSION = '__SDK_VERSION__'; 
 
@@ -9,7 +8,10 @@ export class EmblemVaultSDK {
     private baseUrl: string;
     private v3Url: string;
     private sigUrl: string;
-    constructor(private apiKey: string, baseUrl?: string, v3Url?: string, sigUrl?: string) {
+    private aiUrl: string;
+    private aiApiKey: string | undefined;
+    private byoKey: string | undefined;
+    constructor(private apiKey: string, baseUrl?: string, v3Url?: string, sigUrl?: string, aiUrl?: string, aiApiKey?: string, byoKey?: string) {
         console.log('EmblemVaultSDK version:', SDK_VERSION)
         if (!apiKey) {
             throw new Error('API key is required');
@@ -17,51 +19,70 @@ export class EmblemVaultSDK {
         this.baseUrl = baseUrl || 'https://v2.emblemvault.io';
         this.v3Url = v3Url || 'https://v3.emblemvault.io';
         this.sigUrl = sigUrl || 'https://tor-us-signer-coval.vercel.app';
-    }
-
-    // Example method structure
-    generateUploadUrl() {
-        // Implementation goes here
+        this.aiUrl = aiUrl || 'https://api.emblemvault.ai';
+        this.aiApiKey = aiApiKey || undefined;
     }
 
     // ** Asset Metadata **
     //
-    async getAssetMetadata(projectName: string, strict: boolean = false, overrideFunc: Function | boolean = false) {
+    getCuratedAssetMetadata(projectName: string, strict: boolean = false, overrideFunc: Function | null = null) {
+        return this.getAssetMetadata(projectName, strict, overrideFunc);
+    }
+    // @deprecated
+    getAssetMetadata(projectName: string, strict: boolean = false, overrideFunc: Function | null = null) {
         genericGuard(projectName, "string", "projectName");
-        const url = `${this.v3Url}/asset_metadata/projects`;
-        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? await overrideFunc() : await fetchData(url, this.apiKey);
-        // const NFT_DATA_ARR = metadataObj2Arr(NFT_DATA)
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? metadataObj2Arr(overrideFunc()) : metadataObj2Arr(NFT_DATA);
         let filtered = strict ? 
             NFT_DATA_ARR.filter((item: any) => item.projectName === projectName) :
             NFT_DATA_ARR.filter((item: any) => item.projectName.toLowerCase() === projectName.toLowerCase());
         return filtered
     }
 
-    getAllAssetMetadata() {
+    getAllCuratedAssetMetadata(overrideFunc: Function | null = null) {
+        return this.getAllAssetMetadata(overrideFunc);
+    }
+    // @deprecated    
+    getAllAssetMetadata(overrideFunc: Function | null = null) {
+        if (overrideFunc && typeof overrideFunc === 'function') {
+            return overrideFunc();
+        }
         const NFT_DATA_ARR = metadataObj2Arr(NFT_DATA);
         return NFT_DATA_ARR
     }
 
-    getRemoteAssetMetadataProjectList(overrideFunc: Function | null = null) {
+    
+    /**
+     * @deprecated 
+     * This method is deprecated and will be removed in a future version. 
+     * Please use `getInventoryAssetMetadataProject` instead.
+     */
+    async getRemoteAssetMetadataProjectList(overrideFunc: Function | null = null) {
         const url = `${this.v3Url}/asset_metadata/projects`;
-        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : fetchData(url, this.apiKey);
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : await fetchData(url, this.apiKey);
         return NFT_DATA_ARR
     }
 
-    getRemoteAssetMetadata(asset_name: string, overrideFunc: Function | null = null) {
+    async getInventoryAssetMetadataProject(projectName?: string, overrideFunc: Function | null = null) {
+        const url = `${this.v3Url}/asset_metadata/projects`;
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey, {project: projectName}) : await fetchData(url, this.apiKey, projectName?'POST':undefined, projectName? {project: projectName}:undefined);
+        NFT_DATA_ARR && (await NFT_DATA_ARR).map((item: any) => { item.asset_name = item.assetName; }); // Backward compatibility
+        return NFT_DATA_ARR
+    }
+
+    async getInventoryAssetMetadata(asset_name: string, overrideFunc: Function | null = null) {
         const url = `${this.v3Url}/asset_metadata/${asset_name}`;
-        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : fetchData(url, this.apiKey);
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : await fetchData(url, this.apiKey);
         return NFT_DATA_ARR
     }
 
-    getRemoteAssetMetadataVaultedProjectList(overrideFunc: Function | null = null) {
+    async getInventoryAssetMetadataVaultedProjectList(overrideFunc: Function | null = null) {
         const url = `${this.v3Url}/asset_metadata/projects/vaulted`;
-        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : fetchData(url, this.apiKey);
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : await fetchData(url, this.apiKey);
         return NFT_DATA_ARR
     }
 
-    getAllProjects(overrideFunc: Function | null = null) {
-        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : metadataObj2Arr(NFT_DATA)
+    getAllCuratedProjects(overrideFunc: Function | null = null) {
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? metadataObj2Arr(overrideFunc()) : metadataObj2Arr(NFT_DATA)
         const projects = metadataAllProjects(NFT_DATA_ARR)
         return projects
     }
@@ -85,8 +106,8 @@ export class EmblemVaultSDK {
                     item[key] = template[key];
                 });
                 // Return a new object that combines the properties of the item and the template
-                // return { ...item, ...template };  
-                return item;
+                return { ...item, ...template, mintTemplate: template.generateCreateTemplate(item) };
+                // return item;
             });
         return data
     }
