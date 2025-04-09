@@ -38,6 +38,10 @@ export declare class EmblemVaultSDK {
      * @throws Error if no provider is available
      */
     getOrDetectProvider(type: BlockchainType): Promise<any>;
+    getCuratedAssetMetadata(projectName: string, strict?: boolean, overrideFunc?: Function | null): any[];
+    getAssetMetadata(projectName: string, strict?: boolean, overrideFunc?: Function | null): any[];
+    getAllCuratedAssetMetadata(overrideFunc?: Function | null): any;
+    getAllAssetMetadata(overrideFunc?: Function | null): any;
     /**
      * @deprecated
      * This method is deprecated and will be removed in a future version.
@@ -83,18 +87,14 @@ export declare class EmblemVaultSDK {
      * Please use alternative methods for price quotation.
      */
     getQuote(web3: any, amount: number, callback?: any): Promise<BigNumber>;
-    performMint(web3OrQuote: any, quoteOrRemoteMintSig: any, remoteMintSigOrCallback?: any, callback?: any): Promise<any>;
-    performBurn(web3OrTokenId: any, tokenIdOrCallback?: any, callbackOrOverride?: any, overrideFunc?: Function | null): Promise<any>;
+    performMint(web3: any, quote: any, remoteMintSig: any, callback?: any): Promise<any>;
+    performBurn(web3: any, tokenId: any, callback?: any): Promise<any>;
     contentTypeReport(url: string): Promise<unknown>;
-    legacyBalanceFromContractByAddress(web3OrAddress: any, address?: string, overrideFunc?: Function | null): Promise<any>;
-    refreshLegacyOwnership(web3OrAddress: any, address?: string, overrideFunc?: Function | null): Promise<any>;
+    legacyBalanceFromContractByAddress(web3: any, address: string): Promise<number[]>;
+    refreshLegacyOwnership(web3: any, address: string): Promise<void>;
     checkLiveliness(tokenId: string, chainId?: number): Promise<any>;
     checkLivelinessBulk(tokenIds: string[], chainId?: number): Promise<any[]>;
     sweepVaultUsingPhrase(phrase: string, satsPerByte?: number, broadcast?: boolean): Promise<unknown>;
-    getCuratedAssetMetadata(projectName: string, strict?: boolean, overrideFunc?: Function | null): any[];
-    getAssetMetadata(projectName: string, strict?: boolean, overrideFunc?: Function | null): any[];
-    getAllCuratedAssetMetadata(overrideFunc?: Function | null): any;
-    getAllAssetMetadata(overrideFunc?: Function | null): any;
 }
 declare global {
     interface Window {

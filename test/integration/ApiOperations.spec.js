@@ -11,7 +11,7 @@ const mocks = require('../mocks');
 const API_KEY = 'DEMO_KEY';
 const TEST_ADDRESS = "0xb0573e14D92755DE30281f7b10d0F3a5DD3e747B";
 
-describe.skip('API Operations Integration Tests', function() {
+describe('API Operations Integration Tests', function() {
   // Get SDK instance using the loader
   const sdk = getSDK();
 

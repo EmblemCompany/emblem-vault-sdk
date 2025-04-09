@@ -5,7 +5,7 @@ const { EmblemVaultSDK } = require('../../dist/index');
 const API_KEY = 'demo';
 const AI_API_KEY = 'demo-ai-key';
 
-describe.skip('Vault AI Integration Tests', () => {
+describe.only('Vault AI Integration Tests', () => {
   let sdk;
   
   before(() => {
