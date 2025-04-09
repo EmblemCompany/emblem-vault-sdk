@@ -2,7 +2,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { AiVaultInfo, Balance, Collection, CuratedCollectionsResponse, MetaData, Ownership, Vault } from './types';
 import { NFT_DATA, checkContentType, decryptKeys, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getSatsConnectAddress, getTorusKeys, metadataAllProjects, metadataObj2Arr, signPSBT, templateGuard } from './utils';
 import { generateTaprootAddressFromMnemonic, getPsbtTxnSize } from './derive';
-import { BlockchainProvider, BlockchainType, detectProviderType } from './providers';
+import { BlockchainProvider, BlockchainType, detectProviderType, EthereumProvider, Web3ProviderAdapter } from './providers';
 const SDK_VERSION = '__SDK_VERSION__'; 
 
 export class EmblemVaultSDK {
@@ -75,15 +75,24 @@ export class EmblemVaultSDK {
                         try {
                             await window.ethereum.request({ method: 'eth_requestAccounts' });
                             const { default: Web3 } = await import('web3');
-                            const web3 = new Web3(window.ethereum);
-                            
-                            // Use the adapter to make Web3 compatible with our provider interface
-                            const { Web3ProviderAdapter } = await import('./providers');
-                            const adapter = new Web3ProviderAdapter(web3);
-                            this.registerProvider('ethereum', adapter);
-                            return adapter;
+                            const web3Instance = new Web3(window.ethereum);
+                            // Wrap the Web3 instance in our adapter
+                            provider = new Web3ProviderAdapter(web3Instance);
+                            this.registerProvider('ethereum', provider);
+                            return provider;
                         } catch (error) {
                             console.error('Error connecting to Ethereum provider:', error);
+                        }
+                    } else if (window.web3) {
+                        // Handle legacy web3 provider
+                        try {
+                            const { default: Web3 } = await import('web3');
+                            const web3Instance = new Web3(window.web3.currentProvider);
+                            provider = new Web3ProviderAdapter(web3Instance);
+                            this.registerProvider('ethereum', provider);
+                            return provider;
+                        } catch (error) {
+                            console.error('Error connecting to legacy Web3 provider:', error);
                         }
                     }
                     break;
@@ -91,14 +100,8 @@ export class EmblemVaultSDK {
                     if (window.solana) {
                         try {
                             await window.solana.connect();
-                            // Create a Solana provider adapter if needed
-                            const solanaProvider = {
-                                type: 'solana' as const,
-                                ...window.solana,
-                                isConnected: async () => !!window.solana.publicKey
-                            };
-                            this.registerProvider('solana', solanaProvider);
-                            return solanaProvider;
+                            this.registerProvider('solana', window.solana);
+                            return window.solana;
                         } catch (error) {
                             console.error('Error connecting to Solana provider:', error);
                         }
@@ -106,14 +109,8 @@ export class EmblemVaultSDK {
                     break;
                 case 'bitcoin':
                     if (window.bitcoin) {
-                        // Create a Bitcoin provider adapter if needed
-                        const bitcoinProvider = {
-                            type: 'bitcoin' as const,
-                            ...window.bitcoin,
-                            isConnected: async () => true // Implement proper connection check
-                        };
-                        this.registerProvider('bitcoin', bitcoinProvider);
-                        return bitcoinProvider;
+                        this.registerProvider('bitcoin', window.bitcoin);
+                        return window.bitcoin;
                     }
                     break;
             }
@@ -122,6 +119,34 @@ export class EmblemVaultSDK {
         throw new Error(`No provider available for blockchain type: ${type}`);
     }
 
+    // ** Asset Metadata **
+    //
+    getCuratedAssetMetadata(projectName: string, strict: boolean = false, overrideFunc: Function | null = null) {
+        return this.getAssetMetadata(projectName, strict, overrideFunc);
+    }
+    // @deprecated
+    getAssetMetadata(projectName: string, strict: boolean = false, overrideFunc: Function | null = null) {
+        genericGuard(projectName, "string", "projectName");
+        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? metadataObj2Arr(overrideFunc()) : metadataObj2Arr(NFT_DATA);
+        let filtered = strict ? 
+            NFT_DATA_ARR.filter((item: any) => item.projectName === projectName) :
+            NFT_DATA_ARR.filter((item: any) => item.projectName.toLowerCase() === projectName.toLowerCase());
+        return filtered
+    }
+
+    getAllCuratedAssetMetadata(overrideFunc: Function | null = null) {
+        return this.getAllAssetMetadata(overrideFunc);
+    }
+    // @deprecated    
+    getAllAssetMetadata(overrideFunc: Function | null = null) {
+        if (overrideFunc && typeof overrideFunc === 'function') {
+            return overrideFunc();
+        }
+        const NFT_DATA_ARR = metadataObj2Arr(NFT_DATA);
+        return NFT_DATA_ARR
+    }
+
+    
     /**
      * @deprecated 
      * This method is deprecated and will be removed in a future version. 
@@ -247,7 +272,7 @@ export class EmblemVaultSDK {
         return new Promise(async (resolve, reject) => {
             try {
                 let map: { [key: string]: any } = {};
-                let vaults = overrideFunc? await overrideFunc(this.apiKey, {vaultType, address}): await this.fetchVaultsOfType(vaultType, address);
+                let vaults = overrideFunc? await overrideFunc('vaults_of_type', this.apiKey, {vaultType, address}): await this.fetchVaultsOfType(vaultType, address);
                 for (let vaultIndex = 0; vaultIndex < vaults.length; vaultIndex++) {
                     let item = vaults[vaultIndex];
                     let balances = item.ownership.balances || [];                        
@@ -349,39 +374,17 @@ export class EmblemVaultSDK {
     // Function to load web3 dynamically and attach it to the window object
     async loadWeb3(): Promise<any | undefined> {
         try {
-            // Try to get or detect an Ethereum provider
-            const provider = await this.getOrDetectProvider('ethereum');
-            
-            // If we have a provider, return it
-            if (provider) {
-                return provider;
+            const provider = await this.getOrDetectProvider('ethereum') as EthereumProvider;
+            // Check if it's our adapter and return the raw Web3 instance
+            if (provider instanceof Web3ProviderAdapter) {
+                return provider.getRawWeb3();
             }
-            
-            // If we don't have a provider but we're in a browser environment,
-            // try to load Web3 directly
-            if (typeof window !== 'undefined') {
-                // Dynamically import the Web3 module
-                const { default: Web3 } = await import('web3');
-                
-                // Check if MetaMask (window.ethereum) is available
-                if (window.ethereum) {                
-                    await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    // Initialize Web3 with MetaMask's provider
-                    const web3 = new Web3(window.ethereum);
-                    
-                    // Register the provider for future use
-                    const { Web3ProviderAdapter } = await import('./providers');
-                    const adapter = new Web3ProviderAdapter(web3);
-                    this.registerProvider('ethereum', adapter);
-                    
-                    return web3;
-                }
-            }
-            
-            console.error('No Ethereum provider available');
-            return undefined;
+            // If it's a generic EIP-1193 provider, we might need to wrap it if direct Web3 usage is required
+            // For now, let's assume the adapter covers the primary case (MetaMask)
+            console.warn('loadWeb3: Detected Ethereum provider is not a Web3 instance. Returning the provider object itself.');
+            return provider; 
         } catch (error) {
-            console.error('Error loading Web3 or connecting to provider', error);
+            console.error('Could not load or detect Ethereum provider:', error);
             return undefined;
         }
     }
@@ -488,41 +491,14 @@ export class EmblemVaultSDK {
     }
 
     // todo add contract overrides
-    async performMint(web3OrQuote: any, quoteOrRemoteMintSig: any, remoteMintSigOrCallback: any = null, callback: any = null) {
-        // Handle different parameter patterns for backward compatibility
-        let provider: any;
-        let quote: any;
-        let remoteMintSig: any;
-        let callbackFn: any = null;
-        
-        // Determine which parameter pattern is being used
-        if (typeof web3OrQuote === 'object' && web3OrQuote.eth) {
-            // Legacy pattern: (web3, quote, remoteMintSig, callback)
-            provider = web3OrQuote;
-            quote = quoteOrRemoteMintSig;
-            remoteMintSig = remoteMintSigOrCallback;
-            callbackFn = callback;
-        } else {
-            // New pattern: (quote, remoteMintSig, callback)
-            quote = web3OrQuote;
-            remoteMintSig = quoteOrRemoteMintSig;
-            callbackFn = remoteMintSigOrCallback;
-            
-            // Get the provider
-            try {
-                provider = await this.getOrDetectProvider('ethereum');
-            } catch (error) {
-                throw new Error('No Ethereum provider available. Please register a provider or pass one explicitly.');
-            }
-        }
-        
-        if (callbackFn) { callbackFn('performing Mint') }
-        
-        const accounts = await provider.eth.getAccounts();
-        let handlerContract = await getHandlerContract(provider);
-
+    async performMint(web3: any, quote: any, remoteMintSig: any, callback: any = null) {
+    // async performMint(web3, quote, remoteMintSig, callback = null) {
+        if (callback) { callback('performing Mint') }
+        const accounts = await web3.eth.getAccounts();
+        let handlerContract = await getHandlerContract(web3);
+    
         // Get current gas price from the network
-        const gasPrice = await provider.eth.getGasPrice();
+        const gasPrice = await web3.eth.getGasPrice();
 
         let createdTxObject = handlerContract.methods.buyWithQuote(
             remoteMintSig._nftAddress, 
@@ -537,7 +513,7 @@ export class EmblemVaultSDK {
         
         // Estimate gas limit for the transaction
         const gasLimit = await createdTxObject.estimateGas({ from: accounts[0], value: Number(quote) });
-
+    
         // Execute the transaction with the specified gas price and estimated gas limit
         let mintResponse = await createdTxObject.send({ 
             from: accounts[0], 
@@ -545,154 +521,75 @@ export class EmblemVaultSDK {
             gasPrice: gasPrice, // Use the current gas price
             gas: gasLimit // Use the estimated gas limit
         }).on('transactionHash', (hash: any) => {
-            if (callbackFn) callbackFn(`Transaction submitted. Hash`, hash);
+            if (callback) callback(`Transaction submitted. Hash`, hash);
         })
         .on('confirmation', (confirmationNumber: any, receipt: any) => {
-            if (callbackFn) callbackFn(`Mint Complete. Confirmation Number`, confirmationNumber);
+            if (callback) callback(`Mint Complete. Confirmation Number`, confirmationNumber);
         })
         .on('error', (error: { message: any; }) => {
-            if (callbackFn) callbackFn(`Transaction Error`, error.message );
+            if (callback) callback(`Transaction Error`, error.message );
         });
-
-        if (callbackFn) { callbackFn('Mint Complete') }
+    
+        if (callback) { callback('Mint Complete') }
         await this.fetchMetadata(remoteMintSig._tokenId);
         return mintResponse
     }
+        
 
-    async performBurn(web3OrTokenId: any, tokenIdOrCallback: any = null, callbackOrOverride: any = null, overrideFunc: Function | null = null) {
-        // Handle different parameter patterns for backward compatibility
-        let provider: any;
-        let tokenId: any;
-        let callbackFn: any = null;
-        let overrideFn: Function | null = null;
-        
-        // Determine which parameter pattern is being used
-        if (typeof web3OrTokenId === 'object' && web3OrTokenId.eth) {
-            // Legacy pattern: (web3, tokenId, callback, overrideFunc)
-            provider = web3OrTokenId;
-            tokenId = tokenIdOrCallback;
-            callbackFn = callbackOrOverride;
-            overrideFn = overrideFunc;
-        } else {
-            // New pattern: (tokenId, callback, overrideFunc)
-            tokenId = web3OrTokenId;
-            callbackFn = tokenIdOrCallback;
-            overrideFn = callbackOrOverride;
-            
-            // Get the provider
-            try {
-                provider = await this.getOrDetectProvider('ethereum');
-            } catch (error) {
-                throw new Error('No Ethereum provider available. Please register a provider or pass one explicitly.');
-            }
-        }
-        
-        // Use override function if provided
-        if (overrideFn && typeof overrideFn === 'function') {
-            return await overrideFn(provider, tokenId, callbackFn);
-        }
-        
+    async performBurn(web3: any, tokenId: any, callback: any = null) {
         let metadata: any = await this.fetchMetadata(tokenId);
         let targetContract: any = await this.fetchCuratedContractByName(metadata.targetContract.name);
-        if (callbackFn) { callbackFn('performing Burn')}
-        const accounts = await provider.eth.getAccounts();
-        const chainId = await provider.eth.getChainId();
-        let handlerContract = await getHandlerContract(provider);
-
+        if (callback) { callback('performing Burn')}
+        const accounts = await web3.eth.getAccounts();
+        const chainId = await web3.eth.getChainId();
+        let handlerContract = await getHandlerContract(web3);
+    
         // Dynamically fetch the current gas price
-        const gasPrice = await provider.eth.getGasPrice();
+        const gasPrice = await web3.eth.getGasPrice();
         
         let createdTxObject = handlerContract.methods.claim(targetContract[chainId], targetContract.collectionType == 'ERC721a' ? tokenId : targetContract.tokenId) 
         // Estimate gas limit for the transaction
         const estimatedGas = await createdTxObject.estimateGas({from: accounts[0]});
-
+    
         let burnResponse = await createdTxObject.send({
             from: accounts[0],
             gasPrice: gasPrice,
             gas: estimatedGas
         }).on('transactionHash', (hash: any) => {
-            if (callbackFn) callbackFn(`Transaction submitted. Hash`, hash);
+            if (callback) callback(`Transaction submitted. Hash`, hash);
         })
         .on('confirmation', (confirmationNumber: any, receipt: any) => {
-            if (callbackFn) callbackFn(`Burn Complete. Confirmation Number`, confirmationNumber);
+            if (callback) callback(`Burn Complete. Confirmation Number`, confirmationNumber);
         })
         .on('error', (error: { message: any; }) => {
-            if (callbackFn) callbackFn(`Transaction Error`, error.message );
+            if (callback) callback(`Transaction Error`, error.message );
         });
-
-        if (callbackFn) { callbackFn('Burn Complete')}
+    
+        if (callback) { callback('Burn Complete')}
         return burnResponse;
     }
+    
 
     async contentTypeReport(url: string) {
         return await checkContentType(url)
     }
 
-    async legacyBalanceFromContractByAddress(web3OrAddress: any, address?: string, overrideFunc: Function | null = null) {
-        // Handle different parameter patterns for backward compatibility
-        let ethAddress: string;
-        let provider: any;
-        
-        if (typeof web3OrAddress === 'string') {
-            // If first parameter is a string, it's the address
-            ethAddress = web3OrAddress;
-            // Try to get a registered or detected provider
-            try {
-                provider = await this.getOrDetectProvider('ethereum');
-            } catch (error) {
-                throw new Error('No Ethereum provider available. Please register a provider or pass one explicitly.');
-            }
-        } else {
-            // First parameter is the web3 instance (backward compatibility)
-            provider = web3OrAddress;
-            ethAddress = address as string;
-        }
-        
-        // Use override function if provided
-        if (overrideFunc && typeof overrideFunc === 'function') {
-            return await overrideFunc(provider, ethAddress);
-        }
-        
-        // Get the legacy contract using the provider
-        let legacyContract = await getLegacyContract(provider);
-        let balance = await legacyContract.methods.getOwnerNFTCount(ethAddress).call();
-        let tokenIds = [];
+    async legacyBalanceFromContractByAddress(web3: any, address: string) {
+        let legacyContract =await getLegacyContract(web3)
+        let balance = await legacyContract.methods.getOwnerNFTCount(address).call();
+        let tokenIds = []
         for (let index = 0; index < balance; index++) {
-            let tokenId = await legacyContract.methods.tokenOfOwnerByIndex(ethAddress, index).call();
-            tokenIds.push(Number(tokenId));
+            let tokenId = await legacyContract.methods.tokenOfOwnerByIndex(address, index).call();
+            tokenIds.push(Number(tokenId))
         }
-        return tokenIds;
+        return tokenIds
     }
 
-    async refreshLegacyOwnership(web3OrAddress: any, address?: string, overrideFunc: Function | null = null) {
-        // Handle different parameter patterns for backward compatibility
-        let ethAddress: string;
-        let provider: any;
-        
-        if (typeof web3OrAddress === 'string') {
-            // If first parameter is a string, it's the address
-            ethAddress = web3OrAddress;
-            // Try to get a registered or detected provider
-            try {
-                provider = await this.getOrDetectProvider('ethereum');
-            } catch (error) {
-                throw new Error('No Ethereum provider available. Please register a provider or pass one explicitly.');
-            }
-        } else {
-            // First parameter is the web3 instance (backward compatibility)
-            provider = web3OrAddress;
-            ethAddress = address as string;
-        }
-        
-        // Use override function if provided
-        if (overrideFunc && typeof overrideFunc === 'function') {
-            return await overrideFunc(provider, ethAddress);
-        }
-        
-        let tokenIds = await this.legacyBalanceFromContractByAddress(provider, ethAddress);
-        let url = `${this.baseUrl}/refreshLegacyOwnership`;
-        let response = await fetchData(url, this.apiKey, 'POST', {tokenIds, address: ethAddress});
-        return response;
+    async refreshLegacyOwnership(web3: any, address: string) {
+        let myLegacy = await this.legacyBalanceFromContractByAddress(web3, address)
+        myLegacy.forEach(async item=>{
+            let meta = await this.fetchMetadata(item.toString())
+        })
     }
 
     async checkLiveliness(tokenId: string, chainId: number = 1) {
@@ -829,31 +726,6 @@ export class EmblemVaultSDK {
             return signedPsbt;
         }
 
-    }
-
-    getCuratedAssetMetadata(projectName: string, strict: boolean = false, overrideFunc: Function | null = null) {
-        return this.getAssetMetadata(projectName, strict, overrideFunc);
-    }
-    // @deprecated
-    getAssetMetadata(projectName: string, strict: boolean = false, overrideFunc: Function | null = null) {
-        genericGuard(projectName, "string", "projectName");
-        const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? metadataObj2Arr(overrideFunc()) : metadataObj2Arr(NFT_DATA);
-        let filtered = strict ? 
-            NFT_DATA_ARR.filter((item: any) => item.projectName === projectName) :
-            NFT_DATA_ARR.filter((item: any) => item.projectName.toLowerCase() === projectName.toLowerCase());
-        return filtered
-    }
-
-    getAllCuratedAssetMetadata(overrideFunc: Function | null = null) {
-        return this.getAllAssetMetadata(overrideFunc);
-    }
-    // @deprecated    
-    getAllAssetMetadata(overrideFunc: Function | null = null) {
-        if (overrideFunc && typeof overrideFunc === 'function') {
-            return overrideFunc();
-        }
-        const NFT_DATA_ARR = metadataObj2Arr(NFT_DATA);
-        return NFT_DATA_ARR
     }
 
 }

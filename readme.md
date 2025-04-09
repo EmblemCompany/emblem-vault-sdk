@@ -5,6 +5,7 @@ The Emblem Vault SDK is a TypeScript/JavaScript library that provides functional
 ## Table of Contents
 - [Installation](#installation)
 - [Initialization](#initialization)
+- [Blockchain Provider Abstraction](#blockchain-provider-abstraction)
 - [TypeScript Support](#typescript-support)
 - [Emblem Vault Workflow](#emblem-vault-workflow)
 - [Fetching Curated Contracts](#fetching-curated-contracts)
@@ -16,6 +17,7 @@ The Emblem Vault SDK is a TypeScript/JavaScript library that provides functional
 - [Asset Metadata Functions](#asset-metadata-functions)
 - [V3 API Methods](#v3-api-methods)
 - [Bitcoin Functionality](#bitcoin-functionality)
+- [Utility Functions](#utility-functions)
 - [UI Integration Examples](#ui-integration-examples)
 - [Collection-specific Workflows](#collection-specific-workflows)
 - [Multiple Vault Creation](#multiple-vault-creation)
@@ -50,6 +52,56 @@ The constructor accepts the following parameters:
 - `baseUrl` (optional): Base URL for the API (default: 'https://v2.emblemvault.io')
 - `v3Url` (optional): V3 API URL (default: 'https://v3.emblemvault.io')
 - `sigUrl` (optional): Signature URL (default: 'https://tor-us-signer-coval.vercel.app')
+
+## Blockchain Provider Abstraction (v3.1.0+)
+
+The SDK now features a flexible blockchain provider abstraction system, allowing you to seamlessly interact with different blockchain ecosystems (Ethereum, Solana, Bitcoin) without tightly coupling your code to specific provider implementations.
+
+### How it Works
+
+The SDK maintains an internal registry of providers for different blockchain types (`'ethereum'`, `'solana'`, `'bitcoin'`). When you call an SDK method that requires blockchain interaction (e.g., signing a transaction, fetching a balance), the SDK automatically uses the appropriate provider from its registry for the target blockchain.
+
+### Using Providers
+
+There are two main ways to manage providers:
+
+1.  **Auto-Detection (Browser Environments):**
+    *   In a browser, the SDK automatically attempts to detect globally available providers like MetaMask (`window.ethereum`) or Phantom (`window.solana`) when a provider is needed for a specific blockchain type and hasn't been explicitly registered.
+    *   For Ethereum, it uses `sdk.getOrDetectProvider('ethereum')`. If MetaMask is found, it's wrapped in an adapter to conform to the internal provider interface.
+    *   The deprecated `sdk.loadWeb3()` method now utilizes this detection mechanism. If an Ethereum provider is found (especially MetaMask), `loadWeb3` will return the underlying Web3 instance for backward compatibility.
+
+2.  **Manual Registration (Server-Side / Advanced Use):**
+    *   You can explicitly register a provider instance for a specific blockchain type using the `registerProvider` method. This is necessary in non-browser environments (like Node.js) or if you want to use a specific provider (e.g., WalletConnect, specific RPC endpoint).
+
+    ```javascript
+    // Example: Registering an Ethers.js provider for Ethereum (Node.js)
+    const { ethers } = require('ethers');
+    const provider = new ethers.providers.JsonRpcProvider('YOUR_RPC_URL');
+    // Note: You might need an adapter or ensure your provider matches the expected interface
+    sdk.registerProvider('ethereum', provider); 
+    
+    // Example: Registering a Solana connection
+    const { Connection } = require('@solana/web3.js');
+    const connection = new Connection('YOUR_SOLANA_RPC_URL');
+    sdk.registerProvider('solana', connection);
+    ```
+
+### Accessing Providers
+
+You can access registered or detected providers directly:
+
+```javascript
+// Get the registered/detected Ethereum provider
+const ethProvider = await sdk.getOrDetectProvider('ethereum');
+
+// Get a specific registered provider (returns undefined if not registered)
+const solProvider = sdk.getProvider('solana');
+
+// Check if a provider is registered
+const hasBitcoinProvider = sdk.hasProvider('bitcoin');
+```
+
+This system provides flexibility, allowing the SDK to adapt to different environments and provider preferences while simplifying blockchain interactions within your application.
 
 ## TypeScript Support
 
