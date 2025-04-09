@@ -153,3 +153,8 @@ export type Ownership = {
 }
 
 export type CuratedCollectionsResponse = Collection[];
+
+export type AiVaultInfo = {
+    address: string;
+    vaultId: string;
+};

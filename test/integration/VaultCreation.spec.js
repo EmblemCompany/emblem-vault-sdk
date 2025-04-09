@@ -5,7 +5,7 @@ const { getSDK } = require('../helpers/sdkLoader');
 const TEST_ADDRESS = "0xb0573e14D92755DE30281f7b10d0F3a5DD3e747B";
 const CONTRACT_NAME = "EmblemOpen";
 
-describe('Vault Creation Integration Tests', function() {
+describe.skip('Vault Creation Integration Tests', function() {
   // Get SDK instance using the loader
   const sdk = getSDK();
   

@@ -53,7 +53,9 @@
 <body>
     <h1>Emblem Vault - Step by Step Guide</h1>
     <script src="./bundle.js"></script>
+    <script src="./bitcoinjs-lib.js"></script>
     <script>
+        window.bitcoin = bitcoin;
         const sdk = new EmblemVaultSDK('demo'); // Instantiate SDK
         let defaultAccount, vaultBalance, vaultData;
         let mintTemplate = {};
