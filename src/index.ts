@@ -8,6 +8,7 @@ import { createEmblemVaultSolanaWalletClient, EmblemVaultSolanaWalletClient, Emb
 const SDK_VERSION = '__SDK_VERSION__'; 
 
 export class EmblemVaultSDK {
+    private apiKey: string;
     private baseUrl: string;
     private v3Url: string;
     private sigUrl: string;
@@ -16,17 +17,18 @@ export class EmblemVaultSDK {
     private byoKey?: string;
     private providers: Map<BlockchainType, BlockchainProvider> = new Map();
     
-    constructor(private apiKey: string, baseUrl?: string, v3Url?: string, sigUrl?: string, aiUrl?: string, aiApiKey?: string, byoKey?: string) {
+    constructor(apiKey: string, baseUrl?: string, v3Url?: string, sigUrl?: string, aiUrl?: string, aiApiKey?: string, byoKey?: string) {
         // console.log('EmblemVaultSDK version:', SDK_VERSION)
         if (!apiKey) {
             throw new Error('API key is required');
         }
+        this.apiKey = apiKey
         this.baseUrl = baseUrl || 'https://v2.emblemvault.io';
         this.v3Url = v3Url || 'https://v3.emblemvault.io';
         this.sigUrl = sigUrl || 'https://tor-us-signer-coval.vercel.app';
         this.aiUrl = aiUrl || 'https://api.emblemvault.ai';
-        this.aiApiKey = aiApiKey || undefined;
-        this.byoKey = byoKey || undefined;
+        this.aiApiKey = aiApiKey;
+        this.byoKey = byoKey;
     }
 
     /**
