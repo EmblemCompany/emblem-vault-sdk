@@ -1,0 +1,57 @@
+[
+  {
+    "coin": "BTC",
+    "name": "BTC",
+    "balance": 1
+  },
+  {
+    "coin": "ordinalsbtc",
+    "name": "DeGod #4654",
+    "balance": 1,
+    "type": "nft",
+    "external_url": "https://ordinals.com/inscription/4e80a569505ced2e72d48e9f79832ba487a64716c9a77b7189d6b6f1b3f95694i0",
+    "image": "https://bis-ord-content.fra1.cdn.digitaloceanspaces.com/ordinals/4e80a569505ced2e72d48e9f79832ba487a64716c9a77b7189d6b6f1b3f95694i0",
+    "project": "DeGods",
+    "projectLogo": "https://bis-ord-content.fra1.cdn.digitaloceanspaces.com/ordinals/d8c2e6fca21b41817dc162445f2a0c0f5b0995c0cae12799a39571cd974c4ea2i0",
+    "traits": [
+      {
+        "value": "Purple",
+        "trait_type": "background"
+      },
+      {
+        "value": "Marble",
+        "trait_type": "skin"
+      },
+      {
+        "value": "Earring",
+        "trait_type": "specialty"
+      },
+      {
+        "value": "Tourist Tee",
+        "trait_type": "clothes"
+      },
+      {
+        "value": "None",
+        "trait_type": "neck"
+      },
+      {
+        "value": "Bleached",
+        "trait_type": "head"
+      },
+      {
+        "value": "None",
+        "trait_type": "eyes"
+      },
+      {
+        "value": "Vape God",
+        "trait_type": "mouth"
+      },
+      {
+        "value": "DeadGod",
+        "trait_type": "version"
+      }
+    ],
+    "price": 0,
+    "percentage": 0
+  }
+]

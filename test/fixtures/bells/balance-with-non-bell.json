@@ -1,0 +1,14 @@
+[
+  {
+    "coin": "BEL",
+    "name": "Bel",
+    "type": "native",
+    "image": "https://emblem.finance/bell.png",
+    "balance": 2
+  },
+  {
+    "coin": "non-bel",
+    "name": "non-bel",
+    "balance": 1
+  }
+]

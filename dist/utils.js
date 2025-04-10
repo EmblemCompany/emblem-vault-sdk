@@ -362,10 +362,12 @@ function generateTemplate(record) {
             }
             else if (recordName == "Stamps") {
                 let allowedName = assetName.toLowerCase().includes("stamp");
-                allowed = allowedName &&
-                    firstAsset.project &&
-                    record.nativeAssets.includes(firstAsset.coin) &&
-                    (recordName.toLowerCase() == firstAsset.project.toLowerCase() || firstAsset.project.toLowerCase() == "stampunks");
+                const hasProject = !!firstAsset.project;
+                const isValidCoin = record.nativeAssets.includes(firstAsset.coin);
+                const isValidProject = hasProject &&
+                    (recordName.toLowerCase() === firstAsset.project.toLowerCase() ||
+                        firstAsset.project.toLowerCase() === "stampunks");
+                allowed = allowedName && hasProject && isValidCoin && isValidProject;
             }
             else if (recordName == "EmblemOpen") {
                 allowed = true;
@@ -551,7 +553,7 @@ function generateTemplate(record) {
                     if (filtered[0].balance) {
                         balanceDescription = filtered[0].balance;
                     }
-                    else if (filtered) {
+                    else {
                         balanceDescription = '1';
                     }
                 }

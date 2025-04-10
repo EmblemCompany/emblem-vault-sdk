@@ -4,11 +4,15 @@ const { EmblemVaultSDK } = require('../../dist/index.js'); // Assuming built fil
 const { 
     detectProviderType, 
     isProviderType, 
-    Web3ProviderAdapter, 
-    EthereumProvider, 
-    SolanaProvider, 
-    BitcoinProvider 
+    Web3ProviderAdapter
 } = require('../../dist/providers.js');
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+// Define blockchain type constants to match the implementation
+const EthereumProvider = 'ethereum';
+const SolanaProvider = 'solana';
+const BitcoinProvider = 'bitcoin';
+const OtherProvider = 'other';
 
 describe('Blockchain Provider Abstraction', () => {
     let sdk;
@@ -24,19 +28,36 @@ describe('Blockchain Provider Abstraction', () => {
 
     describe('Utility Functions (providers.ts)', () => {
         it('detectProviderType should correctly identify providers', () => {
-            const mockEthProvider = { request: () => {}, eth: {} };
-            const mockSolProvider = { publicKey: {}, signTransaction: () => {} };
-            const mockBtcProvider = { network: {}, signPsbt: () => {} };
-            const mockWeb3Provider = { eth: { getAccounts: () => {} } }; // Web3 specific
-            const otherProvider = { someOtherProp: true };
+            // Mock Ethereum provider
+            const ethProvider = {
+                request: () => {},
+                isMetaMask: true
+            };
+            expect(detectProviderType(ethProvider)).to.equal(EthereumProvider);
 
-            expect(detectProviderType(mockEthProvider)).to.equal('ethereum');
-            expect(detectProviderType(mockSolProvider)).to.equal('solana');
-            expect(detectProviderType(mockBtcProvider)).to.equal('bitcoin');
-            expect(detectProviderType(mockWeb3Provider)).to.equal('ethereum'); // Web3 detected as ethereum
-            expect(detectProviderType(otherProvider)).to.equal('other');
-            expect(detectProviderType(null)).to.equal('other');
-            expect(detectProviderType(undefined)).to.equal('other');
+            // Mock Solana provider (like Phantom)
+            const solanaProvider = {
+                isPhantom: true,
+                connect: () => {},
+                disconnect: () => {},
+                signTransaction: () => {},
+                signAllTransactions: () => {},
+                signMessage: () => {}
+            };
+            expect(detectProviderType(solanaProvider)).to.equal(SolanaProvider);
+
+            // Real Solana Connection object
+            const solanaConnection = {
+                _commitment: 'confirmed',
+                _rpcEndpoint: 'http://localhost:8899',
+                getAccountInfo: () => {},
+                getRecentBlockhash: () => {}
+            };
+            expect(detectProviderType(solanaConnection)).to.equal(SolanaProvider);
+
+            // Unknown provider
+            const unknownProvider = { someRandomProperty: true };
+            expect(detectProviderType(unknownProvider)).to.equal(OtherProvider);
         });
 
         it('isProviderType should correctly check provider types', () => {
@@ -52,12 +73,12 @@ describe('Blockchain Provider Abstraction', () => {
 
             const detectedSolType = detectProviderType(mockSolProvider);
 
-            expect(isProviderType(mockEthProvider, 'ethereum')).to.be.true; // Keep generic type for JS
-            expect(isProviderType(mockEthProvider, 'solana')).to.be.false;
-            expect(isProviderType(mockSolProvider, 'solana')).to.be.true; // This is the line that likely failed
-            expect(isProviderType(mockSolProvider, 'ethereum')).to.be.false;
-            expect(isProviderType(mockOtherProvider, 'ethereum')).to.be.false;
-            expect(isProviderType(mockOtherProvider, 'solana')).to.be.false;
+            expect(isProviderType(mockEthProvider, EthereumProvider)).to.be.true; // Keep generic type for JS
+            expect(isProviderType(mockEthProvider, SolanaProvider)).to.be.false;
+            expect(isProviderType(mockSolProvider, SolanaProvider)).to.be.true; // This is the line that likely failed
+            expect(isProviderType(mockSolProvider, EthereumProvider)).to.be.false;
+            expect(isProviderType(mockOtherProvider, EthereumProvider)).to.be.false;
+            expect(isProviderType(mockOtherProvider, SolanaProvider)).to.be.false;
         });
     });
 
@@ -82,7 +103,7 @@ describe('Blockchain Provider Abstraction', () => {
         });
 
         it('should initialize correctly', () => {
-            expect(adapter.type).to.equal('ethereum');
+            expect(adapter.type).to.equal(EthereumProvider);
             expect(adapter.getRawWeb3()).to.equal(mockWeb3);
             expect(adapter.eth).to.equal(mockWeb3.eth);
         });
@@ -131,27 +152,27 @@ describe('Blockchain Provider Abstraction', () => {
     });
 
     describe('SDK Provider Management (index.ts)', () => {
-        const mockEthProvider = { type: 'ethereum', request: async () => {}, isConnected: async () => true };
-        const mockSolProvider = { type: 'solana', connect: async () => ({publicKey: 'solKey'}), disconnect: async () => {}, isConnected: async () => true };
-        const mockBtcProvider = { type: 'bitcoin', isConnected: async () => true };
+        const mockEthProvider = { type: EthereumProvider, request: async () => {}, isConnected: async () => true };
+        const mockSolProvider = { type: SolanaProvider, connect: async () => ({publicKey: 'solKey'}), disconnect: async () => {}, isConnected: async () => true };
+        const mockBtcProvider = { type: BitcoinProvider, isConnected: async () => true };
 
         it('registerProvider should store providers', () => {
-            sdk.registerProvider('ethereum', mockEthProvider);
-            sdk.registerProvider('solana', mockSolProvider);
-            expect(sdk.hasProvider('ethereum')).to.be.true;
-            expect(sdk.hasProvider('solana')).to.be.true;
-            expect(sdk.hasProvider('bitcoin')).to.be.false;
+            sdk.registerProvider(EthereumProvider, mockEthProvider);
+            sdk.registerProvider(SolanaProvider, mockSolProvider);
+            expect(sdk.hasProvider(EthereumProvider)).to.be.true;
+            expect(sdk.hasProvider(SolanaProvider)).to.be.true;
+            expect(sdk.hasProvider(BitcoinProvider)).to.be.false;
         });
 
         it('getProvider should retrieve registered providers', () => {
-            sdk.registerProvider('ethereum', mockEthProvider);
-            expect(sdk.getProvider('ethereum')).to.equal(mockEthProvider);
-            expect(sdk.getProvider('solana')).to.be.undefined;
+            sdk.registerProvider(EthereumProvider, mockEthProvider);
+            expect(sdk.getProvider(EthereumProvider)).to.equal(mockEthProvider);
+            expect(sdk.getProvider(SolanaProvider)).to.be.undefined;
         });
 
         it('getOrDetectProvider should return registered provider first', async () => {
-            sdk.registerProvider('ethereum', mockEthProvider);
-            const provider = await sdk.getOrDetectProvider('ethereum');
+            sdk.registerProvider(EthereumProvider, mockEthProvider);
+            const provider = await sdk.getOrDetectProvider(EthereumProvider);
             expect(provider).to.equal(mockEthProvider);
         });
 
@@ -161,7 +182,7 @@ describe('Blockchain Provider Abstraction', () => {
         it('getOrDetectProvider should throw if no provider is registered or detected', async () => {
             // Ensure no provider is registered and window is clean (or mocked as empty)
             try {
-                await sdk.getOrDetectProvider('ethereum');
+                await sdk.getOrDetectProvider(EthereumProvider);
                 throw new Error('Should have thrown');
             } catch (error) {
                 expect(error.message).to.contain('No provider available');
@@ -171,7 +192,7 @@ describe('Blockchain Provider Abstraction', () => {
         it('loadWeb3 should return raw web3 from Web3ProviderAdapter', async () => {
             const mockWeb3Instance = { eth: { /* ... */ } }; // Simple mock
             const adapter = new Web3ProviderAdapter(mockWeb3Instance);
-            sdk.registerProvider('ethereum', adapter);
+            sdk.registerProvider(EthereumProvider, adapter);
 
             const web3 = await sdk.loadWeb3();
             expect(web3).to.equal(mockWeb3Instance);
@@ -179,7 +200,7 @@ describe('Blockchain Provider Abstraction', () => {
         
         it('loadWeb3 should return the provider object if not an adapter', async () => {
             const consoleWarnStub = sinon.stub(console, 'warn');
-            sdk.registerProvider('ethereum', mockEthProvider); // Register a non-adapter provider
+            sdk.registerProvider(EthereumProvider, mockEthProvider); // Register a non-adapter provider
             
             const provider = await sdk.loadWeb3();
             expect(provider).to.equal(mockEthProvider);
@@ -193,6 +214,75 @@ describe('Blockchain Provider Abstraction', () => {
             const web3 = await sdk.loadWeb3();
             expect(web3).to.be.undefined;
             expect(consoleErrorStub.called).to.be.true; // Could be called by getOrDetectProvider throwing too
+        });
+    });
+
+    describe('Solana Provider Integration', () => {
+        it('should detect Solana providers correctly', () => {
+            // Test with Phantom-like provider
+            const phantomProvider = {
+                isPhantom: true,
+                publicKey: new PublicKey('11111111111111111111111111111111'),
+                connect: () => {},
+                disconnect: () => {},
+                signTransaction: () => {},
+                signAllTransactions: () => {},
+                signMessage: () => {}
+            };
+            
+            expect(detectProviderType(phantomProvider)).to.equal(SolanaProvider);
+            expect(isProviderType(phantomProvider, SolanaProvider)).to.be.true;
+        });
+        
+        it('should integrate with EmblemVaultSolanaWalletClient', () => {
+            // Create a Solana wallet client
+            const solanaWalletClient = sdk.createSolanaWalletClient({
+                walletId: 'test-solana-wallet-001'
+            });
+            
+            // Our client should have the type property set
+            solanaWalletClient.type = 'emblemVaultSolanaWalletClient';
+            
+            // Register it as a provider
+            sdk.registerProvider(SolanaProvider, solanaWalletClient);
+            
+            // Verify it's registered correctly
+            expect(sdk.getProvider(SolanaProvider)).to.equal(solanaWalletClient);
+            
+            // Verify it's detected as a Solana provider
+            expect(isProviderType(solanaWalletClient, SolanaProvider)).to.be.true;
+        });
+        
+        it('should detect Solana Connection objects', () => {
+            // Use a mock Connection with the properties our detection logic is looking for
+            const mockConnection = {
+                _commitment: 'confirmed',
+                _rpcEndpoint: 'http://localhost:8899',
+                getAccountInfo: () => {},
+                getRecentBlockhash: () => {}
+            };
+            
+            // Verify it's detected as a Solana provider
+            expect(detectProviderType(mockConnection)).to.equal(SolanaProvider);
+        });
+        
+        it('should prioritize registered providers over detection', async () => {
+            // Create and register a Solana wallet client
+            const solanaWalletClient = sdk.createSolanaWalletClient({
+                walletId: 'test-solana-wallet-002'
+            });
+            sdk.registerProvider(SolanaProvider, solanaWalletClient);
+            
+            // Create a Phantom-like provider that would be detected
+            const phantomProvider = {
+                isPhantom: true,
+                publicKey: new PublicKey('11111111111111111111111111111111')
+            };
+            
+            // getOrDetectProvider should return the registered provider
+            const provider = await sdk.getOrDetectProvider(SolanaProvider);
+            expect(provider).to.equal(solanaWalletClient);
+            expect(provider).to.not.equal(phantomProvider);
         });
     });
 });

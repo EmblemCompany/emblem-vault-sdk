@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -37,12 +47,14 @@ const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const derive_1 = require("./derive");
 const providers_1 = require("./providers");
-const SDK_VERSION = '3.1.0';
+const emblemVaultWalletClient_1 = require("./clients/emblemVaultWalletClient");
+const emblemVaultSolanaWalletClient_1 = require("./clients/emblemVaultSolanaWalletClient");
+const SDK_VERSION = '__SDK_VERSION__';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl, v3Url, sigUrl, aiUrl, aiApiKey, byoKey) {
         this.apiKey = apiKey;
         this.providers = new Map();
-        console.log('EmblemVaultSDK version:', SDK_VERSION);
+        // console.log('EmblemVaultSDK version:', SDK_VERSION)
         if (!apiKey) {
             throw new Error('API key is required');
         }
@@ -145,6 +157,30 @@ class EmblemVaultSDK {
             }
             throw new Error(`No provider available for blockchain type: ${type}`);
         });
+    }
+    /**
+     * Creates a Wallet Client instance powered by the Emblem Vault TEE signer.
+     *
+     * @param config - Configuration specific to the wallet client, like the walletId.
+     * @returns An EmblemVaultWalletClient instance.
+     */
+    createWalletClient(config) {
+        if (!this.apiKey) {
+            throw new Error("SDK must be initialized with an API key before creating a wallet client.");
+        }
+        return (0, emblemVaultWalletClient_1.createEmblemVaultWalletClient)(Object.assign(Object.assign({}, config), { sdk: this }));
+    }
+    /**
+     * Creates a Solana Wallet Client instance powered by the Emblem Vault TEE signer.
+     *
+     * @param config - Configuration specific to the Solana wallet client, like the walletId.
+     * @returns An EmblemVaultSolanaWalletClient instance.
+     */
+    createSolanaWalletClient(config) {
+        if (!this.apiKey) {
+            throw new Error("SDK must be initialized with an API key before creating a wallet client.");
+        }
+        return (0, emblemVaultSolanaWalletClient_1.createEmblemVaultSolanaWalletClient)(Object.assign(Object.assign({}, config), { sdk: this }));
     }
     // ** Asset Metadata **
     //

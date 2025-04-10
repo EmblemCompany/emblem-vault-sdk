@@ -1,0 +1,12 @@
+[
+  {
+    "coin": "BTC",
+    "name": "BTC",
+    "balance": 1
+  },
+  {
+    "coin": "BTC",
+    "name": "Bitcoin",
+    "balance": 1
+  }
+]

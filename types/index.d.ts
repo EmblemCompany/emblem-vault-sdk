@@ -1,6 +1,8 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { AiVaultInfo, Balance, Collection, CuratedCollectionsResponse, MetaData, Ownership, Vault } from './types';
 import { BlockchainType } from './providers';
+import { EmblemVaultWalletClient, EmblemVaultWalletClientConfig } from './clients/emblemVaultWalletClient';
+import { EmblemVaultSolanaWalletClient, EmblemVaultSolanaWalletClientConfig } from './clients/emblemVaultSolanaWalletClient';
 export declare class EmblemVaultSDK {
     private apiKey;
     private baseUrl;
@@ -38,6 +40,20 @@ export declare class EmblemVaultSDK {
      * @throws Error if no provider is available
      */
     getOrDetectProvider(type: BlockchainType): Promise<any>;
+    /**
+     * Creates a Wallet Client instance powered by the Emblem Vault TEE signer.
+     *
+     * @param config - Configuration specific to the wallet client, like the walletId.
+     * @returns An EmblemVaultWalletClient instance.
+     */
+    createWalletClient(config: Omit<EmblemVaultWalletClientConfig, 'sdk'>): EmblemVaultWalletClient;
+    /**
+     * Creates a Solana Wallet Client instance powered by the Emblem Vault TEE signer.
+     *
+     * @param config - Configuration specific to the Solana wallet client, like the walletId.
+     * @returns An EmblemVaultSolanaWalletClient instance.
+     */
+    createSolanaWalletClient(config: Omit<EmblemVaultSolanaWalletClientConfig, 'sdk'>): EmblemVaultSolanaWalletClient;
     getCuratedAssetMetadata(projectName: string, strict?: boolean, overrideFunc?: Function | null): any[];
     getAssetMetadata(projectName: string, strict?: boolean, overrideFunc?: Function | null): any[];
     getAllCuratedAssetMetadata(overrideFunc?: Function | null): any;
@@ -63,7 +79,7 @@ export declare class EmblemVaultSDK {
     generateJumpReport(address: string, hideUnMintable?: boolean, overrideFunc?: Function | null): Promise<unknown>;
     generateMintReport(address: string, hideUnMintable?: boolean, overrideFunc?: Function | null): Promise<unknown>;
     generateMigrateReport(address: string, hideUnMintable?: boolean, overrideFunc?: Function | null): Promise<unknown>;
-    loadWeb3(): Promise<any | undefined>;
+    loadWeb3(provider: any): Promise<any | undefined>;
     performMintChain(web3: any, tokenId: string, collectionName: string, callback?: any): Promise<{
         mintResponse: any;
     }>;

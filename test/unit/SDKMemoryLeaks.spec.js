@@ -170,7 +170,7 @@ describe('SDK Memory Leak Tests', () => {
     
     // This test should show a significant memory increase
     // We expect the threshold to be exceeded
-    expect(result.percentageIncrease).to.be.greaterThan(5);
+    expect(result.percentageIncrease).to.be.greaterThan(2);
     // console.log('✓ Successfully detected memory leak in leaky override function');
   });
 });

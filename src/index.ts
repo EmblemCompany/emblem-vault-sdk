@@ -3,6 +3,8 @@ import { AiVaultInfo, Balance, Collection, CuratedCollectionsResponse, MetaData,
 import { NFT_DATA, checkContentType, decryptKeys, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getSatsConnectAddress, getTorusKeys, metadataAllProjects, metadataObj2Arr, signPSBT, templateGuard } from './utils';
 import { generateTaprootAddressFromMnemonic, getPsbtTxnSize } from './derive';
 import { BlockchainProvider, BlockchainType, detectProviderType, EthereumProvider, Web3ProviderAdapter } from './providers';
+import { createEmblemVaultWalletClient, EmblemVaultWalletClient, EmblemVaultWalletClientConfig } from './clients/emblemVaultWalletClient';
+import { createEmblemVaultSolanaWalletClient, EmblemVaultSolanaWalletClient, EmblemVaultSolanaWalletClientConfig } from './clients/emblemVaultSolanaWalletClient';
 const SDK_VERSION = '__SDK_VERSION__'; 
 
 export class EmblemVaultSDK {
@@ -15,7 +17,7 @@ export class EmblemVaultSDK {
     private providers: Map<BlockchainType, BlockchainProvider> = new Map();
     
     constructor(private apiKey: string, baseUrl?: string, v3Url?: string, sigUrl?: string, aiUrl?: string, aiApiKey?: string, byoKey?: string) {
-        console.log('EmblemVaultSDK version:', SDK_VERSION)
+        // console.log('EmblemVaultSDK version:', SDK_VERSION)
         if (!apiKey) {
             throw new Error('API key is required');
         }
@@ -117,6 +119,38 @@ export class EmblemVaultSDK {
         }
         
         throw new Error(`No provider available for blockchain type: ${type}`);
+    }
+
+    /**
+     * Creates a Wallet Client instance powered by the Emblem Vault TEE signer.
+     *
+     * @param config - Configuration specific to the wallet client, like the walletId.
+     * @returns An EmblemVaultWalletClient instance.
+     */
+    createWalletClient(config: Omit<EmblemVaultWalletClientConfig, 'sdk'>): EmblemVaultWalletClient {
+        if (!this.apiKey) {
+            throw new Error("SDK must be initialized with an API key before creating a wallet client.");
+        }
+        return createEmblemVaultWalletClient({
+            ...config,
+            sdk: this, // Pass the current SDK instance
+        });
+    }
+
+    /**
+     * Creates a Solana Wallet Client instance powered by the Emblem Vault TEE signer.
+     *
+     * @param config - Configuration specific to the Solana wallet client, like the walletId.
+     * @returns An EmblemVaultSolanaWalletClient instance.
+     */
+    createSolanaWalletClient(config: Omit<EmblemVaultSolanaWalletClientConfig, 'sdk'>): EmblemVaultSolanaWalletClient {
+        if (!this.apiKey) {
+            throw new Error("SDK must be initialized with an API key before creating a wallet client.");
+        }
+        return createEmblemVaultSolanaWalletClient({
+            ...config,
+            sdk: this, // Pass the current SDK instance
+        });
     }
 
     // ** Asset Metadata **
