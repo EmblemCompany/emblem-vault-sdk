@@ -1,6 +1,6 @@
 {
   "name": "emblem-vault-sdk",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Emblem Vault Software Development Kit",
   "main": "dist/index.js",
   "scripts": {
@@ -13,7 +13,7 @@
     "build": "tsc",
     "postbuild": "node ./script/version.js && mv dist/index.d.ts types/index.d.ts && mv dist/types.d.ts types/types.d.ts && mv dist/utils.d.ts types/utils.d.ts && mv dist/derive.d.ts types/derive.d.ts",
     "bundle": "npm run build && browserify dist/index.js -o dist/bundle.js && cp dist/bundle.js docs/bundle.js",
-    "watch": "onchange 'src/*.ts' -- npm run bundle"
+    "watch": "onchange 'src/**/*.ts' -- npm run bundle"
   },
   "browser": {
     "./dist/clients/emblemVaultSolanaWalletClient.js": false,
@@ -27,6 +27,7 @@
     "@types/chai": "^5.2.0",
     "@types/crypto-js": "^4.2.2",
     "@types/mocha": "^10.0.10",
+    "@types/sinon": "^17.0.4",
     "browserify": "^17.0.1",
     "chai": "^4.5.0",
     "mocha": "^11.1.0",
@@ -41,6 +42,7 @@
   "dependencies": {
     "@bitcoin-js/tiny-secp256k1-asmjs": "^2.2.3",
     "@ethersproject/bignumber": "^5.7.0",
+    "@solana/web3.js": "^1.98.0",
     "@toruslabs/fetch-node-details": "^8.0.0",
     "@toruslabs/torus.js": "^6.2.0",
     "bchaddrjs": "^0.5.2",
@@ -55,6 +57,7 @@
     "sats-connect": "^1.4.1",
     "tiny-secp256k1": "^2.2.3",
     "uninstall": "^0.0.0",
+    "viem": "^2.26.3",
     "web3": "^4.4.0"
   },
   "engines": {

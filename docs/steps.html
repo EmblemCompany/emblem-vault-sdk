@@ -57,14 +57,16 @@
     <script>
         window.bitcoin = bitcoin;
         const sdk = new EmblemVaultSDK('demo'); // Instantiate SDK
-        let defaultAccount, vaultBalance, vaultData;
+        let vaultBalance, vaultData, defaultAccount;
         let mintTemplate = {};
         let curatedContracts = [];
         let selectedContract = null;
         
+        // Set connected Account
         // Load curated contracts when the page loads
         window.onload = async function() {
             try {
+                // defaultAccount = await sdk.getConnectedEthAccount();
                 curatedContracts = await sdk.fetchCuratedContracts(false);
                 generateContractDropdown(curatedContracts);
                 updateLogCallback('Loaded', curatedContracts.length + ' curated contracts');
@@ -120,11 +122,11 @@
             async function populateTemplateWithAccountInfo() {
                 if (!defaultAccount) { // Only load web3 if not already loaded
                     await sdk.loadWeb3(); // Can be any web3 provider
-                    defaultAccount = await web3.eth.getAccounts().then(accounts => accounts[0]).catch(err=>console); // Minter's address
+                    defaultAccount = (await sdk.getProvider("ethereum").eth.getAccounts())[0]; // Minter's address
                     updateLogCallback('Loading default account from web3:', defaultAccount);
                 }
                 
-                let chainId = Number(await web3.eth.net.getId());
+                let chainId = Number(await sdk.getProvider("ethereum").eth.net.getId());
                 
                 // populate the template
                 mintTemplate.toAddress = defaultAccount;

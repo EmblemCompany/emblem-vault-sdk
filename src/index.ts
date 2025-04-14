@@ -1,34 +1,37 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { AiVaultInfo, Balance, Collection, CuratedCollectionsResponse, MetaData, Ownership, Vault } from './types';
+import { AiVaultInfo, Balance, Collection, CuratedCollectionsResponse, MetaData, Ownership, v3LocalMintSignature, Vault } from './types';
 import { NFT_DATA, checkContentType, decryptKeys, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getSatsConnectAddress, getTorusKeys, metadataAllProjects, metadataObj2Arr, signPSBT, templateGuard } from './utils';
 import { generateTaprootAddressFromMnemonic, getPsbtTxnSize } from './derive';
 import { BlockchainProvider, BlockchainType, detectProviderType, EthereumProvider, Web3ProviderAdapter } from './providers';
+import { ProviderManager } from './providers/ProviderManager';
 import { createEmblemVaultWalletClient, EmblemVaultWalletClient, EmblemVaultWalletClientConfig } from './clients/emblemVaultWalletClient';
 import { createEmblemVaultSolanaWalletClient, EmblemVaultSolanaWalletClient, EmblemVaultSolanaWalletClientConfig } from './clients/emblemVaultSolanaWalletClient';
+
 const SDK_VERSION = '__SDK_VERSION__'; 
 
 export class EmblemVaultSDK {
-    private apiKey: string;
     private baseUrl: string;
     private v3Url: string;
     private sigUrl: string;
     private aiUrl: string;
     private aiApiKey?: string;
     private byoKey?: string;
-    private providers: Map<BlockchainType, BlockchainProvider> = new Map();
+    private providerManager: ProviderManager;
+    version: string;
     
-    constructor(apiKey: string, baseUrl?: string, v3Url?: string, sigUrl?: string, aiUrl?: string, aiApiKey?: string, byoKey?: string) {
+    constructor(private apiKey: string, baseUrl?: string, v3Url?: string, sigUrl?: string, aiUrl?: string, aiApiKey?: string, byoKey?: string) {
         // console.log('EmblemVaultSDK version:', SDK_VERSION)
         if (!apiKey) {
             throw new Error('API key is required');
         }
-        this.apiKey = apiKey
         this.baseUrl = baseUrl || 'https://v2.emblemvault.io';
         this.v3Url = v3Url || 'https://v3.emblemvault.io';
         this.sigUrl = sigUrl || 'https://tor-us-signer-coval.vercel.app';
         this.aiUrl = aiUrl || 'https://api.emblemvault.ai';
-        this.aiApiKey = aiApiKey;
-        this.byoKey = byoKey;
+        this.aiApiKey = aiApiKey || undefined;
+        this.byoKey = byoKey || undefined;
+        this.version = SDK_VERSION;
+        this.providerManager = new ProviderManager();
     }
 
     /**
@@ -37,7 +40,7 @@ export class EmblemVaultSDK {
      * @param provider The provider instance
      */
     registerProvider(type: BlockchainType, provider: any): void {
-        this.providers.set(type, provider);
+        this.providerManager.registerProvider(type, provider);
     }
 
     /**
@@ -46,7 +49,7 @@ export class EmblemVaultSDK {
      * @returns The provider instance or undefined if not registered
      */
     getProvider(type: BlockchainType): any {
-        return this.providers.get(type);
+        return this.providerManager.getProvider(type);
     }
 
     /**
@@ -55,7 +58,7 @@ export class EmblemVaultSDK {
      * @returns True if a provider is registered for the specified type
      */
     hasProvider(type: BlockchainType): boolean {
-        return this.providers.has(type);
+        return this.providerManager.hasProvider(type);
     }
 
     /**
@@ -67,60 +70,7 @@ export class EmblemVaultSDK {
      * @throws Error if no provider is available
      */
     async getOrDetectProvider(type: BlockchainType): Promise<any> {
-        // First check if we have a registered provider
-        let provider = this.providers.get(type);
-        if (provider) return provider;
-        
-        // If not, try to detect one in the environment
-        if (typeof window !== 'undefined') {
-            switch (type) {
-                case 'ethereum':
-                    if (window.ethereum) {
-                        try {
-                            await window.ethereum.request({ method: 'eth_requestAccounts' });
-                            const { default: Web3 } = await import('web3');
-                            const web3Instance = new Web3(window.ethereum);
-                            // Wrap the Web3 instance in our adapter
-                            provider = new Web3ProviderAdapter(web3Instance);
-                            this.registerProvider('ethereum', provider);
-                            return provider;
-                        } catch (error) {
-                            console.error('Error connecting to Ethereum provider:', error);
-                        }
-                    } else if (window.web3) {
-                        // Handle legacy web3 provider
-                        try {
-                            const { default: Web3 } = await import('web3');
-                            const web3Instance = new Web3(window.web3.currentProvider);
-                            provider = new Web3ProviderAdapter(web3Instance);
-                            this.registerProvider('ethereum', provider);
-                            return provider;
-                        } catch (error) {
-                            console.error('Error connecting to legacy Web3 provider:', error);
-                        }
-                    }
-                    break;
-                case 'solana':
-                    if (window.solana) {
-                        try {
-                            await window.solana.connect();
-                            this.registerProvider('solana', window.solana);
-                            return window.solana;
-                        } catch (error) {
-                            console.error('Error connecting to Solana provider:', error);
-                        }
-                    }
-                    break;
-                case 'bitcoin':
-                    if (window.bitcoin) {
-                        this.registerProvider('bitcoin', window.bitcoin);
-                        return window.bitcoin;
-                    }
-                    break;
-            }
-        }
-        
-        throw new Error(`No provider available for blockchain type: ${type}`);
+        return this.providerManager.getOrDetectProvider(type);
     }
 
     /**
@@ -155,6 +105,19 @@ export class EmblemVaultSDK {
         });
     }
 
+    /**
+     * Ethereum Convenience
+     *
+     * @param config - Configuration specific to the Solana wallet client, like the walletId.
+     * @returns An EmblemVaultSolanaWalletClient instance.
+     */
+    async getConnectedEthAccount(): Promise<string> {
+        if (!this.hasProvider("ethereum")) {
+            await this.getOrDetectProvider("ethereum");
+        }
+        return (await this.getProvider("ethereum").eth.getAccounts())[0];
+    }
+
     // ** Asset Metadata **
     //
     getCuratedAssetMetadata(projectName: string, strict: boolean = false, overrideFunc: Function | null = null) {
@@ -182,7 +145,6 @@ export class EmblemVaultSDK {
         return NFT_DATA_ARR
     }
 
-    
     /**
      * @deprecated 
      * This method is deprecated and will be removed in a future version. 
@@ -425,14 +387,29 @@ export class EmblemVaultSDK {
         }
     }
 
-    async performMintChain(web3: any, tokenId: string, collectionName: string, callback: any = null) {
-        let collection = await this.fetchCuratedContractByName(collectionName);        
+    /**
+     * Performs a mint operation on the blockchain.
+     * @param web3 - The web3 instance to use for the transaction.
+     * @param tokenId - The ID of the token to mint.
+     * @param callback - Optional callback function to handle the transaction.
+     * @returns A promise that resolves to the mint response.
+     * @deprecated Use `performMintHelper` instead.
+     */
+    async performMintChain(web3: any, tokenId: string, callback: any = null) {
         let mintRequestSig = await this.requestLocalMintSignature(web3, tokenId, callback);
-        let remoteMintSig = await this.requestRemoteMintSignature(web3, tokenId, mintRequestSig, callback);
-        let quote = await this.getQuote(web3, collection? collection.price: remoteMintSig._price/1000000, callback);
-        let ethToSend = quote.mul(BigNumber.from(10).pow(6))
-        let mintResponse = await this.performMint(web3, ethToSend, remoteMintSig, callback);
+        let remoteMintSig = await this.requestRemoteMintSignature(web3, tokenId, mintRequestSig, callback);    
+        let mintResponse = await this.performMint(web3, remoteMintSig, callback);
         return {mintResponse}
+    }
+
+    /**
+     * Stub for new mint chain helper
+     * @param amount - The amount of tokens to mint.
+     * @param callback - Optional callback function to handle the transaction.
+     * @returns A promise that resolves to the mint response.
+     */
+    async performMintHelper( amount: number, callback?: any): Promise<BigNumber> {
+        throw new Error('Not implemented');
     }
 
     async performClaimChain(web3: any, tokenId: string, serialNumber: any, callback: any = null) {
@@ -442,6 +419,14 @@ export class EmblemVaultSDK {
         return await this.decryptVaultKeys(tokenId, dkeys, callback)
     }
     
+    /**
+     * Stub for new mint signature request
+     * @param web3 - The web3 instance to use for the transaction.
+     * @param tokenId - The ID of the token to mint.
+     * @param callback - Optional callback function to handle the transaction.
+     * @returns A promise that resolves to the mint signature.
+     * @deprecated Use `requestV3LocalMintSignature` instead.
+     */
     async requestLocalMintSignature(web3: any, tokenId: string, callback: any = null) {
         if (callback) { callback('requesting User Mint Signature')}
         const message = `Curated Minting: ${tokenId.toString()}`;
@@ -449,6 +434,71 @@ export class EmblemVaultSDK {
         const signature = await web3.eth.personal.sign(message, accounts[0], '');
         if (callback) { callback(`signature`, signature)}
         return signature;
+    }
+
+    /**
+     * Requests a signature for a curated minting operation. (ONLY ETHEREUM FOR NOW)
+     * @param tokenId - The ID of the token to mint.
+     * @param callback - Optional callback function to handle the transaction.
+     * @param overrideFunc - Optional function to override the default behavior.
+     * @returns A promise that resolves to the mint signature.
+     */
+    async requestV3LocalMintSignature(tokenId: string, callback: any = null, overrideFunc: Function | null = null): Promise<v3LocalMintSignature> {
+        if (callback) { callback('requesting Owner Mint Signature')}
+        const provider = await this.getOrDetectProvider('ethereum');
+        const rawBlockNumber = await provider.eth.getBlockNumber();
+        const blockNumber = Number(rawBlockNumber).toString();
+        const message = `Curated Minting: ${tokenId.toString()} \n\nat Block# ${blockNumber}`;
+        const account = await this.getConnectedEthAccount();
+        if (!account) {
+            throw new Error('No connected wallet found');
+        }
+        const signature = overrideFunc? await overrideFunc(message, account): await provider.eth.personal.sign(message, account, callback? callback: '');
+        if (callback) { callback(`signature`, signature)}
+        return {message, signature};
+    }
+
+    /**
+     * Requests a signature for a curated minting operation. (ONLY ETHEREUM FOR NOW)
+     * @param tokenId - The ID of the token to mint.
+     * @param signature - The signature for the curated minting operation.
+     * @param callback - Optional callback function to handle the transaction.
+     * @param overrideFunc - Optional function to override the default behavior.
+     * @returns A promise that resolves to the remote mint signature.
+     * @deprecated Use `requestV3RemoteMintSignature` instead.
+     */
+    async requestRemoteMintSignature(web3: any, tokenId: string, signature: string, callback: any = null, overrideFunc: Function | null = null) {
+        if (callback) { callback('requesting Remote Mint signature')}  
+        const chainId = await web3.eth.getChainId();
+        let url = `${this.baseUrl}/mint-curated`;
+        let mintRequestBody = {method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString()}
+        let remoteMintResponse = overrideFunc? await overrideFunc(url, this.apiKey, 'POST', mintRequestBody): await fetchData(url, this.apiKey, 'POST', mintRequestBody);
+        if (remoteMintResponse.error) {
+            throw new Error(remoteMintResponse.error)
+        }
+        if (callback) { callback(`remote Mint signature`, remoteMintResponse)}
+        return remoteMintResponse
+    }
+
+    /**
+     * Requests a signature for a curated minting operation. (ONLY ETHEREUM FOR NOW)
+     * @param tokenId - The ID of the token to mint.
+     * @param signature - The signature for the curated minting operation.
+     * @param callback - Optional callback function to handle the transaction.
+     * @param overrideFunc - Optional function to override the default behavior.
+     * @returns A promise that resolves to the remote mint signature.
+     */
+    async requestV3RemoteMintSignature(tokenId: string, signature: string, callback: any = null, overrideFunc: Function | null = null) {
+        if (callback) { callback('requesting Remote Mint signature')}  
+        const chainId = (await this.getOrDetectProvider('ethereum')).eth.getChainId();
+        let url = `${this.baseUrl}/V3-mint-curated`;
+        const mintRequestBody = {method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString()};
+        let remoteMintResponse = overrideFunc? await overrideFunc(url, this.apiKey, 'POST', mintRequestBody): await fetchData(url, this.apiKey, 'POST', mintRequestBody);
+        if (remoteMintResponse.error) {
+            throw new Error(remoteMintResponse.error)
+        }
+        if (callback) { callback(`remote Mint signature`, remoteMintResponse)}
+        return remoteMintResponse
     }
 
     async requestLocalClaimSignature(web3: any, tokenId: string, serialNumber: any, callback: any = null) {
@@ -459,18 +509,6 @@ export class EmblemVaultSDK {
         if (callback) { callback(`signature`, signature)}
         return signature;
     }
-
-    async requestRemoteMintSignature(web3: any, tokenId: string, signature: string, callback: any = null, overrideFunc: Function | null = null) {
-        if (callback) { callback('requesting Remote Mint signature')}  
-        const chainId = await web3.eth.getChainId();
-        let url = `${this.baseUrl}/mint-curated`;
-        let remoteMintResponse = overrideFunc? await overrideFunc(this.apiKey, {method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString()}): await fetchData(url, this.apiKey, 'POST',  {method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString()});
-        if (remoteMintResponse.error) {
-            throw new Error(remoteMintResponse.error)
-        }
-        if (callback) { callback(`remote Mint signature`, remoteMintResponse)}
-        return remoteMintResponse
-    }    
 
     async requestRemoteClaimToken(web3: any, tokenId: string, signature: string, callback: any = null, overrideFunc: Function | null = null) {
         if (callback) { callback('requesting Remote Claim token')}
@@ -494,6 +532,11 @@ export class EmblemVaultSDK {
         let ukeys = await decryptKeys(metadata.ciphertextV2, dkeys, metadata.addresses)
         if (callback) { callback(`remote Key`, ukeys)}
         return ukeys
+    }
+
+    async recoverSignerFromMessage(message: string, signature: string, overrideFunc: Function | null = null): Promise<string> {
+        const provider = await this.getOrDetectProvider('ethereum');
+        return overrideFunc? await overrideFunc(message, signature): await provider.eth.personal.recover(message, signature);
     }
 
     /**
@@ -527,7 +570,7 @@ export class EmblemVaultSDK {
     }
 
     // todo add contract overrides
-    async performMint(web3: any, quote: any, remoteMintSig: any, callback: any = null) {
+    async performMint(web3: any, remoteMintSig: any, callback: any = undefined) {
     // async performMint(web3, quote, remoteMintSig, callback = null) {
         if (callback) { callback('performing Mint') }
         const accounts = await web3.eth.getAccounts();
@@ -536,9 +579,10 @@ export class EmblemVaultSDK {
         // Get current gas price from the network
         const gasPrice = await web3.eth.getGasPrice();
 
-        let createdTxObject = handlerContract.methods.buyWithQuote(
-            remoteMintSig._nftAddress, 
-            remoteMintSig._price, 
+        let createdTxObject = handlerContract.methods.buyWithSignedPrice(
+            remoteMintSig._nftAddress,
+            '0x0000000000000000000000000000000000000000',
+            remoteMintSig._price.hex,
             remoteMintSig._to, 
             remoteMintSig._tokenId, 
             remoteMintSig._nonce, 
@@ -548,12 +592,12 @@ export class EmblemVaultSDK {
         )
         
         // Estimate gas limit for the transaction
-        const gasLimit = await createdTxObject.estimateGas({ from: accounts[0], value: Number(quote) });
+        const gasLimit = await createdTxObject.estimateGas({ from: accounts[0], value: remoteMintSig._price.hex });
     
         // Execute the transaction with the specified gas price and estimated gas limit
         let mintResponse = await createdTxObject.send({ 
             from: accounts[0], 
-            value: Number(quote),
+            value: remoteMintSig._price.hex,
             gasPrice: gasPrice, // Use the current gas price
             gas: gasLimit // Use the estimated gas limit
         }).on('transactionHash', (hash: any) => {

@@ -269,6 +269,19 @@
             document.getElementById('tokenDescription').textContent = window.vaultBody.description;
             document.getElementById('tokenLink').href = `https://emblem.vision/vault/${metadata.tokenId}`;
             document.getElementById('vaultDetails').style.display = 'block';
+            if (canMint(metadata)) {
+                document.getElementById('mintButton').style.display = 'block';
+            }
+        }
+
+        function canMint(metadata){
+            return window.contract.allowed(metadata.values, window.contract)
+        }
+
+        async function mintToken() {
+            await sdk.loadWeb3().then(async (web3) => {
+    return await sdk.performMintChain(web3, "61689479979346071")
+})
         }
 
         function updateCsvData(){
@@ -351,7 +364,7 @@
         <img id="tokenImage" src="" alt="Token Image">        
         <div><b>Description:</b><span id="tokenDescription"></span></div>
         <div><b>Link to Vault:</b><a href="" id="tokenLink" target="_blank">View on Emblem Vault</a></div>
-
+        <button id="mintButton" onclick="mintToken()" style="display: none;">Mint Token</button>
         <div>
             <pre id="csvData"></pre>
         </div>

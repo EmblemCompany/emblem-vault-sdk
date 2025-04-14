@@ -1,3 +1,4 @@
+import { BlockchainType } from './providers';
 export type ContractDetails = {
     [key: string]: string;
 };
@@ -147,3 +148,31 @@ export type AiVaultInfo = {
     address: string;
     vaultId: string;
 };
+export type v3LocalMintSignature = {
+    message: string;
+    signature: string;
+};
+export interface WalletConfig {
+    priority?: string[];
+    autoConnectWallets?: BlockchainType[];
+}
+declare global {
+    interface Window {
+        ethereum?: any;
+        phantom?: any;
+        solflare?: any;
+        trustWallet?: any;
+        coinbaseWalletExtension?: any;
+        bitcoin?: any;
+        HiroWalletProvider?: any;
+        solana?: any & {
+            isPhantom?: boolean;
+            isSolflare?: boolean;
+            connect?: (options?: {
+                onlyIfTrusted?: boolean;
+            }) => Promise<any>;
+            set?: (config: Record<string, any>) => void;
+        };
+        web3?: any;
+    }
+}

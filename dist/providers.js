@@ -18,6 +18,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Web3ProviderAdapter = void 0;
 exports.detectProviderType = detectProviderType;
 exports.isProviderType = isProviderType;
+exports.asProvider = asProvider;
 /**
  * Web3 provider adapter
  * This wraps a Web3 instance to make it conform to our EthereumProvider interface
@@ -74,8 +75,7 @@ function detectProviderType(provider) {
     if (provider.eth || (provider.request && typeof provider.request === 'function')) {
         return 'ethereum';
     }
-    if (provider.publicKey || provider.connection ||
-        (provider.signTransaction && typeof provider.signTransaction === 'function')) {
+    if (provider.publicKey || provider.connection || provider.isPhantom || (provider.signAllTransactions && typeof provider.signAllTransactions === 'function') || (provider.signTransaction && typeof provider.signTransaction === 'function')) {
         return 'solana';
     }
     if (provider.network ||
@@ -89,5 +89,8 @@ function detectProviderType(provider) {
  */
 function isProviderType(provider, type) {
     return detectProviderType(provider) === type;
+}
+function asProvider(provider) {
+    return provider;
 }
 //# sourceMappingURL=providers.js.map

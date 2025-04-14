@@ -90,6 +90,7 @@ export declare function detectProviderType(provider: any): BlockchainType;
  * Utility to check if a provider is of a specific type
  */
 export declare function isProviderType<T extends BlockchainProvider>(provider: any, type: BlockchainType): provider is T;
+export declare function asProvider(provider: BlockchainProvider): BlockchainProvider;
 export {};
 declare global {
     interface Window {

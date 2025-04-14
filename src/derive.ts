@@ -7,11 +7,11 @@ import * as ecc from '@bitcoin-js/tiny-secp256k1-asmjs'
 const bip32 = BIP32Factory(ecc);
 
 // let mainnet: any = {"messagePrefix":"\u0018Bitcoin Signed Message:\n","bech32":"bc","bip32":{"public":76067358,"private":76066276},"pubKeyHash":0,"scriptHash":5,"wif":128}
-declare global {
-    interface Window {
-      bitcoin: any;
-    }
-  }
+// declare global {
+//     interface Window {
+//       bitcoin: any;
+//     }
+//   }
 export const generateTaprootAddressFromMnemonic = async (phrase: string) => {
   let bitcoin = window.bitcoin;
   let mainnet = bitcoin.networks.mainnet;

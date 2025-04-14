@@ -69,7 +69,7 @@ function createEmblemVaultSolanaWalletClient(config) {
                 const signedTx = new web3_js_1.Transaction();
                 // Copy over the instructions
                 if (transaction.instructions) {
-                    transaction.instructions.forEach(instruction => {
+                    transaction.instructions.forEach((instruction) => {
                         signedTx.add(instruction);
                     });
                 }

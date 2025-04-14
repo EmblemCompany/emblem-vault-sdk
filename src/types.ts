@@ -1,3 +1,5 @@
+import { BlockchainType } from './providers';
+
 export type ContractDetails = {
     [key: string]: string;
 };
@@ -158,3 +160,35 @@ export type AiVaultInfo = {
     address: string;
     vaultId: string;
 };
+
+export type v3LocalMintSignature = {
+    message: string;
+    signature: string;
+};
+
+export interface WalletConfig {
+    priority?: string[]; // Array of wallet identifiers (e.g., ['phantom', 'metamask'])
+    autoConnectWallets?: BlockchainType[]; // Optional array of wallet types to auto-connect
+}
+
+// Extend Window interface globally
+declare global {
+    interface Window {
+        ethereum?: any;
+        phantom?: any;
+        solflare?: any;
+        trustWallet?: any;
+        coinbaseWalletExtension?: any;
+        bitcoin?: any; // Keep commented or remove if causing conflicts // window.HiroWalletProvider, btc, btc_providers
+        HiroWalletProvider?: any;
+        // Adjusted solana declaration
+        solana?: any & {
+            isPhantom?: boolean;
+            isSolflare?: boolean;
+            connect?: (options?: { onlyIfTrusted?: boolean }) => Promise<any>;
+            set?: (config: Record<string, any>) => void;
+        };
+        // ... other potential wallet providers
+        web3?: any; // Added based on providers.ts usage
+    }
+}

@@ -125,8 +125,7 @@ export function detectProviderType(provider: any): BlockchainType {
     return 'ethereum';
   }
   
-  if (provider.publicKey || provider.connection || 
-      (provider.signTransaction && typeof provider.signTransaction === 'function')) {
+  if (provider.publicKey || provider.connection || provider.isPhantom || (provider.signAllTransactions && typeof provider.signAllTransactions === 'function') || (provider.signTransaction && typeof provider.signTransaction === 'function')) {
     return 'solana';
   }
   
@@ -141,11 +140,12 @@ export function detectProviderType(provider: any): BlockchainType {
 /**
  * Utility to check if a provider is of a specific type
  */
-export function isProviderType<T extends BlockchainProvider>(
-  provider: any, 
-  type: BlockchainType
-): provider is T {
+export function isProviderType<T extends BlockchainProvider>(provider: any, type: BlockchainType): provider is T {
   return detectProviderType(provider) === type;
+}
+
+export function asProvider(provider: BlockchainProvider): BlockchainProvider {
+  return provider as BlockchainProvider;
 }
 
 // We need to modify how we declare global types to avoid conflicts

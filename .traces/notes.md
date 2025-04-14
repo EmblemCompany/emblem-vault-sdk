@@ -31,11 +31,11 @@ if valid, perform mint steps
 get local signature
 
 TODO NEXT 
-make signer util for tests
-import into tests, making 2 signers, a user and a server
-request remote signature using user signature
-fake server signature
-perform mint, overriding result
+* make signer util for tests
+* import into tests, making 2 signers, a user and a server
+* request remote signature using user signature
+* fake server signature
+* perform mint, overriding result
 
 bonus:
 add emblem vault ai as a provider, and implement the functions for each vault type using the sdk

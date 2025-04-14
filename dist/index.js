@@ -1,37 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -47,13 +14,13 @@ const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const derive_1 = require("./derive");
 const providers_1 = require("./providers");
+const ProviderManager_1 = require("./providers/ProviderManager");
 const emblemVaultWalletClient_1 = require("./clients/emblemVaultWalletClient");
 const emblemVaultSolanaWalletClient_1 = require("./clients/emblemVaultSolanaWalletClient");
 const SDK_VERSION = '__SDK_VERSION__';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl, v3Url, sigUrl, aiUrl, aiApiKey, byoKey) {
         this.apiKey = apiKey;
-        this.providers = new Map();
         // console.log('EmblemVaultSDK version:', SDK_VERSION)
         if (!apiKey) {
             throw new Error('API key is required');
@@ -64,6 +31,8 @@ class EmblemVaultSDK {
         this.aiUrl = aiUrl || 'https://api.emblemvault.ai';
         this.aiApiKey = aiApiKey || undefined;
         this.byoKey = byoKey || undefined;
+        this.version = SDK_VERSION;
+        this.providerManager = new ProviderManager_1.ProviderManager();
     }
     /**
      * Register a blockchain provider for a specific blockchain type
@@ -71,7 +40,7 @@ class EmblemVaultSDK {
      * @param provider The provider instance
      */
     registerProvider(type, provider) {
-        this.providers.set(type, provider);
+        this.providerManager.registerProvider(type, provider);
     }
     /**
      * Get a registered provider for a specific blockchain type
@@ -79,7 +48,7 @@ class EmblemVaultSDK {
      * @returns The provider instance or undefined if not registered
      */
     getProvider(type) {
-        return this.providers.get(type);
+        return this.providerManager.getProvider(type);
     }
     /**
      * Check if a provider is registered for a specific blockchain type
@@ -87,7 +56,7 @@ class EmblemVaultSDK {
      * @returns True if a provider is registered for the specified type
      */
     hasProvider(type) {
-        return this.providers.has(type);
+        return this.providerManager.hasProvider(type);
     }
     /**
      * Get or detect a provider for a specific blockchain type
@@ -99,63 +68,7 @@ class EmblemVaultSDK {
      */
     getOrDetectProvider(type) {
         return __awaiter(this, void 0, void 0, function* () {
-            // First check if we have a registered provider
-            let provider = this.providers.get(type);
-            if (provider)
-                return provider;
-            // If not, try to detect one in the environment
-            if (typeof window !== 'undefined') {
-                switch (type) {
-                    case 'ethereum':
-                        if (window.ethereum) {
-                            try {
-                                yield window.ethereum.request({ method: 'eth_requestAccounts' });
-                                const { default: Web3 } = yield Promise.resolve().then(() => __importStar(require('web3')));
-                                const web3Instance = new Web3(window.ethereum);
-                                // Wrap the Web3 instance in our adapter
-                                provider = new providers_1.Web3ProviderAdapter(web3Instance);
-                                this.registerProvider('ethereum', provider);
-                                return provider;
-                            }
-                            catch (error) {
-                                console.error('Error connecting to Ethereum provider:', error);
-                            }
-                        }
-                        else if (window.web3) {
-                            // Handle legacy web3 provider
-                            try {
-                                const { default: Web3 } = yield Promise.resolve().then(() => __importStar(require('web3')));
-                                const web3Instance = new Web3(window.web3.currentProvider);
-                                provider = new providers_1.Web3ProviderAdapter(web3Instance);
-                                this.registerProvider('ethereum', provider);
-                                return provider;
-                            }
-                            catch (error) {
-                                console.error('Error connecting to legacy Web3 provider:', error);
-                            }
-                        }
-                        break;
-                    case 'solana':
-                        if (window.solana) {
-                            try {
-                                yield window.solana.connect();
-                                this.registerProvider('solana', window.solana);
-                                return window.solana;
-                            }
-                            catch (error) {
-                                console.error('Error connecting to Solana provider:', error);
-                            }
-                        }
-                        break;
-                    case 'bitcoin':
-                        if (window.bitcoin) {
-                            this.registerProvider('bitcoin', window.bitcoin);
-                            return window.bitcoin;
-                        }
-                        break;
-                }
-            }
-            throw new Error(`No provider available for blockchain type: ${type}`);
+            return this.providerManager.getOrDetectProvider(type);
         });
     }
     /**
@@ -181,6 +94,20 @@ class EmblemVaultSDK {
             throw new Error("SDK must be initialized with an API key before creating a wallet client.");
         }
         return (0, emblemVaultSolanaWalletClient_1.createEmblemVaultSolanaWalletClient)(Object.assign(Object.assign({}, config), { sdk: this }));
+    }
+    /**
+     * Ethereum Convenience
+     *
+     * @param config - Configuration specific to the Solana wallet client, like the walletId.
+     * @returns An EmblemVaultSolanaWalletClient instance.
+     */
+    getConnectedEthAccount() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.hasProvider("ethereum")) {
+                yield this.getOrDetectProvider("ethereum");
+            }
+            return (yield this.getProvider("ethereum").eth.getAccounts())[0];
+        });
     }
     // ** Asset Metadata **
     //
@@ -484,15 +411,31 @@ class EmblemVaultSDK {
             }
         });
     }
-    performMintChain(web3_1, tokenId_1, collectionName_1) {
-        return __awaiter(this, arguments, void 0, function* (web3, tokenId, collectionName, callback = null) {
-            let collection = yield this.fetchCuratedContractByName(collectionName);
+    /**
+     * Performs a mint operation on the blockchain.
+     * @param web3 - The web3 instance to use for the transaction.
+     * @param tokenId - The ID of the token to mint.
+     * @param callback - Optional callback function to handle the transaction.
+     * @returns A promise that resolves to the mint response.
+     * @deprecated Use `performMintHelper` instead.
+     */
+    performMintChain(web3_1, tokenId_1) {
+        return __awaiter(this, arguments, void 0, function* (web3, tokenId, callback = null) {
             let mintRequestSig = yield this.requestLocalMintSignature(web3, tokenId, callback);
             let remoteMintSig = yield this.requestRemoteMintSignature(web3, tokenId, mintRequestSig, callback);
-            let quote = yield this.getQuote(web3, collection ? collection.price : remoteMintSig._price / 1000000, callback);
-            let ethToSend = quote.mul(bignumber_1.BigNumber.from(10).pow(6));
-            let mintResponse = yield this.performMint(web3, ethToSend, remoteMintSig, callback);
+            let mintResponse = yield this.performMint(web3, remoteMintSig, callback);
             return { mintResponse };
+        });
+    }
+    /**
+     * Stub for new mint chain helper
+     * @param amount - The amount of tokens to mint.
+     * @param callback - Optional callback function to handle the transaction.
+     * @returns A promise that resolves to the mint response.
+     */
+    performMintHelper(amount, callback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            throw new Error('Not implemented');
         });
     }
     performClaimChain(web3_1, tokenId_1, serialNumber_1) {
@@ -503,6 +446,14 @@ class EmblemVaultSDK {
             return yield this.decryptVaultKeys(tokenId, dkeys, callback);
         });
     }
+    /**
+     * Stub for new mint signature request
+     * @param web3 - The web3 instance to use for the transaction.
+     * @param tokenId - The ID of the token to mint.
+     * @param callback - Optional callback function to handle the transaction.
+     * @returns A promise that resolves to the mint signature.
+     * @deprecated Use `requestV3LocalMintSignature` instead.
+     */
     requestLocalMintSignature(web3_1, tokenId_1) {
         return __awaiter(this, arguments, void 0, function* (web3, tokenId, callback = null) {
             if (callback) {
@@ -517,6 +468,86 @@ class EmblemVaultSDK {
             return signature;
         });
     }
+    /**
+     * Requests a signature for a curated minting operation. (ONLY ETHEREUM FOR NOW)
+     * @param tokenId - The ID of the token to mint.
+     * @param callback - Optional callback function to handle the transaction.
+     * @param overrideFunc - Optional function to override the default behavior.
+     * @returns A promise that resolves to the mint signature.
+     */
+    requestV3LocalMintSignature(tokenId_1) {
+        return __awaiter(this, arguments, void 0, function* (tokenId, callback = null, overrideFunc = null) {
+            if (callback) {
+                callback('requesting Owner Mint Signature');
+            }
+            const provider = yield this.getOrDetectProvider('ethereum');
+            const rawBlockNumber = yield provider.eth.getBlockNumber();
+            const blockNumber = Number(rawBlockNumber).toString();
+            const message = `Curated Minting: ${tokenId.toString()} \n\nat Block# ${blockNumber}`;
+            const account = yield this.getConnectedEthAccount();
+            if (!account) {
+                throw new Error('No connected wallet found');
+            }
+            const signature = overrideFunc ? yield overrideFunc(message, account) : yield provider.eth.personal.sign(message, account, callback ? callback : '');
+            if (callback) {
+                callback(`signature`, signature);
+            }
+            return { message, signature };
+        });
+    }
+    /**
+     * Requests a signature for a curated minting operation. (ONLY ETHEREUM FOR NOW)
+     * @param tokenId - The ID of the token to mint.
+     * @param signature - The signature for the curated minting operation.
+     * @param callback - Optional callback function to handle the transaction.
+     * @param overrideFunc - Optional function to override the default behavior.
+     * @returns A promise that resolves to the remote mint signature.
+     * @deprecated Use `requestV3RemoteMintSignature` instead.
+     */
+    requestRemoteMintSignature(web3_1, tokenId_1, signature_1) {
+        return __awaiter(this, arguments, void 0, function* (web3, tokenId, signature, callback = null, overrideFunc = null) {
+            if (callback) {
+                callback('requesting Remote Mint signature');
+            }
+            const chainId = yield web3.eth.getChainId();
+            let url = `${this.baseUrl}/mint-curated`;
+            let mintRequestBody = { method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString() };
+            let remoteMintResponse = overrideFunc ? yield overrideFunc(url, this.apiKey, 'POST', mintRequestBody) : yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', mintRequestBody);
+            if (remoteMintResponse.error) {
+                throw new Error(remoteMintResponse.error);
+            }
+            if (callback) {
+                callback(`remote Mint signature`, remoteMintResponse);
+            }
+            return remoteMintResponse;
+        });
+    }
+    /**
+     * Requests a signature for a curated minting operation. (ONLY ETHEREUM FOR NOW)
+     * @param tokenId - The ID of the token to mint.
+     * @param signature - The signature for the curated minting operation.
+     * @param callback - Optional callback function to handle the transaction.
+     * @param overrideFunc - Optional function to override the default behavior.
+     * @returns A promise that resolves to the remote mint signature.
+     */
+    requestV3RemoteMintSignature(tokenId_1, signature_1) {
+        return __awaiter(this, arguments, void 0, function* (tokenId, signature, callback = null, overrideFunc = null) {
+            if (callback) {
+                callback('requesting Remote Mint signature');
+            }
+            const chainId = (yield this.getOrDetectProvider('ethereum')).eth.getChainId();
+            let url = `${this.baseUrl}/V3-mint-curated`;
+            const mintRequestBody = { method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString() };
+            let remoteMintResponse = overrideFunc ? yield overrideFunc(url, this.apiKey, 'POST', mintRequestBody) : yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', mintRequestBody);
+            if (remoteMintResponse.error) {
+                throw new Error(remoteMintResponse.error);
+            }
+            if (callback) {
+                callback(`remote Mint signature`, remoteMintResponse);
+            }
+            return remoteMintResponse;
+        });
+    }
     requestLocalClaimSignature(web3_1, tokenId_1, serialNumber_1) {
         return __awaiter(this, arguments, void 0, function* (web3, tokenId, serialNumber, callback = null) {
             if (callback) {
@@ -529,23 +560,6 @@ class EmblemVaultSDK {
                 callback(`signature`, signature);
             }
             return signature;
-        });
-    }
-    requestRemoteMintSignature(web3_1, tokenId_1, signature_1) {
-        return __awaiter(this, arguments, void 0, function* (web3, tokenId, signature, callback = null, overrideFunc = null) {
-            if (callback) {
-                callback('requesting Remote Mint signature');
-            }
-            const chainId = yield web3.eth.getChainId();
-            let url = `${this.baseUrl}/mint-curated`;
-            let remoteMintResponse = overrideFunc ? yield overrideFunc(this.apiKey, { method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString() }) : yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString() });
-            if (remoteMintResponse.error) {
-                throw new Error(remoteMintResponse.error);
-            }
-            if (callback) {
-                callback(`remote Mint signature`, remoteMintResponse);
-            }
-            return remoteMintResponse;
         });
     }
     requestRemoteClaimToken(web3_1, tokenId_1, signature_1) {
@@ -587,6 +601,12 @@ class EmblemVaultSDK {
             return ukeys;
         });
     }
+    recoverSignerFromMessage(message_1, signature_1) {
+        return __awaiter(this, arguments, void 0, function* (message, signature, overrideFunc = null) {
+            const provider = yield this.getOrDetectProvider('ethereum');
+            return overrideFunc ? yield overrideFunc(message, signature) : yield provider.eth.personal.recover(message, signature);
+        });
+    }
     /**
      * ** Emblem Vault AI **
      *
@@ -623,8 +643,8 @@ class EmblemVaultSDK {
         });
     }
     // todo add contract overrides
-    performMint(web3_1, quote_1, remoteMintSig_1) {
-        return __awaiter(this, arguments, void 0, function* (web3, quote, remoteMintSig, callback = null) {
+    performMint(web3_1, remoteMintSig_1) {
+        return __awaiter(this, arguments, void 0, function* (web3, remoteMintSig, callback = undefined) {
             // async performMint(web3, quote, remoteMintSig, callback = null) {
             if (callback) {
                 callback('performing Mint');
@@ -633,13 +653,13 @@ class EmblemVaultSDK {
             let handlerContract = yield (0, utils_1.getHandlerContract)(web3);
             // Get current gas price from the network
             const gasPrice = yield web3.eth.getGasPrice();
-            let createdTxObject = handlerContract.methods.buyWithQuote(remoteMintSig._nftAddress, remoteMintSig._price, remoteMintSig._to, remoteMintSig._tokenId, remoteMintSig._nonce, remoteMintSig._signature, remoteMintSig.serialNumber, 1);
+            let createdTxObject = handlerContract.methods.buyWithSignedPrice(remoteMintSig._nftAddress, '0x0000000000000000000000000000000000000000', remoteMintSig._price.hex, remoteMintSig._to, remoteMintSig._tokenId, remoteMintSig._nonce, remoteMintSig._signature, remoteMintSig.serialNumber, 1);
             // Estimate gas limit for the transaction
-            const gasLimit = yield createdTxObject.estimateGas({ from: accounts[0], value: Number(quote) });
+            const gasLimit = yield createdTxObject.estimateGas({ from: accounts[0], value: remoteMintSig._price.hex });
             // Execute the transaction with the specified gas price and estimated gas limit
             let mintResponse = yield createdTxObject.send({
                 from: accounts[0],
-                value: Number(quote),
+                value: remoteMintSig._price.hex,
                 gasPrice: gasPrice, // Use the current gas price
                 gas: gasLimit // Use the estimated gas limit
             }).on('transactionHash', (hash) => {

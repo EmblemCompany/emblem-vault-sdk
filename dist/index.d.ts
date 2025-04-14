@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { AiVaultInfo, Balance, Collection, CuratedCollectionsResponse, MetaData, Ownership, Vault } from './types';
+import { AiVaultInfo, Balance, Collection, CuratedCollectionsResponse, MetaData, Ownership, v3LocalMintSignature, Vault } from './types';
 import { BlockchainType } from './providers';
 import { EmblemVaultWalletClient, EmblemVaultWalletClientConfig } from './clients/emblemVaultWalletClient';
 import { EmblemVaultSolanaWalletClient, EmblemVaultSolanaWalletClientConfig } from './clients/emblemVaultSolanaWalletClient';
@@ -11,7 +11,8 @@ export declare class EmblemVaultSDK {
     private aiUrl;
     private aiApiKey?;
     private byoKey?;
-    private providers;
+    private providerManager;
+    version: string;
     constructor(apiKey: string, baseUrl?: string, v3Url?: string, sigUrl?: string, aiUrl?: string, aiApiKey?: string, byoKey?: string);
     /**
      * Register a blockchain provider for a specific blockchain type
@@ -54,6 +55,13 @@ export declare class EmblemVaultSDK {
      * @returns An EmblemVaultSolanaWalletClient instance.
      */
     createSolanaWalletClient(config: Omit<EmblemVaultSolanaWalletClientConfig, 'sdk'>): EmblemVaultSolanaWalletClient;
+    /**
+     * Ethereum Convenience
+     *
+     * @param config - Configuration specific to the Solana wallet client, like the walletId.
+     * @returns An EmblemVaultSolanaWalletClient instance.
+     */
+    getConnectedEthAccount(): Promise<string>;
     getCuratedAssetMetadata(projectName: string, strict?: boolean, overrideFunc?: Function | null): any[];
     getAssetMetadata(projectName: string, strict?: boolean, overrideFunc?: Function | null): any[];
     getAllCuratedAssetMetadata(overrideFunc?: Function | null): any;
@@ -80,16 +88,66 @@ export declare class EmblemVaultSDK {
     generateMintReport(address: string, hideUnMintable?: boolean, overrideFunc?: Function | null): Promise<unknown>;
     generateMigrateReport(address: string, hideUnMintable?: boolean, overrideFunc?: Function | null): Promise<unknown>;
     loadWeb3(): Promise<any | undefined>;
-    performMintChain(web3: any, tokenId: string, collectionName: string, callback?: any): Promise<{
+    /**
+     * Performs a mint operation on the blockchain.
+     * @param web3 - The web3 instance to use for the transaction.
+     * @param tokenId - The ID of the token to mint.
+     * @param callback - Optional callback function to handle the transaction.
+     * @returns A promise that resolves to the mint response.
+     * @deprecated Use `performMintHelper` instead.
+     */
+    performMintChain(web3: any, tokenId: string, callback?: any): Promise<{
         mintResponse: any;
     }>;
+    /**
+     * Stub for new mint chain helper
+     * @param amount - The amount of tokens to mint.
+     * @param callback - Optional callback function to handle the transaction.
+     * @returns A promise that resolves to the mint response.
+     */
+    performMintHelper(amount: number, callback?: any): Promise<BigNumber>;
     performClaimChain(web3: any, tokenId: string, serialNumber: any, callback?: any): Promise<any>;
+    /**
+     * Stub for new mint signature request
+     * @param web3 - The web3 instance to use for the transaction.
+     * @param tokenId - The ID of the token to mint.
+     * @param callback - Optional callback function to handle the transaction.
+     * @returns A promise that resolves to the mint signature.
+     * @deprecated Use `requestV3LocalMintSignature` instead.
+     */
     requestLocalMintSignature(web3: any, tokenId: string, callback?: any): Promise<any>;
-    requestLocalClaimSignature(web3: any, tokenId: string, serialNumber: any, callback?: any): Promise<any>;
+    /**
+     * Requests a signature for a curated minting operation. (ONLY ETHEREUM FOR NOW)
+     * @param tokenId - The ID of the token to mint.
+     * @param callback - Optional callback function to handle the transaction.
+     * @param overrideFunc - Optional function to override the default behavior.
+     * @returns A promise that resolves to the mint signature.
+     */
+    requestV3LocalMintSignature(tokenId: string, callback?: any, overrideFunc?: Function | null): Promise<v3LocalMintSignature>;
+    /**
+     * Requests a signature for a curated minting operation. (ONLY ETHEREUM FOR NOW)
+     * @param tokenId - The ID of the token to mint.
+     * @param signature - The signature for the curated minting operation.
+     * @param callback - Optional callback function to handle the transaction.
+     * @param overrideFunc - Optional function to override the default behavior.
+     * @returns A promise that resolves to the remote mint signature.
+     * @deprecated Use `requestV3RemoteMintSignature` instead.
+     */
     requestRemoteMintSignature(web3: any, tokenId: string, signature: string, callback?: any, overrideFunc?: Function | null): Promise<any>;
+    /**
+     * Requests a signature for a curated minting operation. (ONLY ETHEREUM FOR NOW)
+     * @param tokenId - The ID of the token to mint.
+     * @param signature - The signature for the curated minting operation.
+     * @param callback - Optional callback function to handle the transaction.
+     * @param overrideFunc - Optional function to override the default behavior.
+     * @returns A promise that resolves to the remote mint signature.
+     */
+    requestV3RemoteMintSignature(tokenId: string, signature: string, callback?: any, overrideFunc?: Function | null): Promise<any>;
+    requestLocalClaimSignature(web3: any, tokenId: string, serialNumber: any, callback?: any): Promise<any>;
     requestRemoteClaimToken(web3: any, tokenId: string, signature: string, callback?: any, overrideFunc?: Function | null): Promise<any>;
     requestRemoteKey(tokenId: string, jwt: any, callback?: any, overrideFunc?: Function | null): Promise<any>;
     decryptVaultKeys(tokenId: string, dkeys: any, callback?: any, overrideFunc?: Function | null): Promise<any>;
+    recoverSignerFromMessage(message: string, signature: string, overrideFunc?: Function | null): Promise<string>;
     /**
      * ** Emblem Vault AI **
      *
@@ -103,7 +161,7 @@ export declare class EmblemVaultSDK {
      * Please use alternative methods for price quotation.
      */
     getQuote(web3: any, amount: number, callback?: any): Promise<BigNumber>;
-    performMint(web3: any, quote: any, remoteMintSig: any, callback?: any): Promise<any>;
+    performMint(web3: any, remoteMintSig: any, callback?: any): Promise<any>;
     performBurn(web3: any, tokenId: any, callback?: any): Promise<any>;
     contentTypeReport(url: string): Promise<unknown>;
     legacyBalanceFromContractByAddress(web3: any, address: string): Promise<number[]>;
