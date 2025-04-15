@@ -308,7 +308,7 @@ export class EmblemVaultSDK {
         return new Promise(async (resolve, reject) => {
             try {
                 vaults.forEach(async (vault: any) => {
-                    if (vault.targetContract) {                        
+                    if (vault.targetContract) {
                         let targetVault: any = overrideFunc? await overrideFunc(this.apiKey, {name: vault.targetContract.name}): await this.fetchCuratedContractByName(vault.targetContract.name, curated);
                         let balance = vault.balances && vault.balances.length > 0 ? vault.balances : vault.ownership && vault.ownership.balances && vault.ownership.balances.length > 0? vault.ownership.balances: []
                         let allowed = targetVault.allowed(balance, targetVault)
@@ -409,7 +409,9 @@ export class EmblemVaultSDK {
      * @returns A promise that resolves to the mint response.
      */
     async performMintHelper( amount: number, callback?: any): Promise<BigNumber> {
-        throw new Error('Not implemented');
+        const v3LocalMintSignature = await this.requestV3LocalMintSignature(amount.toString(), callback);
+        const v3RemoteMintSignature = await this.requestV3RemoteMintSignature(v3LocalMintSignature.signature, callback);
+        return BigNumber.from(v3RemoteMintSignature);
     }
 
     async performClaimChain(web3: any, tokenId: string, serialNumber: any, callback: any = null) {
@@ -491,8 +493,8 @@ export class EmblemVaultSDK {
     async requestV3RemoteMintSignature(tokenId: string, signature: string, callback: any = null, overrideFunc: Function | null = null) {
         if (callback) { callback('requesting Remote Mint signature')}  
         const chainId = (await this.getOrDetectProvider('ethereum')).eth.getChainId();
-        let url = `${this.baseUrl}/V3-mint-curated`;
-        const mintRequestBody = {method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString()};
+        let url = `${this.baseUrl}/mint-curated`;
+        const mintRequestBody = {method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString(), enhanced: true};
         let remoteMintResponse = overrideFunc? await overrideFunc(url, this.apiKey, 'POST', mintRequestBody): await fetchData(url, this.apiKey, 'POST', mintRequestBody);
         if (remoteMintResponse.error) {
             throw new Error(remoteMintResponse.error)

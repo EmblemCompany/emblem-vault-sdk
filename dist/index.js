@@ -17,7 +17,7 @@ const providers_1 = require("./providers");
 const ProviderManager_1 = require("./providers/ProviderManager");
 const emblemVaultWalletClient_1 = require("./clients/emblemVaultWalletClient");
 const emblemVaultSolanaWalletClient_1 = require("./clients/emblemVaultSolanaWalletClient");
-const SDK_VERSION = '__SDK_VERSION__';
+const SDK_VERSION = '3.0.0-experimental';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl, v3Url, sigUrl, aiUrl, aiApiKey, byoKey) {
         this.apiKey = apiKey;
@@ -536,8 +536,8 @@ class EmblemVaultSDK {
                 callback('requesting Remote Mint signature');
             }
             const chainId = (yield this.getOrDetectProvider('ethereum')).eth.getChainId();
-            let url = `${this.baseUrl}/V3-mint-curated`;
-            const mintRequestBody = { method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString() };
+            let url = `${this.baseUrl}/mint-curated`;
+            const mintRequestBody = { method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString(), enhanced: true };
             let remoteMintResponse = overrideFunc ? yield overrideFunc(url, this.apiKey, 'POST', mintRequestBody) : yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', mintRequestBody);
             if (remoteMintResponse.error) {
                 throw new Error(remoteMintResponse.error);
