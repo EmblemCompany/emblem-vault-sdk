@@ -435,7 +435,9 @@ class EmblemVaultSDK {
      */
     performMintHelper(amount, callback) {
         return __awaiter(this, void 0, void 0, function* () {
-            throw new Error('Not implemented');
+            const v3LocalMintSignature = yield this.requestV3LocalMintSignature(amount.toString(), callback);
+            const v3RemoteMintSignature = yield this.requestV3RemoteMintSignature(v3LocalMintSignature.signature, callback);
+            return bignumber_1.BigNumber.from(v3RemoteMintSignature);
         });
     }
     performClaimChain(web3_1, tokenId_1, serialNumber_1) {
