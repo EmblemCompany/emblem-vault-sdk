@@ -181,6 +181,12 @@ export class EmblemVaultSDK {
         return projects
     }
 
+    async getBalanceCheckers(overrideFunc: Function | null = null) {
+        let url = `${this.v3Url}/balanceCheckers`;
+        const balanceCheckers = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : await fetchData(url, this.apiKey);
+        return balanceCheckers
+    }
+
     // ** Curated **
     //
     async fetchCuratedContracts(hideUnMintable: boolean = false, overrideFunc: Function | null = null): Promise<CuratedCollectionsResponse> {

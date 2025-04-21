@@ -291,32 +291,24 @@ export function generateTemplate(record: any) {
          * @param {function} - msgCallback should be a function that takes a string message
          */
         allowed: (data: any[], _this: any, msgCallback: any = null) => {
-            if (recordName == "Embels"){
-                return true
-            }
-
-            if ((!data || data.length == 0) ) {
+            data = data && _this.filterNativeBalances({balances: data}, _this)
+            if (!data || data.length == 0) {
                 return false
             }
-
             let allowed = false
             let firstAsset = data[0]
             let assetName = firstAsset?.name ? firstAsset.name : ""
             let message = null
             if (recordName == "Filthy Fiat") {
-                data = _this.filterNativeBalances({balances: data}, _this)
-                allowed = data[0].project == recordName
+                allowed = firstAsset.project == recordName
             }
             else if (recordName == "Cursed Ordinal") {
-                if (data && data.length > 0) {
-                    let allowedCoin = firstAsset.content_type != "application/json" && firstAsset.coin == "cursedordinalsbtc"
-                    let pieces = assetName.split(' ')
-                    let allowedName = assetName.includes(recordName) && pieces.length === 3 && Number(pieces.reverse()[0]) < 0
-                    allowed = allowedCoin && allowedName
-                }
+                let allowedCoin = firstAsset.content_type != "application/json" && firstAsset.coin == "cursedordinalsbtc"
+                let pieces = assetName.split(' ')
+                let allowedName = assetName.includes(recordName) && pieces.length === 3 && Number(pieces.reverse()[0]) < 0
+                allowed = allowedCoin && allowedName
             } else if (recordName == "BitcoinOrdinals") {
-                data = _this.filterNativeBalances({balances: data}, _this)
-                allowed = data && data.length > 0 && data[0].coin == _this.collectionChain.toLowerCase()
+                allowed = firstAsset.coin == _this.collectionChain.toLowerCase()
             } else if (recordName == "Ethscription") {
                 allowed = firstAsset.coin == recordName.toLowerCase()
             } else if (balanceQty && balanceQty > 0) { // $ORDI, $OXBT
@@ -328,27 +320,21 @@ export function generateTemplate(record: any) {
                 let allowedName = assetName.toLowerCase().includes("stamp")
                 const hasProject = !!firstAsset.project;
                 const isValidCoin = record.nativeAssets.includes(firstAsset.coin);
-                const isValidProject = hasProject && 
-                    (recordName.toLowerCase() === firstAsset.project.toLowerCase() || 
-                     firstAsset.project.toLowerCase() === "stampunks");
-                
+                const isValidProject = hasProject && (recordName.toLowerCase() === firstAsset.project.toLowerCase() || firstAsset.project.toLowerCase() === "stampunks");
                 allowed = allowedName && hasProject && isValidCoin && isValidProject;
             } else if (recordName == "EmblemOpen") {
                 allowed = true
             } else if (recordName == "Bells") {
-                allowed = assetName == "Bel" && firstAsset.balance > 0 && Number.isInteger(data[0].balance)
+                allowed = assetName == "Bel" && firstAsset.balance > 0 && Number.isInteger(firstAsset.balance)
             } else if (recordName == "Namecoin") {
-                allowed = record.nativeAssets.includes(data[0].coin)
+                allowed = record.nativeAssets.includes(firstAsset.coin)
             } else if (recordName == "Embels") {
                 allowed = _this.name.toLowerCase() == recordName.toLowerCase()
                 if (allowed && firstAsset.coin) {
-                    allowed = _this.nativeAssets.includes(data[0].coin)
+                    allowed = _this.nativeAssets.includes(firstAsset.coin)
                 }
             } else if (recordName == "Bitcoin DeGods") {
                 allowed = firstAsset.coin == "ordinalsbtc" && firstAsset.balance == 1 && firstAsset.project == "DeGods"
-            } else if (recordName == "dot_id" || recordName == "dot_bit" || recordName == "Twitter Eggs" || recordName == "Blockhead" || recordName == "punycodes") {
-                data = _this.filterNativeBalances({balances: data}, _this)
-                allowed = data[0].project == recordName
             } else if (PROJECTS_DATA.includes(recordName)) { // XCP
                 allowed = !!NFT_DATA[assetName] &&
                     NFT_DATA[assetName]["projectName"].toLowerCase() == recordName.toLowerCase() &&
@@ -362,12 +348,9 @@ export function generateTemplate(record: any) {
                 let possibleBalances = [5000, 50000, 500000]
                 let covalAssets = data.filter((item: { name: string; }) => item.name == "Circuits of Value")
                 let covalTotalBalance = covalAssets.reduce((acc: number, item: { balance: number; }) => acc + item.balance, 0)
-                allowed = possibleBalances.includes(covalTotalBalance) || false 
+                allowed = possibleBalances.includes(covalTotalBalance) || false
                 message = !allowed ? `Load vault with 5000, 50000, or 500000 Circuits of Value` : message
             } else if (_this.vaultCollectionType && _this.vaultCollectionType == "collection") {
-                if (recordName == "Bitcoin Punks") {
-                    firstAsset = _this.filterNativeBalances({balances: data}, _this)[0]
-                }
                 const allowedChain = firstAsset.coin.toLowerCase() == _this.collectionChain.toLowerCase()
                 if(!allowedChain) {
                     message = `Found ${firstAsset.coin} asset, expected ${_this.collectionChain} asset.`
@@ -379,10 +362,8 @@ export function generateTemplate(record: any) {
                 }
                 allowed = allowedChain && allowedProject
             } else if(_this) {
-                data = _this.filterNativeBalances({balances: data}, _this)
-                allowed = data[0].project == recordName
+                allowed = firstAsset.project == recordName
             }
-
             if (message && msgCallback) {
                 msgCallback(message)
             }

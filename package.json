@@ -53,6 +53,7 @@
     "crypto-js": "^4.2.0",
     "ethereumjs-util": "^7.1.5",
     "install": "^0.13.0",
+    "json-rules-engine": "^7.3.1",
     "npm": "^10.4.0",
     "sats-connect": "^1.4.1",
     "tiny-secp256k1": "^2.2.3",

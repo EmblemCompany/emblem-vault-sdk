@@ -173,6 +173,13 @@ class EmblemVaultSDK {
         const projects = (0, utils_1.metadataAllProjects)(NFT_DATA_ARR);
         return projects;
     }
+    getBalanceCheckers() {
+        return __awaiter(this, arguments, void 0, function* (overrideFunc = null) {
+            let url = `${this.v3Url}/balanceCheckers`;
+            const balanceCheckers = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : yield (0, utils_1.fetchData)(url, this.apiKey);
+            return balanceCheckers;
+        });
+    }
     // ** Curated **
     //
     fetchCuratedContracts() {
@@ -435,7 +442,9 @@ class EmblemVaultSDK {
      */
     performMintHelper(amount, callback) {
         return __awaiter(this, void 0, void 0, function* () {
-            throw new Error('Not implemented');
+            const v3LocalMintSignature = yield this.requestV3LocalMintSignature(amount.toString(), callback);
+            const v3RemoteMintSignature = yield this.requestV3RemoteMintSignature(v3LocalMintSignature.signature, callback);
+            return bignumber_1.BigNumber.from(v3RemoteMintSignature);
         });
     }
     performClaimChain(web3_1, tokenId_1, serialNumber_1) {
