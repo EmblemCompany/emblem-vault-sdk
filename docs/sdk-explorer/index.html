@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emblem Vault SDK Explorer</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --error-color: #e74c3c;
+            --background-color: #f8f9fa;
+        }
+
+        .method-list {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .method-card {
+            transition: all 0.2s ease;
+            background-color: white;
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .method-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .method-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e1e1e1;
+        }
+
+        .method-name {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .method-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0.5rem 0;
+            line-height: 1.4;
+        }
+
+        .method-params {
+            margin: 1rem 0;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .method-return {
+            color: #6c5ce7;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .method-example {
+            margin-top: 1rem;
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+
+        .method-example pre {
+            margin: 0;
+            padding: 0;
+        }
+
+        .method-example code {
+            font-size: 0.85rem;
+        }
+
+        .param-type {
+            color: #6c5ce7;
+            font-size: 0.85rem;
+        }
+
+        .param-description {
+            color: #666;
+            font-size: 0.85rem;
+            margin-left: 1rem;
+        }
+
+        .param-optional {
+            color: #e17055;
+            font-size: 0.85rem;
+        }
+
+        .param-default {
+            color: #00b894;
+            font-size: 0.85rem;
+        }
+
+        .param-input {
+            transition: all 0.2s ease;
+        }
+
+        .param-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .result-panel {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .copy-button {
+            transition: all 0.2s ease;
+        }
+
+        .copy-button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .error-message {
+            background-color: var(--error-color);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Emblem Vault SDK Explorer</h1>
+            <div class="flex space-x-4">
+                <input type="text" id="apiKey" placeholder="Enter API Key" class="flex-1 p-2 border rounded param-input" />
+                <button id="connectSDK" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">Connect SDK</button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Method List -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold mb-4">Methods</h2>
+                <div class="mb-4">
+                    <input type="text" id="methodSearch" placeholder="Search methods..." class="w-full p-2 border rounded param-input" />
+                </div>
+                <div id="methodList" class="method-list space-y-4"></div>
+            </div>
+
+            <!-- Parameter Input -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold mb-4">Parameters</h2>
+                <div id="parameterForm" class="space-y-4">
+                    <p class="text-gray-500">Select a method to view parameters</p>
+                </div>
+                <button id="executeMethod" class="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors" disabled>Execute Method</button>
+            </div>
+
+            <!-- Results -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-lg font-medium mb-4">Results</h2>
+                <div id="resultPanel" class="bg-gray-50 p-4 rounded min-h-[200px] mb-4">
+                    <div class="text-gray-500">Execute a method to see results</div>
+                </div>
+                <div class="flex space-x-2">
+                    <button id="copyResult" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        Copy Result
+                    </button>
+                    <button id="clearResults" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">
+                        Clear Results
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-json.min.js"></script>
+    <script src="/dist/bundle.js"></script>
+    <script src="./sdk-explorer.js"></script>
+</body>
+</html>
