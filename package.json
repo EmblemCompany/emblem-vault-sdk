@@ -30,6 +30,7 @@
     "@types/sinon": "^17.0.4",
     "browserify": "^17.0.1",
     "chai": "^4.5.0",
+    "express": "^5.1.0",
     "mocha": "^11.1.0",
     "nyc": "^17.1.0",
     "onchange": "^7.1.0",
@@ -37,7 +38,7 @@
     "sinon": "^17.0.1",
     "ts-node": "^10.9.2",
     "tsify": "^5.0.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.8.3"
   },
   "dependencies": {
     "@bitcoin-js/tiny-secp256k1-asmjs": "^2.2.3",
