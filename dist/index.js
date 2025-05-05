@@ -17,7 +17,7 @@ const providers_1 = require("./providers");
 const ProviderManager_1 = require("./providers/ProviderManager");
 const emblemVaultWalletClient_1 = require("./clients/emblemVaultWalletClient");
 const emblemVaultSolanaWalletClient_1 = require("./clients/emblemVaultSolanaWalletClient");
-const SDK_VERSION = '3.0.0-experimental';
+const SDK_VERSION = '3.0.1-experimental';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl, v3Url, sigUrl, aiUrl, aiApiKey, byoKey) {
         this.apiKey = apiKey;
@@ -175,9 +175,16 @@ class EmblemVaultSDK {
     }
     getBalanceCheckers() {
         return __awaiter(this, arguments, void 0, function* (overrideFunc = null) {
-            let url = `${this.v3Url}/balanceCheckers`;
+            let url = `${this.v3Url}/v3/balanceCheckers`;
             const balanceCheckers = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : yield (0, utils_1.fetchData)(url, this.apiKey);
             return balanceCheckers;
+        });
+    }
+    checkBalanceAtAddress(address_1, symbol_1) {
+        return __awaiter(this, arguments, void 0, function* (address, symbol, overrideFunc = null) {
+            let url = `${this.v3Url}/balance/${symbol}/${address}`;
+            const balance = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : yield (0, utils_1.fetchData)(url, this.apiKey);
+            return balance;
         });
     }
     // ** Curated **

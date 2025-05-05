@@ -182,9 +182,15 @@ export class EmblemVaultSDK {
     }
 
     async getBalanceCheckers(overrideFunc: Function | null = null) {
-        let url = `${this.v3Url}/balanceCheckers`;
+        let url = `${this.v3Url}/v3/balanceCheckers`;
         const balanceCheckers = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : await fetchData(url, this.apiKey);
         return balanceCheckers
+    }
+
+    async checkBalanceAtAddress(address: string, symbol: string, overrideFunc: Function | null = null) {
+        let url = `${this.v3Url}/balance/${symbol}/${address}`;
+        const balance = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : await fetchData(url, this.apiKey);
+        return balance
     }
 
     // ** Curated **

@@ -77,6 +77,7 @@ export declare class EmblemVaultSDK {
     getInventoryAssetMetadataVaultedProjectList(overrideFunc?: Function | null): Promise<any>;
     getAllCuratedProjects(overrideFunc?: Function | null): any[];
     getBalanceCheckers(overrideFunc?: Function | null): Promise<any>;
+    checkBalanceAtAddress(address: string, symbol: string, overrideFunc?: Function | null): Promise<any>;
     fetchCuratedContracts(hideUnMintable?: boolean, overrideFunc?: Function | null): Promise<CuratedCollectionsResponse>;
     fetchCuratedContractByName(name: string, contracts?: any, overrideFunc?: Function | null): Promise<Collection | null>;
     createCuratedVault(template: any, callback?: any, overrideFunc?: Function | null): Promise<Vault>;
