@@ -209,6 +209,32 @@ class SDKExplorer {
         }, {});
     }
 
+    getFunctionSource(method) {
+        // Get the actual method from the SDK instance
+        const sdkMethod = this.sdk[method.name];
+        if (!sdkMethod) return '// Method not found';
+        
+        // Get the raw source and clean it up
+        const source = sdkMethod.toString()
+            .replace(/\\n/g, '\n') // Fix newlines
+            .replace(/\\"/g, '"'); // Fix quotes
+            
+        return source;
+    }
+
+    generateFunctionDefinition(method) {
+        // Build a clean function signature from metadata
+        const params = this.extractParameters(method);
+        const paramStr = params.map(p => 
+            `${p.name}${p.optional ? '?' : ''}: ${p.type}`
+        ).join(', ');
+        
+        // Generate TypeScript-style function definition
+        return `async ${method.name}(${paramStr}): Promise<${method.returnType || 'any'}> {
+    // Implementation hidden
+}`;
+    }
+
     generateCodeExample(method) {
         const params = method.parameters.map(p => {
             if (p.type.toLowerCase().includes('string')) {
@@ -325,6 +351,14 @@ ${method.async ? '}' : ''}`;
                 ` : ''}
                 <div class="text-sm text-purple-600 mb-4">Returns: ${method.returnType}</div>
             </div>
+
+            <div class="mb-6">
+                <div class="section-title">Function Definition:</div>
+                <div class="function-definition">
+                    <pre><code class="language-javascript">${this.getFunctionSource(method)}</code></pre>
+                </div>
+            </div>
+
             ${method.parameters.map(param => `
                 <div class="space-y-1 mb-4">
                     <label class="block text-sm font-medium text-gray-700">
@@ -353,6 +387,7 @@ ${method.async ? '}' : ''}`;
                     `}
                 </div>
             `).join('')}
+
             <div class="mt-6">
                 <div class="text-sm font-medium text-gray-700 mb-2">Example Usage:</div>
                 <pre><code class="language-javascript">${this.generateCodeExample(method)}</code></pre>
