@@ -21,6 +21,8 @@ exports.genericGuard = genericGuard;
 exports.getQuoteContractObject = getQuoteContractObject;
 exports.getHandlerContract = getHandlerContract;
 exports.getLegacyContract = getLegacyContract;
+exports.getERC1155Contract = getERC1155Contract;
+exports.getERC721AContract = getERC721AContract;
 exports.checkContentType = checkContentType;
 exports.getTorusKeys = getTorusKeys;
 exports.decryptKeys = decryptKeys;
@@ -31,6 +33,8 @@ const metadata_json_1 = __importDefault(require("./curated/metadata.json"));
 const darkfarms_metadata_json_1 = __importDefault(require("./curated/darkfarms-metadata.json"));
 const dot_id_json_1 = __importDefault(require("./curated/dot_id.json"));
 const abi_json_1 = __importDefault(require("./abi/abi.json"));
+const erc1155Abi_json_1 = __importDefault(require("./abi/erc1155Abi.json"));
+const erc721aAbi_json_1 = __importDefault(require("./abi/erc721aAbi.json"));
 const sats_connect_1 = require("sats-connect");
 // import { phrasePathToKey } from './derive'
 exports.NFT_DATA = Object.assign(metadata_json_1.default, darkfarms_metadata_json_1.default, dot_id_json_1.default);
@@ -709,6 +713,18 @@ function getLegacyContract(web3) {
     return __awaiter(this, void 0, void 0, function* () {
         let contractAddress = '0x82c7a8f707110f5fbb16184a5933e9f78a34c6ab';
         const handlerContract = new web3.eth.Contract(abi_json_1.default.legacy, contractAddress);
+        return handlerContract;
+    });
+}
+function getERC1155Contract(web3, address) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const handlerContract = new web3.eth.Contract(erc1155Abi_json_1.default, address);
+        return handlerContract;
+    });
+}
+function getERC721AContract(web3, address) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const handlerContract = new web3.eth.Contract(erc721aAbi_json_1.default, address);
         return handlerContract;
     });
 }

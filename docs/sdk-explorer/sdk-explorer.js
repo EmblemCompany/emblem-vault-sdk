@@ -5,8 +5,77 @@ class SDKExplorer {
         this.selectedMethod = null;
         this.resultHistory = [];
         this.maxResults = 10; // Keep only last 10 results
+        this.expandedMethods = [];
+        this.savedParams = {};
+
+        // Load saved state
+        this.loadSavedState();
+
+        // Initialize UI elements
         this.setupEventListeners();
         this.setupResourceMonitor();
+    }
+
+    loadSavedState() {
+        try {
+            // Load API key
+            const apiKey = localStorage.getItem('sdkExplorer_apiKey');
+            if (apiKey) {
+                document.getElementById('apiKey').value = apiKey;
+            }
+
+            // Load expanded methods
+            this.expandedMethods = JSON.parse(localStorage.getItem('sdkExplorer_expandedMethods') || '[]');
+
+            // Load parameter values
+            this.savedParams = JSON.parse(localStorage.getItem('sdkExplorer_params') || '{}');
+
+            // Load panel sizes
+            const panelSizes = JSON.parse(localStorage.getItem('sdkExplorer_panelSizes') || '{}');
+            if (panelSizes) {
+                const panels = document.querySelectorAll('.panel');
+                panels.forEach((panel, index) => {
+                    if (panelSizes[index]) {
+                        panel.style.flex = 'none';
+                        panel.style.width = panelSizes[index] + 'px';
+                    }
+                });
+            }
+        } catch (e) {
+            console.warn('Failed to load saved state:', e);
+        }
+    }
+
+    saveState() {
+        try {
+            // Save API key
+            const apiKey = document.getElementById('apiKey').value;
+            localStorage.setItem('sdkExplorer_apiKey', apiKey);
+
+            // Save expanded methods
+            const expandedMethods = Array.from(document.querySelectorAll('.method-content.expanded'))
+                .map(el => el.closest('.method-card').dataset.methodName);
+            localStorage.setItem('sdkExplorer_expandedMethods', JSON.stringify(expandedMethods));
+
+            // Save parameter values
+            const params = {};
+            document.querySelectorAll('.param-input').forEach(input => {
+                if (input.dataset.methodName && input.dataset.paramName) {
+                    const key = `${input.dataset.methodName}_${input.dataset.paramName}`;
+                    params[key] = input.value;
+                }
+            });
+            localStorage.setItem('sdkExplorer_params', JSON.stringify(params));
+
+            // Save panel sizes
+            const panelSizes = {};
+            document.querySelectorAll('.panel').forEach((panel, index) => {
+                panelSizes[index] = panel.offsetWidth;
+            });
+            localStorage.setItem('sdkExplorer_panelSizes', JSON.stringify(panelSizes));
+        } catch (e) {
+            console.warn('Failed to save state:', e);
+        }
     }
 
     setupEventListeners() {
@@ -96,6 +165,24 @@ class SDKExplorer {
     }
 
     extractReturnType(funcStr, jsDocComment) {
+        // Try to get return type from type definition files
+        const methodName = this.selectedMethod?.name;
+        if (methodName) {
+            try {
+                const typeDefPath = '../types/index.d.ts';
+                const response = fetch(typeDefPath);
+                if (response.ok) {
+                    const content = response.text();
+                    const methodMatch = content.match(new RegExp(`${methodName}[^:]+:\\s*([^;]+);`));
+                    if (methodMatch) {
+                        return methodMatch[1].trim();
+                    }
+                }
+            } catch (e) {
+                console.warn('Failed to load type definitions:', e);
+            }
+        }
+
         // Try to get return type from JSDoc
         const returnMatch = jsDocComment.match(/@returns?\s+{([^}]+)}/);
         if (returnMatch) {
@@ -383,6 +470,8 @@ ${method.async ? '}' : ''}`;
                                class="w-full p-2 border rounded param-input"
                                placeholder="${param.defaultValue || this.getTypePlaceholder(param.type)}"
                                ${param.optional ? '' : 'required'}
+                               data-method-name="${method.name}"
+                               data-param-name="${param.name}"
                         />
                     `}
                 </div>
@@ -396,6 +485,22 @@ ${method.async ? '}' : ''}`;
         
         // Highlight code examples
         Prism.highlightAll();
+
+        // Load saved values
+        method.parameters.forEach(param => {
+            const input = form.querySelector(`input[data-method-name="${method.name}"][data-param-name="${param.name}"]`);
+            if (input) {
+                const savedKey = `${method.name}_${param.name}`;
+                if (this.savedParams && this.savedParams[savedKey]) {
+                    input.value = this.savedParams[savedKey];
+                }
+            }
+        });
+
+        // Save values on change
+        form.querySelectorAll('.param-input').forEach(input => {
+            input.addEventListener('input', () => this.saveState());
+        });
     }
 
     getTypePlaceholder(type) {
@@ -420,6 +525,12 @@ ${method.async ? '}' : ''}`;
             } catch (error) {
                 this.showError(error.message);
             }
+            return;
+        }
+
+        // Check if method requires web3 and ensure connection
+        if (this.selectedMethod.name.toLowerCase().includes('web3') && !window.web3Connected) {
+            alert('This method requires Web3. Please connect your Web3 wallet first.');
             return;
         }
 

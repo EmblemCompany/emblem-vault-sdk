@@ -17,7 +17,7 @@ const providers_1 = require("./providers");
 const ProviderManager_1 = require("./providers/ProviderManager");
 const emblemVaultWalletClient_1 = require("./clients/emblemVaultWalletClient");
 const emblemVaultSolanaWalletClient_1 = require("./clients/emblemVaultSolanaWalletClient");
-const SDK_VERSION = '3.0.1-experimental';
+const SDK_VERSION = '3.0.2-experimental';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl, v3Url, sigUrl, aiUrl, aiApiKey, byoKey) {
         this.apiKey = apiKey;
@@ -757,6 +757,42 @@ class EmblemVaultSDK {
             myLegacy.forEach((item) => __awaiter(this, void 0, void 0, function* () {
                 let meta = yield this.fetchMetadata(item.toString());
             }));
+        });
+    }
+    refreshERC1155Ownership(web3, contractAddress, address) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let erc1155Contract = yield (0, utils_1.getERC1155Contract)(web3, contractAddress);
+            let balance = yield erc1155Contract.methods.balanceOf(address).call();
+            let tokenIds = [];
+            for (let index = 0; index < balance; index++) {
+                let tokenId = yield erc1155Contract.methods.tokenOfOwnerByIndex(address, index).call();
+                tokenIds.push(Number(tokenId));
+            }
+            return tokenIds;
+        });
+    }
+    refreshERC721Ownership(web3, contractAddress, address) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let erc721Contract = yield (0, utils_1.getERC721AContract)(web3, contractAddress);
+            let balance = yield erc721Contract.methods.balanceOf(address).call();
+            let tokenIds = [];
+            for (let index = 0; index < balance; index++) {
+                let tokenId = yield erc721Contract.methods.tokenOfOwnerByIndex(address, index).call();
+                tokenIds.push(Number(tokenId));
+            }
+            return tokenIds;
+        });
+    }
+    getContractTokenIdsByTargetContractName(contractName, distinct) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let url = `${this.v3Url}/contractTokenIds/${contractName}?distinct=${distinct}`;
+            return yield (0, utils_1.fetchData)(url, this.apiKey, 'GET');
+        });
+    }
+    getTokenIdInternalTokenIdMapByTargetContractName(contractName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let url = `${this.v3Url}/tokenIdInternalTokenIdMap/${contractName}`;
+            return yield (0, utils_1.fetchData)(url, this.apiKey, 'GET');
         });
     }
     checkLiveliness(tokenId_1) {

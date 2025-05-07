@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { AiVaultInfo, Balance, Collection, CuratedCollectionsResponse, MetaData, Ownership, v3LocalMintSignature, Vault } from './types';
-import { NFT_DATA, checkContentType, decryptKeys, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getSatsConnectAddress, getTorusKeys, metadataAllProjects, metadataObj2Arr, signPSBT, templateGuard } from './utils';
+import { NFT_DATA, checkContentType, decryptKeys, fetchData, generateTemplate, genericGuard, getERC1155Contract, getERC721AContract, getHandlerContract, getLegacyContract, getQuoteContractObject, getSatsConnectAddress, getTorusKeys, metadataAllProjects, metadataObj2Arr, signPSBT, templateGuard } from './utils';
 import { generateTaprootAddressFromMnemonic, getPsbtTxnSize } from './derive';
 import { BlockchainProvider, BlockchainType, detectProviderType, EthereumProvider, Web3ProviderAdapter } from './providers';
 import { ProviderManager } from './providers/ProviderManager';
@@ -684,6 +684,38 @@ export class EmblemVaultSDK {
         myLegacy.forEach(async item=>{
             let meta = await this.fetchMetadata(item.toString())
         })
+    }
+
+    async refreshERC1155Ownership(web3: any, contractAddress: string, address: string) {
+        let erc1155Contract = await getERC1155Contract(web3, contractAddress)
+        let balance = await erc1155Contract.methods.balanceOf(address).call();
+        let tokenIds = []
+        for (let index = 0; index < balance; index++) {
+            let tokenId = await erc1155Contract.methods.tokenOfOwnerByIndex(address, index).call();
+            tokenIds.push(Number(tokenId))
+        }
+        return tokenIds
+    }
+
+    async refreshERC721Ownership(web3: any, contractAddress: string, address: string) {
+        let erc721Contract = await getERC721AContract(web3, contractAddress)
+        let balance = await erc721Contract.methods.balanceOf(address).call();
+        let tokenIds = []
+        for (let index = 0; index < balance; index++) {
+            let tokenId = await erc721Contract.methods.tokenOfOwnerByIndex(address, index).call();
+            tokenIds.push(Number(tokenId))
+        }
+        return tokenIds
+    }
+
+    async getContractTokenIdsByTargetContractName(contractName: string, distinct: boolean) {
+        let url = `${this.v3Url}/contractTokenIds/${contractName}?distinct=${distinct}`;
+        return await fetchData(url, this.apiKey, 'GET');
+    }
+
+    async getTokenIdInternalTokenIdMapByTargetContractName(contractName: string) {
+        let url = `${this.v3Url}/tokenIdInternalTokenIdMap/${contractName}`;
+        return await fetchData(url, this.apiKey, 'GET');
     }
 
     async checkLiveliness(tokenId: string, chainId: number = 1) {

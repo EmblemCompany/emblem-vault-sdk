@@ -1,6 +1,6 @@
 {
   "name": "emblem-vault-sdk",
-  "version": "3.0.1-experimental",
+  "version": "3.0.2-experimental",
   "description": "Emblem Vault Software Development Kit",
   "main": "dist/index.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "test:coverage": "nyc mocha 'test/**/*.spec.js'",
     "build": "tsc",
     "postbuild": "node ./script/version.js && mv dist/index.d.ts types/index.d.ts && mv dist/types.d.ts types/types.d.ts && mv dist/utils.d.ts types/utils.d.ts && mv dist/derive.d.ts types/derive.d.ts",
-    "bundle": "npm run build && browserify dist/index.js -o dist/bundle.js && cp dist/bundle.js docs/bundle.js",
+    "bundle": "npm run build && browserify dist/index.js -d -p [ tsify --project tsconfig.json ] | exorcist dist/bundle.js.map > dist/bundle.js && cp dist/bundle.js docs/bundle.js && cp dist/bundle.js.map docs/bundle.js.map && cp types/*.d.ts docs/",
     "watch": "onchange 'src/**/*.ts' -- npm run bundle"
   },
   "browser": {
@@ -30,6 +30,7 @@
     "@types/sinon": "^17.0.4",
     "browserify": "^17.0.1",
     "chai": "^4.5.0",
+    "exorcist": "^2.0.0",
     "express": "^5.1.0",
     "mocha": "^11.1.0",
     "nyc": "^17.1.0",

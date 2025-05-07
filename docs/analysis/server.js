@@ -3,7 +3,7 @@ const path = require('path');
 const { analyzeSDK } = require('./index.js');
 
 const app = express();
-const port = 4000;
+const port = 3000;
 
 // Serve static files from docs directory
 app.use(express.static(path.join(__dirname, '..')));

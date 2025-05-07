@@ -4,6 +4,11 @@ import metadataJson from './curated/metadata.json';
 import darkfarmsMetadataJson from './curated/darkfarms-metadata.json';
 import dot_idMetadataJson from './curated/dot_id.json';
 import abi from './abi/abi.json';
+import erc1155Abi from './abi/erc1155Abi.json';
+import erc721aAbi from './abi/erc721aAbi.json';
+import handlerAbi from './abi/handlerAbi.json';
+import quoteAbi from './abi/quoteAbi.json';
+import vaultAbi from './abi/vaultAbi.json';
 import { AddressPurpose, BitcoinNetworkType, getAddress, signTransaction } from 'sats-connect';
 // import { phrasePathToKey } from './derive'
 
@@ -657,6 +662,16 @@ export async function getHandlerContract(web3: any) {
 export async function getLegacyContract(web3: any) {
     let contractAddress = '0x82c7a8f707110f5fbb16184a5933e9f78a34c6ab'
     const handlerContract = new web3.eth.Contract(abi.legacy, contractAddress);
+    return handlerContract
+}
+
+export async function getERC1155Contract(web3: any, address: string) {
+    const handlerContract = new web3.eth.Contract(erc1155Abi, address);
+    return handlerContract
+}
+
+export async function getERC721AContract(web3: any, address: string) {
+    const handlerContract = new web3.eth.Contract(erc721aAbi, address);
     return handlerContract
 }
 
