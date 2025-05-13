@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { AiVaultInfo, Balance, Collection, CuratedCollectionsResponse, MetaData, Ownership, v3LocalMintSignature, Vault } from './types';
-import { NFT_DATA, checkContentType, decryptKeys, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getSatsConnectAddress, getTorusKeys, metadataAllProjects, metadataObj2Arr, signPSBT, templateGuard } from './utils';
+import { NFT_DATA, checkContentType, decryptKeys, fetchData, generateTemplate, genericGuard, getERC1155Contract, getERC721AContract, getHandlerContract, getLegacyContract, getQuoteContractObject, getSatsConnectAddress, getTorusKeys, metadataAllProjects, metadataObj2Arr, signPSBT, templateGuard } from './utils';
 import { generateTaprootAddressFromMnemonic, getPsbtTxnSize } from './derive';
 import { BlockchainProvider, BlockchainType, detectProviderType, EthereumProvider, Web3ProviderAdapter } from './providers';
 import { ProviderManager } from './providers/ProviderManager';
@@ -179,6 +179,18 @@ export class EmblemVaultSDK {
         const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? metadataObj2Arr(overrideFunc()) : metadataObj2Arr(NFT_DATA)
         const projects = metadataAllProjects(NFT_DATA_ARR)
         return projects
+    }
+
+    async getBalanceCheckers(overrideFunc: Function | null = null) {
+        let url = `${this.v3Url}/v3/balanceCheckers`;
+        const balanceCheckers = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : await fetchData(url, this.apiKey);
+        return balanceCheckers
+    }
+
+    async checkBalanceAtAddress(address: string, symbol: string, overrideFunc: Function | null = null) {
+        let url = `${this.v3Url}/balance/${symbol}/${address}`;
+        const balance = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : await fetchData(url, this.apiKey);
+        return balance
     }
 
     // ** Curated **
@@ -541,6 +553,17 @@ export class EmblemVaultSDK {
         return overrideFunc? await overrideFunc(message, signature): await provider.eth.personal.recover(message, signature);
     }
 
+    // upsert curated collection
+    async upsertCuratedCollection(collection: any, overrideFunc: Function | null = null) {
+        const url = `${this.v3Url}/v3/upsertCuratedCollection`;
+        return overrideFunc? await overrideFunc(this.apiKey, collection): await fetchData(url, this.apiKey, 'POST', collection);
+    }
+
+    async deleteCuratedCollection(projectId: string, overrideFunc: Function | null = null) {
+        const url = `${this.v3Url}/v3/deleteCuratedCollection`;
+        return overrideFunc? await overrideFunc(this.apiKey, {id: projectId}): await fetchData(url, this.apiKey, 'DELETE', {id: projectId});
+    }
+
     /**
      * ** Emblem Vault AI **
      *
@@ -672,6 +695,38 @@ export class EmblemVaultSDK {
         myLegacy.forEach(async item=>{
             let meta = await this.fetchMetadata(item.toString())
         })
+    }
+
+    async refreshERC1155Ownership(web3: any, contractAddress: string, address: string) {
+        let erc1155Contract = await getERC1155Contract(web3, contractAddress)
+        let balance = await erc1155Contract.methods.balanceOf(address).call();
+        let tokenIds = []
+        for (let index = 0; index < balance; index++) {
+            let tokenId = await erc1155Contract.methods.tokenOfOwnerByIndex(address, index).call();
+            tokenIds.push(Number(tokenId))
+        }
+        return tokenIds
+    }
+
+    async refreshERC721Ownership(web3: any, contractAddress: string, address: string) {
+        let erc721Contract = await getERC721AContract(web3, contractAddress)
+        let balance = await erc721Contract.methods.balanceOf(address).call();
+        let tokenIds = []
+        for (let index = 0; index < balance; index++) {
+            let tokenId = await erc721Contract.methods.tokenOfOwnerByIndex(address, index).call();
+            tokenIds.push(Number(tokenId))
+        }
+        return tokenIds
+    }
+
+    async getContractTokenIdsByTargetContractName(contractName: string, distinct: boolean) {
+        let url = `${this.v3Url}/contractTokenIds/${contractName}?distinct=${distinct}`;
+        return await fetchData(url, this.apiKey, 'GET');
+    }
+
+    async getTokenIdInternalTokenIdMapByTargetContractName(contractName: string) {
+        let url = `${this.v3Url}/tokenIdInternalTokenIdMap/${contractName}`;
+        return await fetchData(url, this.apiKey, 'GET');
     }
 
     async checkLiveliness(tokenId: string, chainId: number = 1) {

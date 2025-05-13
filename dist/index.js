@@ -17,7 +17,7 @@ const providers_1 = require("./providers");
 const ProviderManager_1 = require("./providers/ProviderManager");
 const emblemVaultWalletClient_1 = require("./clients/emblemVaultWalletClient");
 const emblemVaultSolanaWalletClient_1 = require("./clients/emblemVaultSolanaWalletClient");
-const SDK_VERSION = '3.0.0-experimental';
+const SDK_VERSION = '3.0.3-experimental';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl, v3Url, sigUrl, aiUrl, aiApiKey, byoKey) {
         this.apiKey = apiKey;
@@ -172,6 +172,20 @@ class EmblemVaultSDK {
         const NFT_DATA_ARR = overrideFunc && typeof overrideFunc === 'function' ? (0, utils_1.metadataObj2Arr)(overrideFunc()) : (0, utils_1.metadataObj2Arr)(utils_1.NFT_DATA);
         const projects = (0, utils_1.metadataAllProjects)(NFT_DATA_ARR);
         return projects;
+    }
+    getBalanceCheckers() {
+        return __awaiter(this, arguments, void 0, function* (overrideFunc = null) {
+            let url = `${this.v3Url}/v3/balanceCheckers`;
+            const balanceCheckers = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : yield (0, utils_1.fetchData)(url, this.apiKey);
+            return balanceCheckers;
+        });
+    }
+    checkBalanceAtAddress(address_1, symbol_1) {
+        return __awaiter(this, arguments, void 0, function* (address, symbol, overrideFunc = null) {
+            let url = `${this.v3Url}/balance/${symbol}/${address}`;
+            const balance = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : yield (0, utils_1.fetchData)(url, this.apiKey);
+            return balance;
+        });
     }
     // ** Curated **
     //
@@ -609,6 +623,19 @@ class EmblemVaultSDK {
             return overrideFunc ? yield overrideFunc(message, signature) : yield provider.eth.personal.recover(message, signature);
         });
     }
+    // upsert curated collection
+    upsertCuratedCollection(collection_1) {
+        return __awaiter(this, arguments, void 0, function* (collection, overrideFunc = null) {
+            const url = `${this.v3Url}/v3/upsertCuratedCollection`;
+            return overrideFunc ? yield overrideFunc(this.apiKey, collection) : yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', collection);
+        });
+    }
+    deleteCuratedCollection(projectId_1) {
+        return __awaiter(this, arguments, void 0, function* (projectId, overrideFunc = null) {
+            const url = `${this.v3Url}/v3/deleteCuratedCollection`;
+            return overrideFunc ? yield overrideFunc(this.apiKey, { id: projectId }) : yield (0, utils_1.fetchData)(url, this.apiKey, 'DELETE', { id: projectId });
+        });
+    }
     /**
      * ** Emblem Vault AI **
      *
@@ -743,6 +770,42 @@ class EmblemVaultSDK {
             myLegacy.forEach((item) => __awaiter(this, void 0, void 0, function* () {
                 let meta = yield this.fetchMetadata(item.toString());
             }));
+        });
+    }
+    refreshERC1155Ownership(web3, contractAddress, address) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let erc1155Contract = yield (0, utils_1.getERC1155Contract)(web3, contractAddress);
+            let balance = yield erc1155Contract.methods.balanceOf(address).call();
+            let tokenIds = [];
+            for (let index = 0; index < balance; index++) {
+                let tokenId = yield erc1155Contract.methods.tokenOfOwnerByIndex(address, index).call();
+                tokenIds.push(Number(tokenId));
+            }
+            return tokenIds;
+        });
+    }
+    refreshERC721Ownership(web3, contractAddress, address) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let erc721Contract = yield (0, utils_1.getERC721AContract)(web3, contractAddress);
+            let balance = yield erc721Contract.methods.balanceOf(address).call();
+            let tokenIds = [];
+            for (let index = 0; index < balance; index++) {
+                let tokenId = yield erc721Contract.methods.tokenOfOwnerByIndex(address, index).call();
+                tokenIds.push(Number(tokenId));
+            }
+            return tokenIds;
+        });
+    }
+    getContractTokenIdsByTargetContractName(contractName, distinct) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let url = `${this.v3Url}/contractTokenIds/${contractName}?distinct=${distinct}`;
+            return yield (0, utils_1.fetchData)(url, this.apiKey, 'GET');
+        });
+    }
+    getTokenIdInternalTokenIdMapByTargetContractName(contractName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let url = `${this.v3Url}/tokenIdInternalTokenIdMap/${contractName}`;
+            return yield (0, utils_1.fetchData)(url, this.apiKey, 'GET');
         });
     }
     checkLiveliness(tokenId_1) {

@@ -76,6 +76,8 @@ export declare class EmblemVaultSDK {
     getInventoryAssetMetadata(asset_name: string, overrideFunc?: Function | null): Promise<any>;
     getInventoryAssetMetadataVaultedProjectList(overrideFunc?: Function | null): Promise<any>;
     getAllCuratedProjects(overrideFunc?: Function | null): any[];
+    getBalanceCheckers(overrideFunc?: Function | null): Promise<any>;
+    checkBalanceAtAddress(address: string, symbol: string, overrideFunc?: Function | null): Promise<any>;
     fetchCuratedContracts(hideUnMintable?: boolean, overrideFunc?: Function | null): Promise<CuratedCollectionsResponse>;
     fetchCuratedContractByName(name: string, contracts?: any, overrideFunc?: Function | null): Promise<Collection | null>;
     createCuratedVault(template: any, callback?: any, overrideFunc?: Function | null): Promise<Vault>;
@@ -148,6 +150,8 @@ export declare class EmblemVaultSDK {
     requestRemoteKey(tokenId: string, jwt: any, callback?: any, overrideFunc?: Function | null): Promise<any>;
     decryptVaultKeys(tokenId: string, dkeys: any, callback?: any, overrideFunc?: Function | null): Promise<any>;
     recoverSignerFromMessage(message: string, signature: string, overrideFunc?: Function | null): Promise<string>;
+    upsertCuratedCollection(collection: any, overrideFunc?: Function | null): Promise<any>;
+    deleteCuratedCollection(projectId: string, overrideFunc?: Function | null): Promise<any>;
     /**
      * ** Emblem Vault AI **
      *
@@ -166,6 +170,10 @@ export declare class EmblemVaultSDK {
     contentTypeReport(url: string): Promise<unknown>;
     legacyBalanceFromContractByAddress(web3: any, address: string): Promise<number[]>;
     refreshLegacyOwnership(web3: any, address: string): Promise<void>;
+    refreshERC1155Ownership(web3: any, contractAddress: string, address: string): Promise<number[]>;
+    refreshERC721Ownership(web3: any, contractAddress: string, address: string): Promise<number[]>;
+    getContractTokenIdsByTargetContractName(contractName: string, distinct: boolean): Promise<any>;
+    getTokenIdInternalTokenIdMapByTargetContractName(contractName: string): Promise<any>;
     checkLiveliness(tokenId: string, chainId?: number): Promise<any>;
     checkLivelinessBulk(tokenIds: string[], chainId?: number): Promise<any[]>;
     sweepVaultUsingPhrase(phrase: string, satsPerByte?: number, broadcast?: boolean): Promise<unknown>;

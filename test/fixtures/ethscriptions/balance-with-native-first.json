@@ -6,6 +6,13 @@
     "balance": 1
   },
   {
+    "coin": "dgb",
+    "name": "Digibyte",
+    "balance": 2443.03413033,
+    "price": 19.221792537436443,
+    "image": "https://emblem.finance/dgb.png"
+  },
+  {
     "coin": "ethscription",
     "name": "Ethscription #7104",
     "balance": 1,

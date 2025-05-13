@@ -21,6 +21,8 @@ exports.genericGuard = genericGuard;
 exports.getQuoteContractObject = getQuoteContractObject;
 exports.getHandlerContract = getHandlerContract;
 exports.getLegacyContract = getLegacyContract;
+exports.getERC1155Contract = getERC1155Contract;
+exports.getERC721AContract = getERC721AContract;
 exports.checkContentType = checkContentType;
 exports.getTorusKeys = getTorusKeys;
 exports.decryptKeys = decryptKeys;
@@ -31,6 +33,8 @@ const metadata_json_1 = __importDefault(require("./curated/metadata.json"));
 const darkfarms_metadata_json_1 = __importDefault(require("./curated/darkfarms-metadata.json"));
 const dot_id_json_1 = __importDefault(require("./curated/dot_id.json"));
 const abi_json_1 = __importDefault(require("./abi/abi.json"));
+const erc1155Abi_json_1 = __importDefault(require("./abi/erc1155Abi.json"));
+const erc721aAbi_json_1 = __importDefault(require("./abi/erc721aAbi.json"));
 const sats_connect_1 = require("sats-connect");
 // import { phrasePathToKey } from './derive'
 exports.NFT_DATA = Object.assign(metadata_json_1.default, darkfarms_metadata_json_1.default, dot_id_json_1.default);
@@ -325,10 +329,8 @@ function generateTemplate(record) {
          * @param {function} - msgCallback should be a function that takes a string message
          */
         allowed: (data, _this, msgCallback = null) => {
-            if (recordName == "Embels") {
-                return true;
-            }
-            if ((!data || data.length == 0)) {
+            data = data && _this.filterNativeBalances({ balances: data }, _this);
+            if (!data || data.length == 0) {
                 return false;
             }
             let allowed = false;
@@ -336,20 +338,16 @@ function generateTemplate(record) {
             let assetName = (firstAsset === null || firstAsset === void 0 ? void 0 : firstAsset.name) ? firstAsset.name : "";
             let message = null;
             if (recordName == "Filthy Fiat") {
-                data = _this.filterNativeBalances({ balances: data }, _this);
-                allowed = data[0].project == recordName;
+                allowed = firstAsset.project == recordName;
             }
             else if (recordName == "Cursed Ordinal") {
-                if (data && data.length > 0) {
-                    let allowedCoin = firstAsset.content_type != "application/json" && firstAsset.coin == "cursedordinalsbtc";
-                    let pieces = assetName.split(' ');
-                    let allowedName = assetName.includes(recordName) && pieces.length === 3 && Number(pieces.reverse()[0]) < 0;
-                    allowed = allowedCoin && allowedName;
-                }
+                let allowedCoin = firstAsset.content_type != "application/json" && firstAsset.coin == "cursedordinalsbtc";
+                let pieces = assetName.split(' ');
+                let allowedName = assetName.includes(recordName) && pieces.length === 3 && Number(pieces.reverse()[0]) < 0;
+                allowed = allowedCoin && allowedName;
             }
             else if (recordName == "BitcoinOrdinals") {
-                data = _this.filterNativeBalances({ balances: data }, _this);
-                allowed = data && data.length > 0 && data[0].coin == _this.collectionChain.toLowerCase();
+                allowed = firstAsset.coin == _this.collectionChain.toLowerCase();
             }
             else if (recordName == "Ethscription") {
                 allowed = firstAsset.coin == recordName.toLowerCase();
@@ -364,32 +362,26 @@ function generateTemplate(record) {
                 let allowedName = assetName.toLowerCase().includes("stamp");
                 const hasProject = !!firstAsset.project;
                 const isValidCoin = record.nativeAssets.includes(firstAsset.coin);
-                const isValidProject = hasProject &&
-                    (recordName.toLowerCase() === firstAsset.project.toLowerCase() ||
-                        firstAsset.project.toLowerCase() === "stampunks");
+                const isValidProject = hasProject && (recordName.toLowerCase() === firstAsset.project.toLowerCase() || firstAsset.project.toLowerCase() === "stampunks");
                 allowed = allowedName && hasProject && isValidCoin && isValidProject;
             }
             else if (recordName == "EmblemOpen") {
                 allowed = true;
             }
             else if (recordName == "Bells") {
-                allowed = assetName == "Bel" && firstAsset.balance > 0 && Number.isInteger(data[0].balance);
+                allowed = assetName == "Bel" && firstAsset.balance > 0 && Number.isInteger(firstAsset.balance);
             }
             else if (recordName == "Namecoin") {
-                allowed = record.nativeAssets.includes(data[0].coin);
+                allowed = record.nativeAssets.includes(firstAsset.coin);
             }
             else if (recordName == "Embels") {
                 allowed = _this.name.toLowerCase() == recordName.toLowerCase();
                 if (allowed && firstAsset.coin) {
-                    allowed = _this.nativeAssets.includes(data[0].coin);
+                    allowed = _this.nativeAssets.includes(firstAsset.coin);
                 }
             }
             else if (recordName == "Bitcoin DeGods") {
                 allowed = firstAsset.coin == "ordinalsbtc" && firstAsset.balance == 1 && firstAsset.project == "DeGods";
-            }
-            else if (recordName == "dot_id" || recordName == "dot_bit" || recordName == "Twitter Eggs" || recordName == "Blockhead" || recordName == "punycodes") {
-                data = _this.filterNativeBalances({ balances: data }, _this);
-                allowed = data[0].project == recordName;
             }
             else if (PROJECTS_DATA.includes(recordName)) { // XCP
                 allowed = !!exports.NFT_DATA[assetName] &&
@@ -410,9 +402,6 @@ function generateTemplate(record) {
                 message = !allowed ? `Load vault with 5000, 50000, or 500000 Circuits of Value` : message;
             }
             else if (_this.vaultCollectionType && _this.vaultCollectionType == "collection") {
-                if (recordName == "Bitcoin Punks") {
-                    firstAsset = _this.filterNativeBalances({ balances: data }, _this)[0];
-                }
                 const allowedChain = firstAsset.coin.toLowerCase() == _this.collectionChain.toLowerCase();
                 if (!allowedChain) {
                     message = `Found ${firstAsset.coin} asset, expected ${_this.collectionChain} asset.`;
@@ -425,8 +414,7 @@ function generateTemplate(record) {
                 allowed = allowedChain && allowedProject;
             }
             else if (_this) {
-                data = _this.filterNativeBalances({ balances: data }, _this);
-                allowed = data[0].project == recordName;
+                allowed = firstAsset.project == recordName;
             }
             if (message && msgCallback) {
                 msgCallback(message);
@@ -725,6 +713,18 @@ function getLegacyContract(web3) {
     return __awaiter(this, void 0, void 0, function* () {
         let contractAddress = '0x82c7a8f707110f5fbb16184a5933e9f78a34c6ab';
         const handlerContract = new web3.eth.Contract(abi_json_1.default.legacy, contractAddress);
+        return handlerContract;
+    });
+}
+function getERC1155Contract(web3, address) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const handlerContract = new web3.eth.Contract(erc1155Abi_json_1.default, address);
+        return handlerContract;
+    });
+}
+function getERC721AContract(web3, address) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const handlerContract = new web3.eth.Contract(erc721aAbi_json_1.default, address);
         return handlerContract;
     });
 }
