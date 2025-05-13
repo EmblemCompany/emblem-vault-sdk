@@ -234,6 +234,28 @@ export class EmblemVaultSDK {
         return vaultCreationResponse.data
     }
 
+    async upsertCuratedCollection(collection: Collection, overrideFunc: Function | null = null) {
+        const url = `${this.v3Url}/v3/upsertCuratedCollection`;
+        return overrideFunc? await overrideFunc(this.apiKey, collection): await fetchData(url, this.apiKey, 'POST', collection);
+    }
+
+    async deleteCuratedCollection(projectId: string | number, overrideFunc: Function | null = null) {
+        const url = `${this.v3Url}/v3/deleteCuratedCollection`;
+        // For DELETE requests with a body, we need to ensure the body is properly sent
+        return overrideFunc? await overrideFunc(this.apiKey, {id: projectId}): await fetchData(url, this.apiKey, 'DELETE', {id: projectId});
+    }
+
+    // ** Deployments **
+    async getDeployedContractAddresses(chainId?: number, overrideFunc: Function | null = null) {
+        const url = `${this.baseUrl}/v3/chainDeployments/${chainId}`;
+        return overrideFunc? await overrideFunc(this.apiKey, chainId): await fetchData(url, this.apiKey);
+    }
+
+    async addChainDeployment(chainId: number, address: string, name: string, type: string, network: string, overrideFunc: Function | null = null) {
+        const url = `${this.baseUrl}/v3/chainDeployment`;
+        return overrideFunc? await overrideFunc(this.apiKey, {chainId, address, name, type, network}): await fetchData(url, this.apiKey, 'POST', {chainId, address, name, type, network});
+    }
+
     async refreshOwnershipForTokenId(tokenId: string, callback: any = null, overrideFunc: Function | null = null): Promise<Ownership[]> {
         genericGuard(tokenId, "string", "tokenId");
         let url = `${this.baseUrl}/refreshBalanceForTokenId`;
@@ -551,18 +573,6 @@ export class EmblemVaultSDK {
     async recoverSignerFromMessage(message: string, signature: string, overrideFunc: Function | null = null): Promise<string> {
         const provider = await this.getOrDetectProvider('ethereum');
         return overrideFunc? await overrideFunc(message, signature): await provider.eth.personal.recover(message, signature);
-    }
-
-    // upsert curated collection
-    async upsertCuratedCollection(collection: Collection, overrideFunc: Function | null = null) {
-        const url = `${this.v3Url}/v3/upsertCuratedCollection`;
-        return overrideFunc? await overrideFunc(this.apiKey, collection): await fetchData(url, this.apiKey, 'POST', collection);
-    }
-
-    async deleteCuratedCollection(projectId: string | number, overrideFunc: Function | null = null) {
-        const url = `${this.v3Url}/v3/deleteCuratedCollection`;
-        // For DELETE requests with a body, we need to ensure the body is properly sent
-        return overrideFunc? await overrideFunc(this.apiKey, {id: projectId}): await fetchData(url, this.apiKey, 'DELETE', {id: projectId});
     }
 
     /**

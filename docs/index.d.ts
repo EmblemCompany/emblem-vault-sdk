@@ -81,6 +81,10 @@ export declare class EmblemVaultSDK {
     fetchCuratedContracts(hideUnMintable?: boolean, overrideFunc?: Function | null): Promise<CuratedCollectionsResponse>;
     fetchCuratedContractByName(name: string, contracts?: any, overrideFunc?: Function | null): Promise<Collection | null>;
     createCuratedVault(template: any, callback?: any, overrideFunc?: Function | null): Promise<Vault>;
+    upsertCuratedCollection(collection: Collection, overrideFunc?: Function | null): Promise<any>;
+    deleteCuratedCollection(projectId: string | number, overrideFunc?: Function | null): Promise<any>;
+    getDeployedContractAddresses(chainId?: number, overrideFunc?: Function | null): Promise<any>;
+    addChainDeployment(chainId: number, address: string, name: string, type: string, network: string, overrideFunc?: Function | null): Promise<any>;
     refreshOwnershipForTokenId(tokenId: string, callback?: any, overrideFunc?: Function | null): Promise<Ownership[]>;
     refreshOwnershipForAccount(account: string, callback?: any, overrideFunc?: Function | null): Promise<Ownership[]>;
     fetchMetadata(tokenId: string, callback?: any, overrideFunc?: Function | null): Promise<MetaData>;
@@ -150,8 +154,6 @@ export declare class EmblemVaultSDK {
     requestRemoteKey(tokenId: string, jwt: any, callback?: any, overrideFunc?: Function | null): Promise<any>;
     decryptVaultKeys(tokenId: string, dkeys: any, callback?: any, overrideFunc?: Function | null): Promise<any>;
     recoverSignerFromMessage(message: string, signature: string, overrideFunc?: Function | null): Promise<string>;
-    upsertCuratedCollection(collection: any, overrideFunc?: Function | null): Promise<any>;
-    deleteCuratedCollection(projectId: string, overrideFunc?: Function | null): Promise<any>;
     /**
      * ** Emblem Vault AI **
      *

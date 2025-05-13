@@ -8,7 +8,7 @@ export type ContractDetails = {
  * Type that exactly matches the database schema for curated collections
  */
 export type Collection = {
-    id: number;
+    id?: number;
     created_at: string;
     contracts: ContractDetails;
     name: string;
