@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emblem Vault SDK Development Toolbox</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #f5f6fa;
+            --text-color: #2c3e50;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        nav {
+            background-color: var(--secondary-color);
+            padding: 0.5rem;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .phase {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .phase h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .phase-content {
+            display: grid;
+            gap: 20px;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+        }
+
+        .loading::after {
+            content: "Loading...";
+            color: var(--secondary-color);
+            font-size: 1.2rem;
+        }
+
+        #sdk-methods {
+            display: none;
+        }
+
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .category-section {
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .category-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .category-count {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .method-card {
+            background-color: white;
+            border: 1px solid #e1e1e1;
+            border-radius: 4px;
+            padding: 1rem;
+        }
+
+        .method-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .method-name {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .method-visibility {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            background-color: #e1e1e1;
+        }
+
+        .method-visibility.public {
+            background-color: #a8e6cf;
+        }
+
+        .method-visibility.private {
+            background-color: #ffb3b3;
+        }
+
+        .method-visibility.protected {
+            background-color: #ffd3b6;
+        }
+
+        .method-async {
+            font-size: 0.8rem;
+            color: #6c5ce7;
+            margin-left: 0.5rem;
+        }
+
+        .method-params {
+            margin-top: 0.5rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .param-optional {
+            color: #666;
+        }
+
+        .param-default {
+            color: #2ecc71;
+        }
+
+        .method-return {
+            margin-top: 0.5rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #6c5ce7;
+        }
+
+        .method-docs {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+            white-space: pre-wrap;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background-color: white;
+            border: 1px solid #e1e1e1;
+            border-radius: 4px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .interface-section {
+            margin-top: 2rem;
+        }
+
+        .interface-card {
+            background-color: white;
+            border: 1px solid #e1e1e1;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .interface-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .interface-heritage {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .interface-members {
+            margin-left: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Emblem Vault SDK Development Toolbox</h1>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#research">Research</a></li>
+            <li><a href="#mock-ui">Mock UI</a></li>
+            <li><a href="#integration">Integration</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <section id="research" class="phase">
+            <h2>Research & Discovery Phase</h2>
+            <div class="phase-content">
+                <div>
+                    <button id="analyze-sdk" class="button">Analyze SDK</button>
+                    <button id="download-analysis" class="button" disabled>Download Analysis</button>
+                </div>
+                <div id="analysis-status" class="loading">
+                    <!-- Analysis status will be populated here -->
+                </div>
+                <div id="sdk-methods" class="method-list">
+                    <!-- SDK methods will be populated here after analysis -->
+                </div>
+            </div>
+        </section>
+
+        <section id="mock-ui" class="phase">
+            <h2>Mock UI Phase</h2>
+            <div class="phase-content">
+                <p>UI components will be implemented here after research phase completion.</p>
+            </div>
+        </section>
+
+        <section id="integration" class="phase">
+            <h2>SDK Integration Phase</h2>
+            <div class="phase-content">
+                <p>SDK integration will be implemented here after mock UI phase completion.</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const analyzeButton = document.getElementById('analyze-sdk');
+            const downloadButton = document.getElementById('download-analysis');
+            const analysisStatus = document.getElementById('analysis-status');
+            const sdkMethods = document.getElementById('sdk-methods');
+
+            let analysisData = null;
+
+            function renderMethodCard(method, filePath) {
+                return `
+                    <div class="method-card">
+                        <div class="method-header">
+                            <div>
+                                <span class="method-name">${filePath}#${method.name}</span>
+                                ${method.async ? '<span class="method-async">async</span>' : ''}
+                            </div>
+                            <span class="method-visibility ${method.visibility}">${method.visibility}</span>
+                        </div>
+                        <div class="method-params">
+                            Parameters:
+                            ${method.parameters.map(p => `
+                                ${p.name}${p.optional ? '?' : ''}: ${JSON.stringify(p.type)}
+                                ${p.defaultValue ? `<span class="param-default">= ${p.defaultValue}</span>` : ''}
+                            `).join(', ')}
+                        </div>
+                        <div class="method-return">
+                            Returns: ${JSON.stringify(method.returnType)}
+                        </div>
+                        ${method.documentation ? `
+                            <div class="method-docs">${method.documentation}</div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            function renderInterfaceCard(interface) {
+                return `
+                    <div class="interface-card">
+                        <div class="interface-name">${interface.name}</div>
+                        ${interface.heritage.length > 0 ? `
+                            <div class="interface-heritage">extends ${interface.heritage.join(', ')}</div>
+                        ` : ''}
+                        <div class="interface-members">
+                            ${interface.methods.map(method => `
+                                <div class="method-card">
+                                    <div class="method-name">${method.name}</div>
+                                    <div class="method-params">
+                                        Parameters: ${method.parameters.map(p => 
+                                            `${p.name}: ${JSON.stringify(p.type)}`
+                                        ).join(', ')}
+                                    </div>
+                                    <div class="method-return">
+                                        Returns: ${JSON.stringify(method.returnType)}
+                                    </div>
+                                </div>
+                            `).join('')}
+                            ${interface.properties.map(prop => `
+                                <div class="method-card">
+                                    <div class="method-name">${prop.name}</div>
+                                    <div class="method-return">
+                                        Type: ${JSON.stringify(prop.type)}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            analyzeButton.addEventListener('click', async () => {
+                try {
+                    analyzeButton.disabled = true;
+                    analysisStatus.textContent = 'Analyzing SDK...';
+                    sdkMethods.style.display = 'none';
+
+                    const response = await fetch('/analysis');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    analysisData = await response.json();
+                    
+                    if (!analysisData || !analysisData.stats) {
+                        throw new Error('Invalid analysis data received');
+                    }
+
+                    // Display statistics
+                    const stats = analysisData.stats;
+                    const statsHtml = `
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value">${stats.totalFiles}</div>
+                                <div class="stat-label">Files Analyzed</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${stats.totalMethods}</div>
+                                <div class="stat-label">Total Methods</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${stats.totalInterfaces}</div>
+                                <div class="stat-label">Interfaces</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${stats.totalTypes}</div>
+                                <div class="stat-label">Type Definitions</div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Group methods by category
+                    const methodsByCategory = {};
+                    analysisData.files.forEach(file => {
+                        file.methods.forEach(method => {
+                            if (!methodsByCategory[method.category]) {
+                                methodsByCategory[method.category] = [];
+                            }
+                            methodsByCategory[method.category].push({
+                                ...method,
+                                filePath: file.file
+                            });
+                        });
+                    });
+
+                    // Render methods by category
+                    const methodsHtml = Object.entries(methodsByCategory)
+                        .map(([category, methods]) => `
+                            <div class="category-section">
+                                <div class="category-header">
+                                    <div class="category-name">${category.charAt(0).toUpperCase() + category.slice(1)}</div>
+                                    <div class="category-count">${methods.length}</div>
+                                </div>
+                                <div class="method-grid">
+                                    ${methods.map(method => renderMethodCard(method, method.filePath)).join('')}
+                                </div>
+                            </div>
+                        `)
+                        .join('');
+
+                    // Render interfaces
+                    const interfacesHtml = analysisData.files
+                        .filter(file => file.interfaces.length > 0)
+                        .map(file => `
+                            <div class="interface-section">
+                                <h3>${file.file}</h3>
+                                ${file.interfaces.map(renderInterfaceCard).join('')}
+                            </div>
+                        `)
+                        .join('');
+
+                    sdkMethods.innerHTML = `
+                        ${statsHtml}
+                        <h2>Methods</h2>
+                        ${methodsHtml}
+                        <h2>Interfaces</h2>
+                        ${interfacesHtml}
+                    `;
+                    
+                    sdkMethods.style.display = 'block';
+                    analysisStatus.textContent = `Analysis complete! Found ${stats.totalMethods} methods in ${stats.totalFiles} files.`;
+                    downloadButton.disabled = false;
+
+                } catch (error) {
+                    analysisStatus.textContent = `Analysis failed: ${error.message}`;
+                    console.error('Analysis failed:', error);
+                    sdkMethods.style.display = 'none';
+                } finally {
+                    analyzeButton.disabled = false;
+                }
+            });
+
+            downloadButton.addEventListener('click', () => {
+                if (!analysisData) return;
+
+                const blob = new Blob([JSON.stringify(analysisData, null, 2)], {
+                    type: 'application/json'
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'sdk-analysis.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        });
+    </script>
+</body>
+</html>

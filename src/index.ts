@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { AiVaultInfo, Balance, Collection, CuratedCollectionsResponse, MetaData, Ownership, v3LocalMintSignature, Vault } from './types';
-import { NFT_DATA, checkContentType, decryptKeys, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getSatsConnectAddress, getTorusKeys, metadataAllProjects, metadataObj2Arr, signPSBT, templateGuard } from './utils';
+import { NFT_DATA, checkContentType, decryptKeys, fetchData, generateTemplate, genericGuard, getERC1155Contract, getERC721AContract, getHandlerContract, getLegacyContract, getQuoteContractObject, getSatsConnectAddress, getTorusKeys, metadataAllProjects, metadataObj2Arr, signPSBT, templateGuard } from './utils';
 import { generateTaprootAddressFromMnemonic, getPsbtTxnSize } from './derive';
 import { BlockchainProvider, BlockchainType, detectProviderType, EthereumProvider, Web3ProviderAdapter } from './providers';
 import { ProviderManager } from './providers/ProviderManager';
@@ -181,6 +181,18 @@ export class EmblemVaultSDK {
         return projects
     }
 
+    async getBalanceCheckers(overrideFunc: Function | null = null) {
+        let url = `${this.v3Url}/v3/balanceCheckers`;
+        const balanceCheckers = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : await fetchData(url, this.apiKey);
+        return balanceCheckers
+    }
+
+    async checkBalanceAtAddress(address: string, symbol: string, overrideFunc: Function | null = null) {
+        let url = `${this.v3Url}/balance/${symbol}/${address}`;
+        const balance = overrideFunc && typeof overrideFunc === 'function' ? overrideFunc(this.apiKey) : await fetchData(url, this.apiKey);
+        return balance
+    }
+
     // ** Curated **
     //
     async fetchCuratedContracts(hideUnMintable: boolean = false, overrideFunc: Function | null = null): Promise<CuratedCollectionsResponse> {
@@ -308,7 +320,7 @@ export class EmblemVaultSDK {
         return new Promise(async (resolve, reject) => {
             try {
                 vaults.forEach(async (vault: any) => {
-                    if (vault.targetContract) {                        
+                    if (vault.targetContract) {
                         let targetVault: any = overrideFunc? await overrideFunc(this.apiKey, {name: vault.targetContract.name}): await this.fetchCuratedContractByName(vault.targetContract.name, curated);
                         let balance = vault.balances && vault.balances.length > 0 ? vault.balances : vault.ownership && vault.ownership.balances && vault.ownership.balances.length > 0? vault.ownership.balances: []
                         let allowed = targetVault.allowed(balance, targetVault)
@@ -409,7 +421,9 @@ export class EmblemVaultSDK {
      * @returns A promise that resolves to the mint response.
      */
     async performMintHelper( amount: number, callback?: any): Promise<BigNumber> {
-        throw new Error('Not implemented');
+        const v3LocalMintSignature = await this.requestV3LocalMintSignature(amount.toString(), callback);
+        const v3RemoteMintSignature = await this.requestV3RemoteMintSignature(v3LocalMintSignature.signature, callback);
+        return BigNumber.from(v3RemoteMintSignature);
     }
 
     async performClaimChain(web3: any, tokenId: string, serialNumber: any, callback: any = null) {
@@ -491,8 +505,8 @@ export class EmblemVaultSDK {
     async requestV3RemoteMintSignature(tokenId: string, signature: string, callback: any = null, overrideFunc: Function | null = null) {
         if (callback) { callback('requesting Remote Mint signature')}  
         const chainId = (await this.getOrDetectProvider('ethereum')).eth.getChainId();
-        let url = `${this.baseUrl}/V3-mint-curated`;
-        const mintRequestBody = {method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString()};
+        let url = `${this.baseUrl}/mint-curated`;
+        const mintRequestBody = {method: 'buyWithSignedPrice', tokenId: tokenId, signature: signature, chainId: chainId.toString(), enhanced: true};
         let remoteMintResponse = overrideFunc? await overrideFunc(url, this.apiKey, 'POST', mintRequestBody): await fetchData(url, this.apiKey, 'POST', mintRequestBody);
         if (remoteMintResponse.error) {
             throw new Error(remoteMintResponse.error)
@@ -537,6 +551,17 @@ export class EmblemVaultSDK {
     async recoverSignerFromMessage(message: string, signature: string, overrideFunc: Function | null = null): Promise<string> {
         const provider = await this.getOrDetectProvider('ethereum');
         return overrideFunc? await overrideFunc(message, signature): await provider.eth.personal.recover(message, signature);
+    }
+
+    // upsert curated collection
+    async upsertCuratedCollection(collection: any, overrideFunc: Function | null = null) {
+        const url = `${this.v3Url}/v3/upsertCuratedCollection`;
+        return overrideFunc? await overrideFunc(this.apiKey, collection): await fetchData(url, this.apiKey, 'POST', collection);
+    }
+
+    async deleteCuratedCollection(projectId: string, overrideFunc: Function | null = null) {
+        const url = `${this.v3Url}/v3/deleteCuratedCollection`;
+        return overrideFunc? await overrideFunc(this.apiKey, {id: projectId}): await fetchData(url, this.apiKey, 'DELETE', {id: projectId});
     }
 
     /**
@@ -670,6 +695,38 @@ export class EmblemVaultSDK {
         myLegacy.forEach(async item=>{
             let meta = await this.fetchMetadata(item.toString())
         })
+    }
+
+    async refreshERC1155Ownership(web3: any, contractAddress: string, address: string) {
+        let erc1155Contract = await getERC1155Contract(web3, contractAddress)
+        let balance = await erc1155Contract.methods.balanceOf(address).call();
+        let tokenIds = []
+        for (let index = 0; index < balance; index++) {
+            let tokenId = await erc1155Contract.methods.tokenOfOwnerByIndex(address, index).call();
+            tokenIds.push(Number(tokenId))
+        }
+        return tokenIds
+    }
+
+    async refreshERC721Ownership(web3: any, contractAddress: string, address: string) {
+        let erc721Contract = await getERC721AContract(web3, contractAddress)
+        let balance = await erc721Contract.methods.balanceOf(address).call();
+        let tokenIds = []
+        for (let index = 0; index < balance; index++) {
+            let tokenId = await erc721Contract.methods.tokenOfOwnerByIndex(address, index).call();
+            tokenIds.push(Number(tokenId))
+        }
+        return tokenIds
+    }
+
+    async getContractTokenIdsByTargetContractName(contractName: string, distinct: boolean) {
+        let url = `${this.v3Url}/contractTokenIds/${contractName}?distinct=${distinct}`;
+        return await fetchData(url, this.apiKey, 'GET');
+    }
+
+    async getTokenIdInternalTokenIdMapByTargetContractName(contractName: string) {
+        let url = `${this.v3Url}/tokenIdInternalTokenIdMap/${contractName}`;
+        return await fetchData(url, this.apiKey, 'GET');
     }
 
     async checkLiveliness(tokenId: string, chainId: number = 1) {

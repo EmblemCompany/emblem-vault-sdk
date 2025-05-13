@@ -5,6 +5,15 @@
     "balance": 1
   },
   {
+    "coin": "XDP",
+    "name": "COUNTERDOGE",
+    "balance": 1,
+    "type": "nft",
+    "external_url": "https://dogeparty.xchain.io/asset/COUNTERDOGE",
+    "image": "https://i.imgur.com/P6ugSGF.png",
+    "description": " the Counter to your Dogeparty"
+  },
+  {
     "coin": "XCP",
     "name": "Stamp #11",
     "balance": 1,

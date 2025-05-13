@@ -1,0 +1,3879 @@
+{
+  "timestamp": "2025-05-07T18:34:42.461Z",
+  "files": [
+    {
+      "file": "clients/emblemVaultSolanaWalletClient.ts",
+      "methods": [
+        {
+          "name": "createEmblemVaultSolanaWalletClient",
+          "parameters": [
+            {
+              "name": "config",
+              "type": {
+                "name": "EmblemVaultSolanaWalletClientConfig",
+                "typeArguments": []
+              },
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "name": "EmblemVaultSolanaWalletClient",
+            "typeArguments": []
+          },
+          "documentation": "/**\n * Creates an Emblem Vault Solana Wallet Client\n * @param config - Configuration for the wallet client\n * @returns An Emblem Vault Solana Wallet Client instance\n */",
+          "category": "vault",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "getPublicKey",
+          "parameters": [],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "name": "PublicKey",
+                "typeArguments": []
+              }
+            ]
+          },
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "signMessage",
+          "parameters": [
+            {
+              "name": "message",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Uint8Array",
+                    "typeArguments": []
+                  },
+                  "string"
+                ]
+              },
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              "string"
+            ]
+          },
+          "documentation": "",
+          "category": "transaction",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "signTransaction",
+          "parameters": [
+            {
+              "name": "transaction",
+              "type": {
+                "name": "Transaction",
+                "typeArguments": []
+              },
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "name": "Transaction",
+                "typeArguments": []
+              }
+            ]
+          },
+          "documentation": "",
+          "category": "transaction",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "signVersionedTransaction",
+          "parameters": [
+            {
+              "name": "transaction",
+              "type": {
+                "name": "VersionedTransaction",
+                "typeArguments": []
+              },
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "name": "VersionedTransaction",
+                "typeArguments": []
+              }
+            ]
+          },
+          "documentation": "",
+          "category": "transaction",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "sendTransaction",
+          "parameters": [
+            {
+              "name": "transaction",
+              "type": {
+                "name": "Transaction",
+                "typeArguments": []
+              },
+              "optional": false
+            },
+            {
+              "name": "options",
+              "type": {
+                "name": "SendOptions",
+                "typeArguments": []
+              },
+              "optional": true
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              "string"
+            ]
+          },
+          "documentation": "",
+          "category": "transaction",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "sendVersionedTransaction",
+          "parameters": [
+            {
+              "name": "transaction",
+              "type": {
+                "name": "VersionedTransaction",
+                "typeArguments": []
+              },
+              "optional": false
+            },
+            {
+              "name": "options",
+              "type": {
+                "name": "SendOptions",
+                "typeArguments": []
+              },
+              "optional": true
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              "string"
+            ]
+          },
+          "documentation": "",
+          "category": "transaction",
+          "async": true,
+          "visibility": "public"
+        }
+      ],
+      "interfaces": [
+        {
+          "name": "EmblemVaultSolanaWalletClientConfig",
+          "heritage": [],
+          "methods": [],
+          "properties": [
+            {
+              "name": "sdk",
+              "type": {
+                "name": "EmblemVaultSDK",
+                "typeArguments": []
+              },
+              "documentation": "/** The Emblem Vault SDK instance */"
+            },
+            {
+              "name": "walletId",
+              "type": "string",
+              "documentation": "/** The Emblem Vault ID to use for signing */"
+            },
+            {
+              "name": "connection",
+              "type": {
+                "name": "Connection",
+                "typeArguments": []
+              },
+              "documentation": "/** Optional Solana connection to use for transaction sending */"
+            },
+            {
+              "name": "publicKey",
+              "type": {
+                "name": "PublicKey",
+                "typeArguments": []
+              },
+              "documentation": "/** Optional public key to use (if already known) */"
+            }
+          ]
+        },
+        {
+          "name": "EmblemVaultSolanaWalletClient",
+          "heritage": [],
+          "methods": [
+            {
+              "name": "getPublicKey",
+              "parameters": [],
+              "returnType": {
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "name": "PublicKey",
+                    "typeArguments": []
+                  }
+                ]
+              },
+              "documentation": "/**\n   * Get the public key for this wallet\n   * @returns The wallet's public key\n   */"
+            },
+            {
+              "name": "signMessage",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "name": "Uint8Array",
+                        "typeArguments": []
+                      },
+                      "string"
+                    ]
+                  }
+                }
+              ],
+              "returnType": {
+                "name": "Promise",
+                "typeArguments": [
+                  "string"
+                ]
+              },
+              "documentation": "/**\n   * Sign a message using the TEE signer\n   * @param message - The message to sign as a Uint8Array or string\n   * @returns The signature as a base64 string\n   */"
+            },
+            {
+              "name": "signTransaction",
+              "parameters": [
+                {
+                  "name": "transaction",
+                  "type": {
+                    "name": "Transaction",
+                    "typeArguments": []
+                  }
+                }
+              ],
+              "returnType": {
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "name": "Transaction",
+                    "typeArguments": []
+                  }
+                ]
+              },
+              "documentation": "/**\n   * Sign a transaction using the TEE signer\n   * @param transaction - The transaction to sign\n   * @returns The signed transaction\n   */"
+            },
+            {
+              "name": "signVersionedTransaction",
+              "parameters": [
+                {
+                  "name": "transaction",
+                  "type": {
+                    "name": "VersionedTransaction",
+                    "typeArguments": []
+                  }
+                }
+              ],
+              "returnType": {
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "name": "VersionedTransaction",
+                    "typeArguments": []
+                  }
+                ]
+              },
+              "documentation": "/**\n   * Sign a versioned transaction using the TEE signer\n   * @param transaction - The versioned transaction to sign\n   * @returns The signed versioned transaction\n   */"
+            },
+            {
+              "name": "sendTransaction",
+              "parameters": [
+                {
+                  "name": "transaction",
+                  "type": {
+                    "name": "Transaction",
+                    "typeArguments": []
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "name": "SendOptions",
+                    "typeArguments": []
+                  }
+                }
+              ],
+              "returnType": {
+                "name": "Promise",
+                "typeArguments": [
+                  "string"
+                ]
+              },
+              "documentation": "/**\n   * Sign and send a transaction\n   * @param transaction - The transaction to sign and send\n   * @param options - Options for sending the transaction\n   * @returns The transaction signature\n   */"
+            },
+            {
+              "name": "sendVersionedTransaction",
+              "parameters": [
+                {
+                  "name": "transaction",
+                  "type": {
+                    "name": "VersionedTransaction",
+                    "typeArguments": []
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "name": "SendOptions",
+                    "typeArguments": []
+                  }
+                }
+              ],
+              "returnType": {
+                "name": "Promise",
+                "typeArguments": [
+                  "string"
+                ]
+              },
+              "documentation": "/**\n   * Sign and send a versioned transaction\n   * @param transaction - The versioned transaction to sign and send\n   * @param options - Options for sending the transaction\n   * @returns The transaction signature\n   */"
+            }
+          ],
+          "properties": [
+            {
+              "name": "type",
+              "type": "'emblemVaultSolanaWalletClient'",
+              "documentation": "/** The type of wallet client */"
+            },
+            {
+              "name": "sdk",
+              "type": {
+                "name": "EmblemVaultSDK",
+                "typeArguments": []
+              },
+              "documentation": "/** The Emblem Vault SDK instance */"
+            },
+            {
+              "name": "walletId",
+              "type": "string",
+              "documentation": "/** The Emblem Vault ID used for signing */"
+            },
+            {
+              "name": "connection",
+              "type": {
+                "name": "Connection",
+                "typeArguments": []
+              },
+              "documentation": "/** The Solana connection (if provided) */"
+            },
+            {
+              "name": "publicKey",
+              "type": {
+                "name": "PublicKey",
+                "typeArguments": []
+              },
+              "documentation": "/** The wallet's public key (if known or retrieved) */"
+            }
+          ]
+        }
+      ],
+      "types": [],
+      "relationships": []
+    },
+    {
+      "file": "clients/emblemVaultWalletClient.ts",
+      "methods": [
+        {
+          "name": "createEmblemVaultWalletClient",
+          "parameters": [
+            {
+              "name": "config",
+              "type": {
+                "name": "EmblemVaultWalletClientConfig",
+                "typeArguments": []
+              },
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "name": "EmblemVaultWalletClient",
+            "typeArguments": []
+          },
+          "documentation": "/**\n * Creates a Wallet Client that interacts with Emblem Vault's TEE remote signer.\n *\n * @param config - Configuration for the Wallet Client.\n * @returns A Wallet Client instance.\n */",
+          "category": "vault",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "getAddresses",
+          "parameters": [],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "type": "array",
+                "elementType": {
+                  "name": "Address",
+                  "typeArguments": []
+                }
+              }
+            ]
+          },
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "signMessage",
+          "parameters": [
+            {
+              "name": "{ message, account: messageAccount }",
+              "type": {
+                "name": "SignMessageParameters",
+                "typeArguments": []
+              },
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "name": "Hex",
+                "typeArguments": []
+              }
+            ]
+          },
+          "documentation": "",
+          "category": "transaction",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "signTypedData",
+          "parameters": [
+            {
+              "name": "args",
+              "type": {
+                "name": "SignTypedDataParameters",
+                "typeArguments": [
+                  {
+                    "name": "TTypedData",
+                    "typeArguments": []
+                  },
+                  {
+                    "name": "TPrimaryType",
+                    "typeArguments": []
+                  }
+                ]
+              },
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "name": "Hex",
+                "typeArguments": []
+              }
+            ]
+          },
+          "documentation": "",
+          "category": "transaction",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "sendTransaction",
+          "parameters": [
+            {
+              "name": "args",
+              "type": {
+                "name": "SendTransactionParameters",
+                "typeArguments": [
+                  {
+                    "name": "TChain",
+                    "typeArguments": []
+                  },
+                  {
+                    "name": "TAccount",
+                    "typeArguments": []
+                  },
+                  {
+                    "name": "TChainOverride",
+                    "typeArguments": []
+                  }
+                ]
+              },
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "name": "Hex",
+                "typeArguments": []
+              }
+            ]
+          },
+          "documentation": "",
+          "category": "transaction",
+          "async": true,
+          "visibility": "public"
+        }
+      ],
+      "interfaces": [
+        {
+          "name": "EmblemVaultWalletClientConfig",
+          "heritage": [],
+          "methods": [],
+          "properties": [
+            {
+              "name": "sdk",
+              "type": {
+                "name": "EmblemVaultSDK",
+                "typeArguments": []
+              },
+              "documentation": "/** The initialized EmblemVaultSDK instance */"
+            },
+            {
+              "name": "walletId",
+              "type": "string",
+              "documentation": "/** Identifier for the specific remote TEE wallet to use (e.g., a wallet ID or label) */"
+            },
+            {
+              "name": "chain",
+              "type": {
+                "name": "Chain",
+                "typeArguments": []
+              },
+              "documentation": "/** Optional viem Chain object if needed for compatibility */"
+            },
+            {
+              "name": "account",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Account",
+                    "typeArguments": []
+                  },
+                  {
+                    "name": "Address",
+                    "typeArguments": []
+                  }
+                ]
+              },
+              "documentation": "/** Optional viem Account object if address is known upfront */"
+            },
+            {
+              "name": "transport",
+              "type": {
+                "name": "Transport",
+                "typeArguments": []
+              },
+              "documentation": "/** Optional Transport (likely unused as we use API, but here for viem compatibility) */"
+            },
+            {
+              "name": "key",
+              "type": "string",
+              "documentation": "/** Optional Key for the client */"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "documentation": "/** Optional Name for the client */"
+            }
+          ]
+        }
+      ],
+      "types": [
+        {
+          "name": "EmblemVaultWalletActions",
+          "type": {
+            "name": "Pick",
+            "typeArguments": [
+              {
+                "name": "WalletActions",
+                "typeArguments": []
+              },
+              {
+                "type": "union",
+                "types": [
+                  "'getAddresses'",
+                  "'sendTransaction'",
+                  "'signMessage'",
+                  "'signTypedData'"
+                ]
+              }
+            ]
+          },
+          "documentation": ""
+        },
+        {
+          "name": "EmblemVaultWalletClient",
+          "type": "EmblemVaultWalletActions & {\n  /** The type of the client */\n  type: 'emblemVaultWalletClient';\n  /** The configured wallet identifier */\n  walletId: string;\n  /** The configured viem Chain object, if provided */\n  chain?: Chain;\n  /** The configured viem Account object, if provided */\n  account?: Account | Address;\n  /** The underlying Emblem Vault SDK instance */\n  sdk: EmblemVaultSDK;\n  /** Client Key */\n  key: string;\n  /** Client Name */\n  name: string;\n  /** Client UID */\n  uid: string;\n}",
+          "documentation": "/**\n * Represents a Wallet Client powered by Emblem Vault's TEE remote signer API.\n * Mimics the viem WalletClient interface for compatibility.\n */"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "file": "derive.ts",
+      "methods": [],
+      "interfaces": [],
+      "types": [],
+      "relationships": []
+    },
+    {
+      "file": "index.ts",
+      "methods": [
+        {
+          "name": "registerProvider",
+          "parameters": [
+            {
+              "name": "type",
+              "type": {
+                "name": "BlockchainType",
+                "typeArguments": []
+              },
+              "optional": false
+            },
+            {
+              "name": "provider",
+              "type": "any",
+              "optional": false
+            }
+          ],
+          "returnType": "void",
+          "documentation": "/**\n     * Register a blockchain provider for a specific blockchain type\n     * @param type The blockchain type\n     * @param provider The provider instance\n     */",
+          "category": "other",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "getProvider",
+          "parameters": [
+            {
+              "name": "type",
+              "type": {
+                "name": "BlockchainType",
+                "typeArguments": []
+              },
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "/**\n     * Get a registered provider for a specific blockchain type\n     * @param type The blockchain type\n     * @returns The provider instance or undefined if not registered\n     */",
+          "category": "vault",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "hasProvider",
+          "parameters": [
+            {
+              "name": "type",
+              "type": {
+                "name": "BlockchainType",
+                "typeArguments": []
+              },
+              "optional": false
+            }
+          ],
+          "returnType": "boolean",
+          "documentation": "/**\n     * Check if a provider is registered for a specific blockchain type\n     * @param type The blockchain type\n     * @returns True if a provider is registered for the specified type\n     */",
+          "category": "other",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "getOrDetectProvider",
+          "parameters": [
+            {
+              "name": "type",
+              "type": {
+                "name": "BlockchainType",
+                "typeArguments": []
+              },
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              "any"
+            ]
+          },
+          "documentation": "/**\n     * Get or detect a provider for a specific blockchain type\n     * If a provider is registered, it will be returned\n     * Otherwise, it will try to detect a provider in the environment\n     * @param type The blockchain type\n     * @returns A promise that resolves to the provider instance\n     * @throws Error if no provider is available\n     */",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "createWalletClient",
+          "parameters": [
+            {
+              "name": "config",
+              "type": {
+                "name": "Omit",
+                "typeArguments": [
+                  {
+                    "name": "EmblemVaultWalletClientConfig",
+                    "typeArguments": []
+                  },
+                  "'sdk'"
+                ]
+              },
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "name": "EmblemVaultWalletClient",
+            "typeArguments": []
+          },
+          "documentation": "/**\n     * Creates a Wallet Client instance powered by the Emblem Vault TEE signer.\n     *\n     * @param config - Configuration specific to the wallet client, like the walletId.\n     * @returns An EmblemVaultWalletClient instance.\n     */",
+          "category": "vault",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "createSolanaWalletClient",
+          "parameters": [
+            {
+              "name": "config",
+              "type": {
+                "name": "Omit",
+                "typeArguments": [
+                  {
+                    "name": "EmblemVaultSolanaWalletClientConfig",
+                    "typeArguments": []
+                  },
+                  "'sdk'"
+                ]
+              },
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "name": "EmblemVaultSolanaWalletClient",
+            "typeArguments": []
+          },
+          "documentation": "/**\n     * Creates a Solana Wallet Client instance powered by the Emblem Vault TEE signer.\n     *\n     * @param config - Configuration specific to the Solana wallet client, like the walletId.\n     * @returns An EmblemVaultSolanaWalletClient instance.\n     */",
+          "category": "vault",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "getConnectedEthAccount",
+          "parameters": [],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              "string"
+            ]
+          },
+          "documentation": "/**\n     * Ethereum Convenience\n     *\n     * @param config - Configuration specific to the Solana wallet client, like the walletId.\n     * @returns An EmblemVaultSolanaWalletClient instance.\n     */",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "getCuratedAssetMetadata",
+          "parameters": [
+            {
+              "name": "projectName",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "strict",
+              "type": "boolean",
+              "optional": false,
+              "defaultValue": "false"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "getAssetMetadata",
+          "parameters": [
+            {
+              "name": "projectName",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "strict",
+              "type": "boolean",
+              "optional": false,
+              "defaultValue": "false"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "getAllCuratedAssetMetadata",
+          "parameters": [
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "getAllAssetMetadata",
+          "parameters": [
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "getRemoteAssetMetadataProjectList",
+          "parameters": [
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "/**\n     * @deprecated \n     * This method is deprecated and will be removed in a future version. \n     * Please use `getInventoryAssetMetadataProject` instead.\n     */",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "getInventoryAssetMetadataProject",
+          "parameters": [
+            {
+              "name": "projectName",
+              "type": "string",
+              "optional": true
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "getInventoryAssetMetadata",
+          "parameters": [
+            {
+              "name": "asset_name",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "getInventoryAssetMetadataVaultedProjectList",
+          "parameters": [
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "getAllCuratedProjects",
+          "parameters": [
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "getBalanceCheckers",
+          "parameters": [
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "checkBalanceAtAddress",
+          "parameters": [
+            {
+              "name": "address",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "symbol",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "balance",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "fetchCuratedContracts",
+          "parameters": [
+            {
+              "name": "hideUnMintable",
+              "type": "boolean",
+              "optional": false,
+              "defaultValue": "false"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "name": "CuratedCollectionsResponse",
+                "typeArguments": []
+              }
+            ]
+          },
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "fetchCuratedContractByName",
+          "parameters": [
+            {
+              "name": "name",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "contracts",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "false"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Collection",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              }
+            ]
+          },
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "createCuratedVault",
+          "parameters": [
+            {
+              "name": "template",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "name": "Vault",
+                "typeArguments": []
+              }
+            ]
+          },
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "refreshOwnershipForTokenId",
+          "parameters": [
+            {
+              "name": "tokenId",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "type": "array",
+                "elementType": {
+                  "name": "Ownership",
+                  "typeArguments": []
+                }
+              }
+            ]
+          },
+          "documentation": "",
+          "category": "auth",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "refreshOwnershipForAccount",
+          "parameters": [
+            {
+              "name": "account",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "type": "array",
+                "elementType": {
+                  "name": "Ownership",
+                  "typeArguments": []
+                }
+              }
+            ]
+          },
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "fetchMetadata",
+          "parameters": [
+            {
+              "name": "tokenId",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "name": "MetaData",
+                "typeArguments": []
+              }
+            ]
+          },
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "refreshBalance",
+          "parameters": [
+            {
+              "name": "tokenId",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "type": "array",
+                "elementType": {
+                  "name": "Balance",
+                  "typeArguments": []
+                }
+              }
+            ]
+          },
+          "documentation": "",
+          "category": "balance",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "fetchVaultsOfType",
+          "parameters": [
+            {
+              "name": "vaultType",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "address",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              "any"
+            ]
+          },
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "generateJumpReport",
+          "parameters": [
+            {
+              "name": "address",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "hideUnMintable",
+              "type": "boolean",
+              "optional": false,
+              "defaultValue": "false"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "generateMintReport",
+          "parameters": [
+            {
+              "name": "address",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "hideUnMintable",
+              "type": "boolean",
+              "optional": false,
+              "defaultValue": "false"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "generateMigrateReport",
+          "parameters": [
+            {
+              "name": "address",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "hideUnMintable",
+              "type": "boolean",
+              "optional": false,
+              "defaultValue": "false"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "loadWeb3",
+          "parameters": [],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "type": "union",
+                "types": [
+                  "any",
+                  "undefined"
+                ]
+              }
+            ]
+          },
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "performMintChain",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "tokenId",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "/**\n     * Performs a mint operation on the blockchain.\n     * @param web3 - The web3 instance to use for the transaction.\n     * @param tokenId - The ID of the token to mint.\n     * @param callback - Optional callback function to handle the transaction.\n     * @returns A promise that resolves to the mint response.\n     * @deprecated Use `performMintHelper` instead.\n     */",
+          "category": "auth",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "performMintHelper",
+          "parameters": [
+            {
+              "name": "amount",
+              "type": "number",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": true
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "name": "BigNumber",
+                "typeArguments": []
+              }
+            ]
+          },
+          "documentation": "/**\n     * Stub for new mint chain helper\n     * @param amount - The amount of tokens to mint.\n     * @param callback - Optional callback function to handle the transaction.\n     * @returns A promise that resolves to the mint response.\n     */",
+          "category": "auth",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "performClaimChain",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "tokenId",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "serialNumber",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "requestLocalMintSignature",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "tokenId",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "/**\n     * Stub for new mint signature request\n     * @param web3 - The web3 instance to use for the transaction.\n     * @param tokenId - The ID of the token to mint.\n     * @param callback - Optional callback function to handle the transaction.\n     * @returns A promise that resolves to the mint signature.\n     * @deprecated Use `requestV3LocalMintSignature` instead.\n     */",
+          "category": "auth",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "requestV3LocalMintSignature",
+          "parameters": [
+            {
+              "name": "tokenId",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "name": "v3LocalMintSignature",
+                "typeArguments": []
+              }
+            ]
+          },
+          "documentation": "/**\n     * Requests a signature for a curated minting operation. (ONLY ETHEREUM FOR NOW)\n     * @param tokenId - The ID of the token to mint.\n     * @param callback - Optional callback function to handle the transaction.\n     * @param overrideFunc - Optional function to override the default behavior.\n     * @returns A promise that resolves to the mint signature.\n     */",
+          "category": "auth",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "requestRemoteMintSignature",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "tokenId",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "signature",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "/**\n     * Requests a signature for a curated minting operation. (ONLY ETHEREUM FOR NOW)\n     * @param tokenId - The ID of the token to mint.\n     * @param signature - The signature for the curated minting operation.\n     * @param callback - Optional callback function to handle the transaction.\n     * @param overrideFunc - Optional function to override the default behavior.\n     * @returns A promise that resolves to the remote mint signature.\n     * @deprecated Use `requestV3RemoteMintSignature` instead.\n     */",
+          "category": "auth",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "requestV3RemoteMintSignature",
+          "parameters": [
+            {
+              "name": "tokenId",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "signature",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "/**\n     * Requests a signature for a curated minting operation. (ONLY ETHEREUM FOR NOW)\n     * @param tokenId - The ID of the token to mint.\n     * @param signature - The signature for the curated minting operation.\n     * @param callback - Optional callback function to handle the transaction.\n     * @param overrideFunc - Optional function to override the default behavior.\n     * @returns A promise that resolves to the remote mint signature.\n     */",
+          "category": "auth",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "requestLocalClaimSignature",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "tokenId",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "serialNumber",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "transaction",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "requestRemoteClaimToken",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "tokenId",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "signature",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "auth",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "requestRemoteKey",
+          "parameters": [
+            {
+              "name": "tokenId",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "jwt",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "encryption",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "decryptVaultKeys",
+          "parameters": [
+            {
+              "name": "tokenId",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "dkeys",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "recoverSignerFromMessage",
+          "parameters": [
+            {
+              "name": "message",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "signature",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              "string"
+            ]
+          },
+          "documentation": "",
+          "category": "transaction",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "vaultInfoFromApiKey",
+          "parameters": [
+            {
+              "name": "aiApiKey",
+              "type": "string",
+              "optional": true
+            },
+            {
+              "name": "full",
+              "type": "boolean",
+              "optional": true
+            },
+            {
+              "name": "overrideFunc",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "Function",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              },
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "name": "AiVaultInfo",
+                "typeArguments": []
+              }
+            ]
+          },
+          "documentation": "/**\n     * ** Emblem Vault AI **\n     *\n     * Be sure to allow api key requests, or api_key_hash and auth sig (wallet, socialAuth, oAuth)\n     * Here we will begin using the aiApiKey and the aiUrl to communicate with the ai vault system\n     * \n     */",
+          "category": "auth",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "getQuote",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "amount",
+              "type": "number",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "/**\n     * @deprecated This method is deprecated and will be removed in a future version.\n     * Please use alternative methods for price quotation.\n     */",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "performMint",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "remoteMintSig",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "undefined"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "performBurn",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "tokenId",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "contentTypeReport",
+          "parameters": [
+            {
+              "name": "url",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "legacyBalanceFromContractByAddress",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "address",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "balance",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "refreshLegacyOwnership",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "address",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "refreshERC1155Ownership",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "contractAddress",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "address",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "refreshERC721Ownership",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "contractAddress",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "address",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "getContractTokenIdsByTargetContractName",
+          "parameters": [
+            {
+              "name": "contractName",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "distinct",
+              "type": "boolean",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "auth",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "getTokenIdInternalTokenIdMapByTargetContractName",
+          "parameters": [
+            {
+              "name": "contractName",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "auth",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "checkLiveliness",
+          "parameters": [
+            {
+              "name": "tokenId",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "chainId",
+              "type": "number",
+              "optional": false,
+              "defaultValue": "1"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "checkLivelinessBulk",
+          "parameters": [
+            {
+              "name": "tokenIds",
+              "type": {
+                "type": "array",
+                "elementType": "string"
+              },
+              "optional": false
+            },
+            {
+              "name": "chainId",
+              "type": "number",
+              "optional": false,
+              "defaultValue": "1"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "processChunks",
+          "parameters": [
+            {
+              "name": "i",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "0"
+            },
+            {
+              "name": "delay",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "1000"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "sweepVaultUsingPhrase",
+          "parameters": [
+            {
+              "name": "phrase",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "satsPerByte",
+              "type": "number",
+              "optional": false,
+              "defaultValue": "20"
+            },
+            {
+              "name": "broadcast",
+              "type": "boolean",
+              "optional": false,
+              "defaultValue": "false"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        }
+      ],
+      "interfaces": [
+        {
+          "name": "Window",
+          "heritage": [],
+          "methods": [],
+          "properties": [
+            {
+              "name": "EmblemVaultSDK",
+              "type": "any",
+              "documentation": ""
+            }
+          ]
+        }
+      ],
+      "types": [],
+      "relationships": []
+    },
+    {
+      "file": "providers/ProviderManager.ts",
+      "methods": [
+        {
+          "name": "applyAutoConnectSettings",
+          "parameters": [],
+          "returnType": "void",
+          "documentation": "/**\n     * Applies auto-connect settings based on the wallet configuration.\n     * Defaults to auto-connect off unless specified in config.\n     */",
+          "category": "other",
+          "async": false,
+          "visibility": "private"
+        },
+        {
+          "name": "disconnect",
+          "parameters": [],
+          "returnType": "any",
+          "documentation": "/**\n     * Disconnects the currently selected wallet provider, if applicable.\n     */",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "registerProvider",
+          "parameters": [
+            {
+              "name": "type",
+              "type": {
+                "name": "BlockchainType",
+                "typeArguments": []
+              },
+              "optional": false
+            },
+            {
+              "name": "provider",
+              "type": {
+                "name": "BlockchainProvider",
+                "typeArguments": []
+              },
+              "optional": false
+            }
+          ],
+          "returnType": "void",
+          "documentation": "/**\n     * Register a blockchain provider for a specific blockchain type\n     * @param type The blockchain type\n     * @param provider The provider instance\n     */",
+          "category": "other",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "getProvider",
+          "parameters": [
+            {
+              "name": "type",
+              "type": {
+                "name": "BlockchainType",
+                "typeArguments": []
+              },
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "type": "union",
+            "types": [
+              {
+                "name": "BlockchainProvider",
+                "typeArguments": []
+              },
+              "undefined"
+            ]
+          },
+          "documentation": "/**\n     * Get a registered provider for a specific blockchain type\n     * @param type The blockchain type\n     * @returns The provider instance or undefined if not registered\n     */",
+          "category": "vault",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "hasProvider",
+          "parameters": [
+            {
+              "name": "type",
+              "type": {
+                "name": "BlockchainType",
+                "typeArguments": []
+              },
+              "optional": false
+            }
+          ],
+          "returnType": "boolean",
+          "documentation": "/**\n     * Check if a provider is registered for a specific blockchain type\n     * @param type The blockchain type\n     * @returns True if a provider is registered for the specified type\n     */",
+          "category": "other",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "tryConnectWalletById",
+          "parameters": [
+            {
+              "name": "walletId",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "type",
+              "type": {
+                "name": "BlockchainType",
+                "typeArguments": []
+              },
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "BlockchainProvider",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              }
+            ]
+          },
+          "documentation": "/**\n     * Try to connect to a specific wallet by its identifier.\n     * @param walletId The identifier of the wallet (e.g., 'phantom', 'metamask').\n     * @param type The blockchain type ('solana' or 'ethereum').\n     * @returns The provider instance if connection is successful, otherwise null.\n     */",
+          "category": "other",
+          "async": true,
+          "visibility": "private"
+        },
+        {
+          "name": "getOrDetectProvider",
+          "parameters": [
+            {
+              "name": "type",
+              "type": {
+                "name": "BlockchainType",
+                "typeArguments": []
+              },
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "name": "BlockchainProvider",
+                "typeArguments": []
+              }
+            ]
+          },
+          "documentation": "/**\n     * Get or detect a provider for a specific blockchain type\n     * If a provider is registered, it will be returned\n     * Otherwise, it will try to detect a provider in the environment, respecting priority config.\n     * @param type The blockchain type\n     * @returns A promise that resolves to the provider instance\n     * @throws Error if no provider is available\n     */",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "_detectGenericProvider",
+          "parameters": [
+            {
+              "name": "type",
+              "type": {
+                "name": "BlockchainType",
+                "typeArguments": []
+              },
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "type": "union",
+                "types": [
+                  {
+                    "name": "BlockchainProvider",
+                    "typeArguments": []
+                  },
+                  "null"
+                ]
+              }
+            ]
+          },
+          "documentation": "/**\n     * Helper function for general provider detection.\n     * @param type The blockchain type\n     * @returns A promise that resolves to the detected provider instance or null.\n     */",
+          "category": "utility",
+          "async": true,
+          "visibility": "private"
+        }
+      ],
+      "interfaces": [],
+      "types": [],
+      "relationships": []
+    },
+    {
+      "file": "providers.ts",
+      "methods": [
+        {
+          "name": "request",
+          "parameters": [
+            {
+              "name": "args",
+              "type": "{ method: string; params?: any[] }",
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              "any"
+            ]
+          },
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "isConnected",
+          "parameters": [],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              "boolean"
+            ]
+          },
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "getRawWeb3",
+          "parameters": [],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "detectProviderType",
+          "parameters": [
+            {
+              "name": "provider",
+              "type": "any",
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "name": "BlockchainType",
+            "typeArguments": []
+          },
+          "documentation": "/**\n * Utility to detect the type of a provider based on its properties\n */",
+          "category": "utility",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "isProviderType",
+          "parameters": [
+            {
+              "name": "provider",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "type",
+              "type": {
+                "name": "BlockchainType",
+                "typeArguments": []
+              },
+              "optional": false
+            }
+          ],
+          "returnType": "provider is T",
+          "documentation": "/**\n * Utility to check if a provider is of a specific type\n */",
+          "category": "utility",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "asProvider",
+          "parameters": [
+            {
+              "name": "provider",
+              "type": {
+                "name": "BlockchainProvider",
+                "typeArguments": []
+              },
+              "optional": false
+            }
+          ],
+          "returnType": {
+            "name": "BlockchainProvider",
+            "typeArguments": []
+          },
+          "documentation": "",
+          "category": "other",
+          "async": false,
+          "visibility": "public"
+        }
+      ],
+      "interfaces": [
+        {
+          "name": "BlockchainProviderBase",
+          "heritage": [],
+          "methods": [
+            {
+              "name": "isConnected",
+              "parameters": [],
+              "returnType": {
+                "name": "Promise",
+                "typeArguments": [
+                  "boolean"
+                ]
+              },
+              "documentation": ""
+            }
+          ],
+          "properties": [
+            {
+              "name": "type",
+              "type": {
+                "name": "BlockchainType",
+                "typeArguments": []
+              },
+              "documentation": ""
+            }
+          ]
+        },
+        {
+          "name": "EthereumProvider",
+          "heritage": [
+            "extends BlockchainProviderBase"
+          ],
+          "methods": [
+            {
+              "name": "request",
+              "parameters": [
+                {
+                  "name": "args",
+                  "type": "{ method: string; params?: any[] }"
+                }
+              ],
+              "returnType": {
+                "name": "Promise",
+                "typeArguments": [
+                  "any"
+                ]
+              },
+              "documentation": ""
+            }
+          ],
+          "properties": [
+            {
+              "name": "type",
+              "type": "'ethereum'",
+              "documentation": ""
+            },
+            {
+              "name": "eth",
+              "type": "{\n    Contract?: any;\n    getAccounts?: () => Promise<string[]>;\n    getChainId?: () => Promise<string>;\n    getBalance?: (address: string) => Promise<string>;\n    personal?: {\n      sign?: (message: string, address: string, password?: string) => Promise<string>;\n    };\n  }",
+              "documentation": ""
+            }
+          ]
+        },
+        {
+          "name": "SolanaProvider",
+          "heritage": [
+            "extends BlockchainProviderBase"
+          ],
+          "methods": [
+            {
+              "name": "connect",
+              "parameters": [],
+              "returnType": {
+                "name": "Promise",
+                "typeArguments": [
+                  "{ publicKey: string }"
+                ]
+              },
+              "documentation": ""
+            },
+            {
+              "name": "disconnect",
+              "parameters": [],
+              "returnType": {
+                "name": "Promise",
+                "typeArguments": [
+                  "void"
+                ]
+              },
+              "documentation": ""
+            },
+            {
+              "name": "signTransaction",
+              "parameters": [
+                {
+                  "name": "transaction",
+                  "type": "any"
+                }
+              ],
+              "returnType": {
+                "name": "Promise",
+                "typeArguments": [
+                  "any"
+                ]
+              },
+              "documentation": ""
+            },
+            {
+              "name": "signAllTransactions",
+              "parameters": [
+                {
+                  "name": "transactions",
+                  "type": {
+                    "type": "array",
+                    "elementType": "any"
+                  }
+                }
+              ],
+              "returnType": {
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": "any"
+                  }
+                ]
+              },
+              "documentation": ""
+            },
+            {
+              "name": "signMessage",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "name": "Uint8Array",
+                    "typeArguments": []
+                  }
+                }
+              ],
+              "returnType": {
+                "name": "Promise",
+                "typeArguments": [
+                  "{ signature: Uint8Array }"
+                ]
+              },
+              "documentation": ""
+            }
+          ],
+          "properties": [
+            {
+              "name": "type",
+              "type": "'solana'",
+              "documentation": ""
+            },
+            {
+              "name": "publicKey",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "connection",
+              "type": "any",
+              "documentation": ""
+            }
+          ]
+        },
+        {
+          "name": "BitcoinProvider",
+          "heritage": [
+            "extends BlockchainProviderBase"
+          ],
+          "methods": [
+            {
+              "name": "getAddress",
+              "parameters": [],
+              "returnType": {
+                "name": "Promise",
+                "typeArguments": [
+                  "string"
+                ]
+              },
+              "documentation": ""
+            },
+            {
+              "name": "signMessage",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": "string"
+                },
+                {
+                  "name": "address",
+                  "type": "string"
+                }
+              ],
+              "returnType": {
+                "name": "Promise",
+                "typeArguments": [
+                  "string"
+                ]
+              },
+              "documentation": ""
+            },
+            {
+              "name": "signPsbt",
+              "parameters": [
+                {
+                  "name": "psbtBase64",
+                  "type": "string"
+                }
+              ],
+              "returnType": {
+                "name": "Promise",
+                "typeArguments": [
+                  "string"
+                ]
+              },
+              "documentation": ""
+            }
+          ],
+          "properties": [
+            {
+              "name": "type",
+              "type": "'bitcoin'",
+              "documentation": ""
+            },
+            {
+              "name": "network",
+              "type": "any",
+              "documentation": ""
+            }
+          ]
+        },
+        {
+          "name": "Window",
+          "heritage": [],
+          "methods": [],
+          "properties": [
+            {
+              "name": "ethereum",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "solana",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "web3",
+              "type": "any",
+              "documentation": ""
+            }
+          ]
+        }
+      ],
+      "types": [
+        {
+          "name": "BlockchainType",
+          "type": {
+            "type": "union",
+            "types": [
+              "'ethereum'",
+              "'solana'",
+              "'bitcoin'",
+              "'other'"
+            ]
+          },
+          "documentation": "/**\n * Blockchain Provider Abstraction\n * \n * This file defines interfaces and utilities for working with different blockchain providers\n * in a consistent way, regardless of the underlying implementation.\n */\n/**\n * Supported blockchain types\n */"
+        },
+        {
+          "name": "BlockchainProvider",
+          "type": {
+            "type": "union",
+            "types": [
+              {
+                "name": "EthereumProvider",
+                "typeArguments": []
+              },
+              {
+                "name": "SolanaProvider",
+                "typeArguments": []
+              },
+              {
+                "name": "BitcoinProvider",
+                "typeArguments": []
+              }
+            ]
+          },
+          "documentation": "/**\n * Union type of all provider interfaces\n */"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "file": "types.ts",
+      "methods": [],
+      "interfaces": [
+        {
+          "name": "MetaData",
+          "heritage": [],
+          "methods": [],
+          "properties": [
+            {
+              "name": "collection_name",
+              "type": "string",
+              "documentation": ""
+            },
+            {
+              "name": "animation_url",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "_id",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "name",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "ipfs",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "tokenId",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "description",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "image",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "image_ipfs",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "ownedImage",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "addresses",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "network",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "attributes",
+              "type": {
+                "type": "array",
+                "elementType": "any"
+              },
+              "documentation": ""
+            },
+            {
+              "name": "values",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "totalValue",
+              "type": "number",
+              "documentation": ""
+            },
+            {
+              "name": "private",
+              "type": "boolean",
+              "documentation": ""
+            },
+            {
+              "name": "external_url",
+              "type": "string",
+              "documentation": ""
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "documentation": ""
+            },
+            {
+              "name": "claimedBy",
+              "type": "string",
+              "documentation": ""
+            },
+            {
+              "name": "youtube_url",
+              "type": "string",
+              "documentation": ""
+            },
+            {
+              "name": "ciphertextV2",
+              "type": "string",
+              "documentation": ""
+            },
+            {
+              "name": "live",
+              "type": "boolean",
+              "documentation": ""
+            },
+            {
+              "name": "nonce",
+              "type": "number",
+              "documentation": ""
+            },
+            {
+              "name": "signature",
+              "type": "string",
+              "documentation": ""
+            },
+            {
+              "name": "to",
+              "type": "string",
+              "documentation": ""
+            },
+            {
+              "name": "is_dynamic",
+              "type": "boolean",
+              "documentation": ""
+            },
+            {
+              "name": "platform",
+              "type": "string",
+              "documentation": ""
+            },
+            {
+              "name": "curation_status",
+              "type": "string",
+              "documentation": ""
+            },
+            {
+              "name": "origDescription",
+              "type": "string",
+              "documentation": ""
+            },
+            {
+              "name": "sealed",
+              "type": "boolean",
+              "documentation": ""
+            },
+            {
+              "name": "collectionAddress",
+              "type": "string",
+              "documentation": ""
+            },
+            {
+              "name": "targetAsset",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "targetContract",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "mintLocked",
+              "type": "boolean",
+              "documentation": ""
+            },
+            {
+              "name": "mintLockBlock",
+              "type": "number",
+              "documentation": ""
+            },
+            {
+              "name": "curatedIds",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "ownedBy",
+              "type": "string",
+              "documentation": ""
+            },
+            {
+              "name": "fraud",
+              "type": "boolean",
+              "documentation": ""
+            },
+            {
+              "name": "batchId",
+              "type": "number",
+              "documentation": ""
+            },
+            {
+              "name": "batch_index",
+              "type": "number",
+              "documentation": ""
+            },
+            {
+              "name": "success",
+              "type": "boolean",
+              "documentation": ""
+            },
+            {
+              "name": "coverImage",
+              "type": "string",
+              "documentation": ""
+            },
+            {
+              "name": "move_targetContract",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "move_targetAsset",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "project",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "background_color",
+              "type": "string",
+              "documentation": ""
+            },
+            {
+              "name": "ownershipInfo",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "alpha",
+              "type": "boolean",
+              "documentation": ""
+            }
+          ]
+        },
+        {
+          "name": "WalletConfig",
+          "heritage": [],
+          "methods": [],
+          "properties": [
+            {
+              "name": "priority",
+              "type": {
+                "type": "array",
+                "elementType": "string"
+              },
+              "documentation": ""
+            },
+            {
+              "name": "autoConnectWallets",
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "name": "BlockchainType",
+                  "typeArguments": []
+                }
+              },
+              "documentation": ""
+            }
+          ]
+        },
+        {
+          "name": "Window",
+          "heritage": [],
+          "methods": [],
+          "properties": [
+            {
+              "name": "ethereum",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "phantom",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "solflare",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "trustWallet",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "coinbaseWalletExtension",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "bitcoin",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "HiroWalletProvider",
+              "type": "any",
+              "documentation": ""
+            },
+            {
+              "name": "solana",
+              "type": "any & {\n            isPhantom?: boolean;\n            isSolflare?: boolean;\n            connect?: (options?: { onlyIfTrusted?: boolean }) => Promise<any>;\n            set?: (config: Record<string, any>) => void;\n        }",
+              "documentation": ""
+            },
+            {
+              "name": "web3",
+              "type": "any",
+              "documentation": ""
+            }
+          ]
+        }
+      ],
+      "types": [
+        {
+          "name": "ContractDetails",
+          "type": "{\n    [key: string]: string;\n}",
+          "documentation": ""
+        },
+        {
+          "name": "Collection",
+          "type": "{\n    id: number;\n    created_at: string;\n    contracts: ContractDetails;\n    name: string;\n    nativeAssets: string[];\n    mintable: boolean;\n    autoLoad: boolean;\n    addressChain: string;\n    collectionType: string;\n    loadTypes: string[];\n    description: string;\n    purchaseMethod: string;\n    showBalance: boolean;\n    balanceUrl: string;\n    price: number;\n    collectionChain: string;\n    balanceQty: number | null;\n    imageHandler: string;\n    loadingImages: string[];\n    placeholderImages: string[] | null;\n    balanceAfterLive: boolean;\n    balanceCheckers: string[] | null;\n    tokenIdScheme: string | null;\n    generateVaultBody: Function;\n    generateCreateTemplate: Function;\n}",
+          "documentation": ""
+        },
+        {
+          "name": "Balance",
+          "type": "{\n    coin: string;\n    name?: string;\n    balance: number;\n    symbol?: string;\n    address: string;\n    type?: string;\n    image?: string;\n    qty?: number;\n}",
+          "documentation": ""
+        },
+        {
+          "name": "Address",
+          "type": "{\n    path?: string;\n    address: string;\n    coin: string;\n    derivationPath?: string;\n}",
+          "documentation": ""
+        },
+        {
+          "name": "ContentType",
+          "type": "{\n    valid: boolean;\n    contentType: string;\n    extension: string;\n    embed: boolean;\n}",
+          "documentation": ""
+        },
+        {
+          "name": "TargetContract",
+          "type": "{\n    \"1\": string;\n    name: string;\n    description?: string;\n    tokenId?: string;\n}",
+          "documentation": ""
+        },
+        {
+          "name": "TargetAsset",
+          "type": "{\n    name: string;\n    image: string;\n    ownedImage: string;\n    contentType?: ContentType;\n    description?: string;\n}",
+          "documentation": ""
+        },
+        {
+          "name": "Vault",
+          "type": "{\n    name: string;\n    version: number;\n    basePath: string;\n    pubkey: string;\n    addresses: Address[];\n    ciphertextV2: string;\n    targetContract: TargetContract;\n    targetAsset: TargetAsset;\n    tokenId: string;\n    to: string;\n    network: string;\n    live: boolean;\n}",
+          "documentation": ""
+        },
+        {
+          "name": "Ownership",
+          "type": "{\n    id: number;\n    created_at: string;\n    tokenId: string;\n    owner: string;\n    internalTokenId: string;\n    serialNumber: string | null;\n    contract: string;\n    category: string;\n    blockUpdated: string;\n    createdBy: string;\n    status: string;\n    claimedBy: string | null;\n    network: string;\n}",
+          "documentation": ""
+        },
+        {
+          "name": "CuratedCollectionsResponse",
+          "type": {
+            "type": "array",
+            "elementType": {
+              "name": "Collection",
+              "typeArguments": []
+            }
+          },
+          "documentation": ""
+        },
+        {
+          "name": "AiVaultInfo",
+          "type": "{\n    address: string;\n    vaultId: string;\n}",
+          "documentation": ""
+        },
+        {
+          "name": "v3LocalMintSignature",
+          "type": "{\n    message: string;\n    signature: string;\n}",
+          "documentation": ""
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "file": "utils.ts",
+      "methods": [
+        {
+          "name": "projectsFromMetadataJson",
+          "parameters": [],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "generateAttributeTemplate",
+          "parameters": [
+            {
+              "name": "record",
+              "type": "any",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "generateImageTemplate",
+          "parameters": [
+            {
+              "name": "record",
+              "type": "any",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "generateTemplate",
+          "parameters": [
+            {
+              "name": "record",
+              "type": "any",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "/**\n * generateTemplate defines rules and utilitites for a given curated\n * collection. This is used by callers, like emblem.finance website\n * to display vaults belonging to a curated collection with appropriate\n * data and actions.\n *\n * @param record is a curated collection record as defined in\n * the Emblem database.\n */",
+          "category": "vault",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "balanceExplorer",
+          "parameters": [
+            {
+              "name": "address",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "balance",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "validateTemplate",
+          "parameters": [
+            {
+              "name": "template",
+              "type": "{ [x: string]: any; hasOwnProperty: (arg0: string) => any; }",
+              "optional": false
+            },
+            {
+              "name": "callback",
+              "type": "any",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "checkGuard",
+          "parameters": [],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "templateGuard",
+          "parameters": [
+            {
+              "name": "input",
+              "type": "{ [x: string]: any; hasOwnProperty: (arg0: string) => any; }",
+              "optional": false
+            },
+            {
+              "name": "options",
+              "type": "{ throwError?: boolean; returnErrors?: boolean }",
+              "optional": false,
+              "defaultValue": "{ throwError: true, returnErrors: false }"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "genericGuard",
+          "parameters": [
+            {
+              "name": "input",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "key",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "getQuoteContractObject",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "getHandlerContract",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "getLegacyContract",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "getERC1155Contract",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "address",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "getERC721AContract",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "address",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "checkContentType",
+          "parameters": [
+            {
+              "name": "url",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "fetchUrl",
+          "parameters": [
+            {
+              "name": "method",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "isValidDirect",
+          "parameters": [
+            {
+              "name": "extension",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "getFileExtensionFromMimeType",
+          "parameters": [
+            {
+              "name": "mimeType",
+              "type": {
+                "type": "union",
+                "types": [
+                  "string",
+                  "null"
+                ]
+              },
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": false,
+          "visibility": "public"
+        },
+        {
+          "name": "getTorusKeys",
+          "parameters": [
+            {
+              "name": "verifierId",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "idToken",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "cb",
+              "type": "any",
+              "optional": false,
+              "defaultValue": "null"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "auth",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "decryptKeys",
+          "parameters": [
+            {
+              "name": "vaultCiphertextV2",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "keys",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "addresses",
+              "type": {
+                "type": "array",
+                "elementType": "any"
+              },
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "encryption",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "getSatsConnectAddress",
+          "parameters": [],
+          "returnType": {
+            "name": "Promise",
+            "typeArguments": [
+              {
+                "name": "SatsConnectAddress",
+                "typeArguments": []
+              }
+            ]
+          },
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "signPSBT",
+          "parameters": [
+            {
+              "name": "psbtBase64",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "paymentAddress",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "indexes",
+              "type": {
+                "type": "array",
+                "elementType": "number"
+              },
+              "optional": false
+            },
+            {
+              "name": "broadcast",
+              "type": "boolean",
+              "optional": false,
+              "defaultValue": "false"
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "transaction",
+          "async": true,
+          "visibility": "public"
+        }
+      ],
+      "interfaces": [
+        {
+          "name": "SatsConnectAddress",
+          "heritage": [],
+          "methods": [],
+          "properties": [
+            {
+              "name": "paymentAddress",
+              "type": "string",
+              "documentation": ""
+            },
+            {
+              "name": "paymentPublicKey",
+              "type": "string",
+              "documentation": ""
+            },
+            {
+              "name": "ordinalsAddress",
+              "type": "string",
+              "documentation": ""
+            }
+          ]
+        }
+      ],
+      "types": [
+        {
+          "name": "ReturnVal",
+          "type": "{ valid?: boolean, contentType?: string | null, extension?: string, embed?: boolean, method?: string }",
+          "documentation": ""
+        }
+      ],
+      "relationships": []
+    }
+  ],
+  "stats": {
+    "totalFiles": 8,
+    "totalMethods": 105,
+    "totalInterfaces": 13,
+    "totalTypes": 17,
+    "methodsByCategory": {
+      "vault": 36,
+      "transaction": 11,
+      "other": 37,
+      "balance": 4,
+      "auth": 12,
+      "encryption": 2,
+      "utility": 3
+    },
+    "errors": []
+  }
+}

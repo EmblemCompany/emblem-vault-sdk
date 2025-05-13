@@ -33,6 +33,8 @@ export declare function genericGuard(input: any, type: string, key: string): voi
 export declare function getQuoteContractObject(web3: any): Promise<any>;
 export declare function getHandlerContract(web3: any): Promise<any>;
 export declare function getLegacyContract(web3: any): Promise<any>;
+export declare function getERC1155Contract(web3: any, address: string): Promise<any>;
+export declare function getERC721AContract(web3: any, address: string): Promise<any>;
 export declare function checkContentType(url: string): Promise<unknown>;
 export declare const COIN_TO_NETWORK: any;
 export declare function getTorusKeys(verifierId: string, idToken: any, cb?: any): Promise<{

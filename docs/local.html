@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Emblem Vault SDK Browser Test</title>
+    <style>
+        input, select, button, textarea {
+            padding: 10px;
+            margin: 5px;
+        }
+        #tokenImage{
+            max-width: 300px;
+        }
+        #userInputForm {
+            display: none;
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin: 15px 0;
+            background-color: #f9f9f9;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .required {
+            color: red;
+        }
+    </style>
+<script src="./bitcoinjs-lib.js"></script>
+</head>
+<body>
+    <h1>Testing Emblem Vault SDK in the Browser</h1>
+    <!-- <script src='https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js'></script>
+    <script>
+        window.addEventListener('load', function () {
+        // Check if web3 is available
+        if (typeof window.ethereum !== 'undefined') {
+            
+            // Use the browser injected Ethereum provider
+            web3 = new Web3(window.ethereum);
+
+            // Request access to the user's MetaMask account
+            window.ethereum.enable();
+
+            // Get the user's accounts
+            web3.eth.getAccounts().then(function (accounts) {
+            // Show the first account
+            console.log('Connected with MetaMask account: ' + accounts[0]);
+            });
+        } else {
+            // If web3 is not available, give instructions to install MetaMask
+            console.log('Please install MetaMask to connect with the Ethereum network');
+        }
+    });
+    </script> -->
+    <script src="./bundle.js"></script>
+    <script>
+        const sdk = new EmblemVaultSDK('demo', 'http://localhost:3001');        
+
+        sdk.fetchCuratedContracts(false).then(curatedContracts => {
+            window.curatedContracts = curatedContracts;
+            generateDropdown(curatedContracts);
+        });
+
+        function generateDropdown(curatedContracts) {
+            const selectElement = function () { return document.getElementById('contractSelect') }
+            let hide = document.getElementById('hideNotMintableCheckbox').checked
+            while (selectElement().firstChild) { 
+                selectElement().removeChild(selectElement().firstChild);
+            }
+            const defaultOptionElement = document.createElement('option');
+            defaultOptionElement.value = '-1';
+            defaultOptionElement.text = 'Select contract';
+            selectElement().appendChild(defaultOptionElement);
+            curatedContracts.forEach((contract, index) => {                
+                if (!hide || (hide && contract.mintable)) {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = index.toString();
+                    optionElement.text = contract.name;
+                    selectElement().appendChild(optionElement);
+                }
+            });
+            selectElement().style.display = 'block';
+        }
+
+        async function generateAssetDropdown(curatedContract) {
+            const selectElement = function () { return document.getElementById('vaultAssetSelect') }
+            // let hide = document.getElementById('hideNotMintableCheckbox').checked
+            while (selectElement().firstChild) {
+                selectElement().removeChild(selectElement().firstChild);
+            }
+            const defaultOptionElement = document.createElement('option');
+            defaultOptionElement.value = '0';
+            defaultOptionElement.text = 'Select asset';
+            selectElement().appendChild(defaultOptionElement);
+            let assets = await sdk.getAssetMetadata(curatedContract.name)
+            window.assets = assets
+            assets.forEach((contract, index) => {                
+                // if (!hide || (hide && contract.mintable)) {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = index.toString();
+                    optionElement.text = assets[index].assetName;
+                    selectElement().appendChild(optionElement);
+                // }
+            });
+            selectElement().style.display = 'block';
+        }
+        
+        async function createVault() {
+            document.getElementById('vaultDetails').display = 'none';
+            
+            // Check if this is an open collection and we need to update the template with user input
+            if (window.contract && window.contract.name === "EmblemOpen") {
+                // Get user input values
+                const name = document.getElementById('userInputName').value;
+                const imageUrl = document.getElementById('userInputImage').value;
+                const description = document.getElementById('userInputDescription').value;
+                const ownedImage = document.getElementById('userInputOwnedImage').value;
+                
+                // Validate required fields
+                if (!name) {
+                    alert("Name is a required field");
+                    return;
+                }
+                
+                if (!imageUrl) {
+                    alert("Image URL is a required field");
+                    return;
+                }
+                
+                // Update the template with user input
+                window.template.targetAsset.name = name;
+                window.template.targetAsset.image = imageUrl;
+                
+                // Only add fields that have values, remove empty ones
+                if (description) {
+                    window.template.targetAsset.description = description;
+                } else if (window.template.targetAsset.hasOwnProperty('description')) {
+                    delete window.template.targetAsset.description;
+                }
+                
+                if (ownedImage) {
+                    window.template.targetAsset.ownedImage = ownedImage;
+                } else if (window.template.targetAsset.hasOwnProperty('ownedImage')) {
+                    delete window.template.targetAsset.ownedImage;
+                }
+                
+                // Check for other properties in targetAsset that might be empty or undefined
+                Object.keys(window.template.targetAsset).forEach(key => {
+                    if (window.template.targetAsset[key] === "" || 
+                        window.template.targetAsset[key] === null || 
+                        window.template.targetAsset[key] === undefined) {
+                        delete window.template.targetAsset[key];
+                    }
+                });
+                
+                console.log("--------- Updated Template with User Input ---------");
+                console.log(window.template);
+            }
+            
+            let vault = await sdk.createCuratedVault(window.template)
+            window.vaults = window.vaults || [];
+            window.vaults.push(vault);
+            console.log("--------- Vault Details ---------");
+            console.log(vault)
+            document.getElementById('tokenId').value = vault.tokenId;
+            await getMetadata();           
+        }
+
+        async function createMultipleVaults(index = 0, vaultCount = parseInt(document.getElementById('vaultCount').value, 10)) {
+            if (index < vaultCount) {
+                try {
+                    await createVault();
+                    console.log(`Vault ${index + 1} created successfully.`);
+                } catch (error) {
+                    console.error(`Failed to create vault at index ${index + 1}:`, error);
+                } finally {
+                    updateCsvData();
+                    // Call the next iteration of the loop
+                    createMultipleVaults(index + 1, vaultCount);
+                }
+            }
+        }
+
+        async function createMultipleVaultsAsync(vaultCount = parseInt(document.getElementById('vaultCount').value, 10)) {
+            try {
+                // Create an array of promises for vault creation
+                const vaultPromises = Array.from({ length: vaultCount }, async (_, index) => {
+                    try {
+                        await createVault();
+                        console.log(`Vault ${index + 1} created successfully.`);
+                        updateCsvData();
+                        return { success: true, index };
+                    } catch (error) {
+                        console.error(`Failed to create vault at index ${index + 1}:`, error);
+                        return { success: false, index, error };
+                    }
+                });
+                
+                // Execute all vault creation promises in parallel
+                const results = await Promise.all(vaultPromises);
+                
+                // Log summary of results
+                const successCount = results.filter(r => r.success).length;
+                console.log(`Completed vault creation: ${successCount} of ${vaultCount} successful`);
+            } catch (error) {
+                console.error("Error in batch vault creation:", error);
+            }
+        }
+
+
+        function selectContract(index) {
+            let contract = window.curatedContracts[index];
+            let template = contract.mintTemplate
+            console.log("--------- Contract Details ---------");
+            console.log(contract);
+            console.log("---------- Mint Template ----------");
+            console.log(contract.mintTemplate);
+
+            template.chainId = 1
+            template.toAddress = document.getElementById('ethAddress').value;
+            template.fromAddress = document.getElementById('ethAddress').value;
+            window.contract = contract;
+            window.template = template;          
+            
+            console.log("--------- Populated Template ---------");            
+            console.log(template);
+
+            // Hide the user input form by default
+            document.getElementById('userInputForm').style.display = 'none';
+            
+            // Check if this is an open collection that requires user input
+            if (contract.loadTypes.includes("detailed")) {
+                // Show the user input form
+                document.getElementById('userInputForm').style.display = 'block';
+            }
+            
+            if (contract.loadTypes.includes('select')) {
+                generateAssetDropdown(contract);
+            } else {
+                document.getElementById('vaultAssetSelect').style.display = 'none';
+            }
+        }
+
+        function selectAsset(index) {
+            console.log("--------- Asset Details ---------");   
+            console.log(window.assets[index]);
+            template.targetAsset.name = window.assets[index].assetName;
+            template.targetAsset.image = window.assets[index].image;
+            console.log("--------- Populated Template ---------");
+            console.log(template);
+        }
+
+        async function getMetadata() {
+            let metadata = await sdk.fetchMetadata(document.getElementById('tokenId').value)
+            console.log("--------- Metadata ---------");
+            console.log(metadata);            
+            if (!window.contract) {
+                window.contract = window.curatedContracts.find(contract => contract.name == metadata.targetContract.name)  
+            } 
+            window.address = window.contract.address(metadata.addresses)
+            window.vaultBody = contract.generateVaultBody(metadata, metadata.values? metadata.values: [], contract, ()=>{})
+            document.getElementById('depositAddress').textContent = window.address;
+            document.getElementById('tokenImage').src = window.vaultBody.image;
+            document.getElementById('tokenName').textContent = window.vaultBody.name;
+            document.getElementById('tokenDescription').textContent = window.vaultBody.description;
+            document.getElementById('tokenLink').href = `https://emblem.vision/vault/${metadata.tokenId}`;
+            document.getElementById('vaultDetails').style.display = 'block';
+            if (canMint(metadata)) {
+                document.getElementById('mintButton').style.display = 'block';
+            }
+        }
+
+        function canMint(metadata){
+            return window.contract.allowed(metadata.values, window.contract)
+        }
+
+        async function mintToken() {
+            await sdk.loadWeb3().then(async (web3) => {
+    return await sdk.performMintChain(web3, "61689479979346071")
+})
+        }
+
+        function updateCsvData(){
+            // create csv headers, for each window.vaults, create csv of vault.tokenId, window.contract.address(metadata.addresses)
+            let csvData = 'Token ID, Deposit Address\n';
+            window.vaults.forEach(vault => {
+                csvData += `${vault.tokenId}, ${window.contract.address(vault.addresses)}\n`;
+            });
+            document.getElementById('csvData').textContent = csvData;
+        }
+
+        document.body.addEventListener('change', (event) => {
+            if (event.target.id === 'contractSelect' && event.target.value != '-1') {
+                selectContract(event.target.value);
+            }
+            if (event.target.id === 'vaultAssetSelect' && event.target.value != '-1') {
+                selectAsset(event.target.value);
+            }
+        });
+    </script>
+
+
+    <button id="connectButton" onclick="connectWeb3()">Connect to Web3</button>
+
+    <script>
+        async function connectWeb3() {
+            sdk.loadWeb3().then(async (web3) => {
+                console.log('Web3 loaded');                
+                let accounts = await web3.eth.getAccounts();
+                document.getElementById('ethAddress').value = accounts[0];
+                localStorage.setItem('ethAddress', accounts[0])
+            }).catch(error => {
+                console.error('Failed to load Web3:', error);
+            });
+        }
+    </script>
+    <input type="text" id="ethAddress" placeholder="Enter ETH Address" oninput="localStorage.setItem('ethAddress', this.value)" value="">
+
+    <input type="checkbox" id="hideNotMintableCheckbox" checked onchange="generateDropdown(window.curatedContracts)">
+    <label for="hideNotMintableCheckbox">Hide Not Mintable</label>
+
+    <select id="contractSelect" style="display: none;"></select>
+
+    <select id="vaultAssetSelect" style="display: none;"></select>
+
+    <!-- User Input Form for Open Collections -->
+    <div id="userInputForm">
+        <h3>Enter Vault Details</h3>
+        <div class="form-group">
+            <label for="userInputName">Name <span class="required">*</span></label>
+            <input type="text" id="userInputName" placeholder="Enter vault name" required>
+        </div>
+        <div class="form-group">
+            <label for="userInputImage">Image URL <span class="required">*</span></label>
+            <input type="text" id="userInputImage" placeholder="Enter image URL" required>
+        </div>
+        <div class="form-group">
+            <label for="userInputDescription">Description</label>
+            <textarea id="userInputDescription" placeholder="Enter description" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="userInputOwnedImage">Owned Image URL (Optional)</label>
+            <input type="text" id="userInputOwnedImage" placeholder="Enter owned image URL (only shown to owner)">
+        </div>
+    </div>
+
+    <input type="number" id="vaultCount" min="1" value="1">
+    <button id="createButton" onclick="createMultipleVaultsAsync()">Create</button>
+
+    <hr>
+
+    <input type="text" id="tokenId" placeholder="Enter Token ID">
+
+    <button id="getMeta" onclick="getMetadata()">Get Vault</button>
+
+
+    <div id="vaultDetails" style="display: none;">
+        <div><b>Deposit Address:</b> <span id="depositAddress"></span></div>
+        <div><b>Name:</b><span id="tokenName"></span></div>
+        <img id="tokenImage" src="" alt="Token Image">        
+        <div><b>Description:</b><span id="tokenDescription"></span></div>
+        <div><b>Link to Vault:</b><a href="" id="tokenLink" target="_blank">View on Emblem Vault</a></div>
+        <button id="mintButton" onclick="mintToken()" style="display: none;">Mint Token</button>
+        <div>
+            <pre id="csvData"></pre>
+        </div>
+
+    </div>
+
+    <div style="margin-top: 20px;">
+        <p>For more information and to access the source code, visit our GitHub repository:</p>
+        <a href="https://github.com/EmblemCompany/emblem-vault-sdk" target="_blank">Emblem Vault SDK on GitHub</a>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="steps.html" target="_blank">Full Create / Mint : Demo</a>
+    </div>
+    
+    <script>document.getElementById('ethAddress').value = localStorage.getItem('ethAddress');</script>
+</body>
+</html>
