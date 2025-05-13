@@ -17,7 +17,7 @@ const providers_1 = require("./providers");
 const ProviderManager_1 = require("./providers/ProviderManager");
 const emblemVaultWalletClient_1 = require("./clients/emblemVaultWalletClient");
 const emblemVaultSolanaWalletClient_1 = require("./clients/emblemVaultSolanaWalletClient");
-const SDK_VERSION = '3.0.2-experimental';
+const SDK_VERSION = '3.0.3-experimental';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl, v3Url, sigUrl, aiUrl, aiApiKey, byoKey) {
         this.apiKey = apiKey;
@@ -621,6 +621,19 @@ class EmblemVaultSDK {
         return __awaiter(this, arguments, void 0, function* (message, signature, overrideFunc = null) {
             const provider = yield this.getOrDetectProvider('ethereum');
             return overrideFunc ? yield overrideFunc(message, signature) : yield provider.eth.personal.recover(message, signature);
+        });
+    }
+    // upsert curated collection
+    upsertCuratedCollection(collection_1) {
+        return __awaiter(this, arguments, void 0, function* (collection, overrideFunc = null) {
+            const url = `${this.v3Url}/v3/upsertCuratedCollection`;
+            return overrideFunc ? yield overrideFunc(this.apiKey, collection) : yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', collection);
+        });
+    }
+    deleteCuratedCollection(projectId_1) {
+        return __awaiter(this, arguments, void 0, function* (projectId, overrideFunc = null) {
+            const url = `${this.v3Url}/v3/deleteCuratedCollection`;
+            return overrideFunc ? yield overrideFunc(this.apiKey, { id: projectId }) : yield (0, utils_1.fetchData)(url, this.apiKey, 'DELETE', { id: projectId });
         });
     }
     /**

@@ -553,6 +553,17 @@ export class EmblemVaultSDK {
         return overrideFunc? await overrideFunc(message, signature): await provider.eth.personal.recover(message, signature);
     }
 
+    // upsert curated collection
+    async upsertCuratedCollection(collection: any, overrideFunc: Function | null = null) {
+        const url = `${this.v3Url}/v3/upsertCuratedCollection`;
+        return overrideFunc? await overrideFunc(this.apiKey, collection): await fetchData(url, this.apiKey, 'POST', collection);
+    }
+
+    async deleteCuratedCollection(projectId: string, overrideFunc: Function | null = null) {
+        const url = `${this.v3Url}/v3/deleteCuratedCollection`;
+        return overrideFunc? await overrideFunc(this.apiKey, {id: projectId}): await fetchData(url, this.apiKey, 'DELETE', {id: projectId});
+    }
+
     /**
      * ** Emblem Vault AI **
      *

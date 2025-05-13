@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-05-05T07:35:54.404Z",
+  "timestamp": "2025-05-07T18:34:42.461Z",
   "files": [
     {
       "file": "clients/emblemVaultSolanaWalletClient.ts",
@@ -2226,6 +2226,91 @@
           "visibility": "public"
         },
         {
+          "name": "refreshERC1155Ownership",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "contractAddress",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "address",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "refreshERC721Ownership",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "contractAddress",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "address",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "other",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "getContractTokenIdsByTargetContractName",
+          "parameters": [
+            {
+              "name": "contractName",
+              "type": "string",
+              "optional": false
+            },
+            {
+              "name": "distinct",
+              "type": "boolean",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "auth",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "getTokenIdInternalTokenIdMapByTargetContractName",
+          "parameters": [
+            {
+              "name": "contractName",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "auth",
+          "async": true,
+          "visibility": "public"
+        },
+        {
           "name": "checkLiveliness",
           "parameters": [
             {
@@ -3530,6 +3615,46 @@
           "visibility": "public"
         },
         {
+          "name": "getERC1155Contract",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "address",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
+          "name": "getERC721AContract",
+          "parameters": [
+            {
+              "name": "web3",
+              "type": "any",
+              "optional": false
+            },
+            {
+              "name": "address",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "any",
+          "documentation": "",
+          "category": "vault",
+          "async": true,
+          "visibility": "public"
+        },
+        {
           "name": "checkContentType",
           "parameters": [
             {
@@ -3737,15 +3862,15 @@
   ],
   "stats": {
     "totalFiles": 8,
-    "totalMethods": 99,
+    "totalMethods": 105,
     "totalInterfaces": 13,
     "totalTypes": 17,
     "methodsByCategory": {
-      "vault": 34,
+      "vault": 36,
       "transaction": 11,
-      "other": 35,
+      "other": 37,
       "balance": 4,
-      "auth": 10,
+      "auth": 12,
       "encryption": 2,
       "utility": 3
     },

@@ -150,6 +150,8 @@ export declare class EmblemVaultSDK {
     requestRemoteKey(tokenId: string, jwt: any, callback?: any, overrideFunc?: Function | null): Promise<any>;
     decryptVaultKeys(tokenId: string, dkeys: any, callback?: any, overrideFunc?: Function | null): Promise<any>;
     recoverSignerFromMessage(message: string, signature: string, overrideFunc?: Function | null): Promise<string>;
+    upsertCuratedCollection(collection: any, overrideFunc?: Function | null): Promise<any>;
+    deleteCuratedCollection(projectId: string, overrideFunc?: Function | null): Promise<any>;
     /**
      * ** Emblem Vault AI **
      *
