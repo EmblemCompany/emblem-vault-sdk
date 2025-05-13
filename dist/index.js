@@ -17,7 +17,7 @@ const providers_1 = require("./providers");
 const ProviderManager_1 = require("./providers/ProviderManager");
 const emblemVaultWalletClient_1 = require("./clients/emblemVaultWalletClient");
 const emblemVaultSolanaWalletClient_1 = require("./clients/emblemVaultSolanaWalletClient");
-const SDK_VERSION = '3.0.8-experimental';
+const SDK_VERSION = '3.0.9-experimental';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl, v3Url, sigUrl, aiUrl, aiApiKey, byoKey) {
         this.apiKey = apiKey;
@@ -250,13 +250,13 @@ class EmblemVaultSDK {
     // ** Deployments **
     getDeployedContractAddresses(chainId_1) {
         return __awaiter(this, arguments, void 0, function* (chainId, overrideFunc = null) {
-            const url = `${this.baseUrl}/v3/chainDeployments/${chainId ? chainId : ''}`;
+            const url = `${this.v3Url}/v3/chainDeployments/${chainId ? chainId : ''}`;
             return overrideFunc ? yield overrideFunc(this.apiKey, chainId) : yield (0, utils_1.fetchData)(url, this.apiKey);
         });
     }
     addChainDeployment(chainId_1, address_1, name_1, type_1, network_1) {
         return __awaiter(this, arguments, void 0, function* (chainId, address, name, type, network, overrideFunc = null) {
-            const url = `${this.baseUrl}/v3/chainDeployment`;
+            const url = `${this.v3Url}/v3/chainDeployment`;
             return overrideFunc ? yield overrideFunc(this.apiKey, { chainId, address, name, type, network }) : yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { chainId, address, name, type, network });
         });
     }

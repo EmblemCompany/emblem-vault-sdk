@@ -247,12 +247,12 @@ export class EmblemVaultSDK {
 
     // ** Deployments **
     async getDeployedContractAddresses(chainId?: number, overrideFunc: Function | null = null) {
-        const url = `${this.baseUrl}/v3/chainDeployments/${chainId? chainId: ''}`;
+        const url = `${this.v3Url}/v3/chainDeployments/${chainId? chainId: ''}`;
         return overrideFunc? await overrideFunc(this.apiKey, chainId): await fetchData(url, this.apiKey);
     }
 
     async addChainDeployment(chainId: number, address: string, name: string, type: string, network: string, overrideFunc: Function | null = null) {
-        const url = `${this.baseUrl}/v3/chainDeployment`;
+        const url = `${this.v3Url}/v3/chainDeployment`;
         return overrideFunc? await overrideFunc(this.apiKey, {chainId, address, name, type, network}): await fetchData(url, this.apiKey, 'POST', {chainId, address, name, type, network});
     }
 
