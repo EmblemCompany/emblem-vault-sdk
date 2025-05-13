@@ -4,6 +4,9 @@ export type ContractDetails = {
     [key: string]: string;
 };
 
+/**
+ * Type that exactly matches the database schema for curated collections
+ */
 export type Collection = {
     id: number;
     created_at: string;
@@ -15,21 +18,26 @@ export type Collection = {
     addressChain: string;
     collectionType: string;
     loadTypes: string[];
-    description: string;
-    purchaseMethod: string;
+    description: string | null;
+    purchaseMethod: string | null;
     showBalance: boolean;
-    balanceUrl: string;
-    price: number;
+    balanceUrl: string | null;
+    price: number | null;
     collectionChain: string;
     balanceQty: number | null;
-    imageHandler: string;
-    loadingImages: string[];
+    imageHandler: string | null;
+    loadingImages: string[] | null;
     placeholderImages: string[] | null;
-    balanceAfterLive: boolean;
+    balanceAfterLive: boolean | null;
     balanceCheckers: string[] | null;
     tokenIdScheme: string | null;
-    generateVaultBody: Function;
-    generateCreateTemplate: Function;
+    vaultCollectionType: string;
+    launch_ready: boolean;
+    marketplace_ready: boolean;
+    fusion: boolean;
+    // These are not in the database but added during runtime
+    generateVaultBody?: Function;
+    generateCreateTemplate?: Function;
 };
 
 export interface MetaData {
@@ -153,6 +161,7 @@ export type Ownership = {
     claimedBy: string | null;
     network: string;
 }
+
 
 export type CuratedCollectionsResponse = Collection[];
 

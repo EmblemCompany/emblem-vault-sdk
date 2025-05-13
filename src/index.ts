@@ -205,7 +205,7 @@ export class EmblemVaultSDK {
         // Sort the data by the name property in ascending order
         data = data.sort((a: { name: string; }, b: { name: any; }) => a.name.localeCompare(b.name))
             // Map over the sorted data and generate a template for each item
-            .map((item: any) => {
+            .map((item: Collection & Record<string, any>) => {
                 const template = generateTemplate(item);
                 Object.keys(template).forEach(key => {
                     if (key != 'id' && key != 'created_at' && key != 'contracts' && key != 'imageHandler' && key != 'placeholderImages' && key != 'loadingImages' )
@@ -554,12 +554,12 @@ export class EmblemVaultSDK {
     }
 
     // upsert curated collection
-    async upsertCuratedCollection(collection: any, overrideFunc: Function | null = null) {
+    async upsertCuratedCollection(collection: Collection, overrideFunc: Function | null = null) {
         const url = `${this.v3Url}/v3/upsertCuratedCollection`;
         return overrideFunc? await overrideFunc(this.apiKey, collection): await fetchData(url, this.apiKey, 'POST', collection);
     }
 
-    async deleteCuratedCollection(projectId: string, overrideFunc: Function | null = null) {
+    async deleteCuratedCollection(projectId: string | number, overrideFunc: Function | null = null) {
         const url = `${this.v3Url}/v3/deleteCuratedCollection`;
         // For DELETE requests with a body, we need to ensure the body is properly sent
         return overrideFunc? await overrideFunc(this.apiKey, {id: projectId}): await fetchData(url, this.apiKey, 'DELETE', {id: projectId});
