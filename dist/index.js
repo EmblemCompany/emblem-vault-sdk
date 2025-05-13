@@ -17,7 +17,7 @@ const providers_1 = require("./providers");
 const ProviderManager_1 = require("./providers/ProviderManager");
 const emblemVaultWalletClient_1 = require("./clients/emblemVaultWalletClient");
 const emblemVaultSolanaWalletClient_1 = require("./clients/emblemVaultSolanaWalletClient");
-const SDK_VERSION = '3.0.4-experimental';
+const SDK_VERSION = '3.0.5-experimental';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl, v3Url, sigUrl, aiUrl, aiApiKey, byoKey) {
         this.apiKey = apiKey;
