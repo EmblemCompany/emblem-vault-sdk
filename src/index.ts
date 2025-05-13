@@ -247,7 +247,7 @@ export class EmblemVaultSDK {
 
     // ** Deployments **
     async getDeployedContractAddresses(chainId?: number, overrideFunc: Function | null = null) {
-        const url = `${this.baseUrl}/v3/chainDeployments/${chainId}`;
+        const url = `${this.baseUrl}/v3/chainDeployments/${chainId? chainId: ''}`;
         return overrideFunc? await overrideFunc(this.apiKey, chainId): await fetchData(url, this.apiKey);
     }
 

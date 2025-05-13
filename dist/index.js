@@ -17,7 +17,7 @@ const providers_1 = require("./providers");
 const ProviderManager_1 = require("./providers/ProviderManager");
 const emblemVaultWalletClient_1 = require("./clients/emblemVaultWalletClient");
 const emblemVaultSolanaWalletClient_1 = require("./clients/emblemVaultSolanaWalletClient");
-const SDK_VERSION = '3.0.7-experimental';
+const SDK_VERSION = '3.0.8-experimental';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl, v3Url, sigUrl, aiUrl, aiApiKey, byoKey) {
         this.apiKey = apiKey;
@@ -250,7 +250,7 @@ class EmblemVaultSDK {
     // ** Deployments **
     getDeployedContractAddresses(chainId_1) {
         return __awaiter(this, arguments, void 0, function* (chainId, overrideFunc = null) {
-            const url = `${this.baseUrl}/v3/chainDeployments/${chainId}`;
+            const url = `${this.baseUrl}/v3/chainDeployments/${chainId ? chainId : ''}`;
             return overrideFunc ? yield overrideFunc(this.apiKey, chainId) : yield (0, utils_1.fetchData)(url, this.apiKey);
         });
     }
