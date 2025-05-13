@@ -70,7 +70,7 @@ export const fetchData = async (url: string, apiKey: string, method: string = 'G
         method: method,
         headers: headers ? { ...headers, 'x-api-key': apiKey } : { 'x-api-key': apiKey },
     };
-    if (method === 'POST' && body) {
+    if ((method === 'POST' || method === 'DELETE') && body) {
         options.body = JSON.stringify(body);
         options.headers['Content-Type'] = 'application/json';
     }

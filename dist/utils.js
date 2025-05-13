@@ -91,7 +91,7 @@ const fetchData = (url_1, apiKey_1, ...args_1) => __awaiter(void 0, [url_1, apiK
         method: method,
         headers: headers ? Object.assign(Object.assign({}, headers), { 'x-api-key': apiKey }) : { 'x-api-key': apiKey },
     };
-    if (method === 'POST' && body) {
+    if ((method === 'POST' || method === 'DELETE') && body) {
         options.body = JSON.stringify(body);
         options.headers['Content-Type'] = 'application/json';
     }

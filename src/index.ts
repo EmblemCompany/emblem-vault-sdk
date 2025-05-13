@@ -561,6 +561,7 @@ export class EmblemVaultSDK {
 
     async deleteCuratedCollection(projectId: string, overrideFunc: Function | null = null) {
         const url = `${this.v3Url}/v3/deleteCuratedCollection`;
+        // For DELETE requests with a body, we need to ensure the body is properly sent
         return overrideFunc? await overrideFunc(this.apiKey, {id: projectId}): await fetchData(url, this.apiKey, 'DELETE', {id: projectId});
     }
 
