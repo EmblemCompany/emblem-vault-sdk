@@ -175,7 +175,7 @@ export declare class EmblemVaultSDK {
     refreshERC1155Ownership(web3: any, contractAddress: string, address: string): Promise<number[]>;
     refreshERC721Ownership(web3: any, contractAddress: string, address: string): Promise<number[]>;
     getContractTokenIdsByTargetContractName(contractName: string, distinct: boolean): Promise<any>;
-    getTokenIdInternalTokenIdMapByTargetContractName(contractName: string): Promise<any>;
+    getTokenIdInternalTokenIdMapByTargetContractName(contractName: string, minted?: boolean): Promise<any>;
     checkLiveliness(tokenId: string, chainId?: number): Promise<any>;
     checkLivelinessBulk(tokenIds: string[], chainId?: number): Promise<any[]>;
     sweepVaultUsingPhrase(phrase: string, satsPerByte?: number, broadcast?: boolean): Promise<unknown>;
