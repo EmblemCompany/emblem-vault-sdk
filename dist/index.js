@@ -17,7 +17,7 @@ const providers_1 = require("./providers");
 const ProviderManager_1 = require("./providers/ProviderManager");
 const emblemVaultWalletClient_1 = require("./clients/emblemVaultWalletClient");
 const emblemVaultSolanaWalletClient_1 = require("./clients/emblemVaultSolanaWalletClient");
-const SDK_VERSION = '__SDK_VERSION__';
+const SDK_VERSION = '3.0.11-experimental';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl, v3Url, sigUrl, aiUrl, aiApiKey, byoKey) {
         this.apiKey = apiKey;
@@ -816,8 +816,8 @@ class EmblemVaultSDK {
         });
     }
     getTokenIdInternalTokenIdMapByTargetContractName(contractName_1) {
-        return __awaiter(this, arguments, void 0, function* (contractName, minted = false) {
-            let url = `${this.v3Url}/tokenIdInternalTokenIdMap/${contractName}${minted ? `?minted=${minted}` : ''}`;
+        return __awaiter(this, arguments, void 0, function* (contractName, minted = true) {
+            let url = `${this.v3Url}/tokenIdInternalTokenIdMap/${contractName}?minted=${minted}`;
             return yield (0, utils_1.fetchData)(url, this.apiKey, 'GET');
         });
     }

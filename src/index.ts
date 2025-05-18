@@ -735,8 +735,8 @@ export class EmblemVaultSDK {
         return await fetchData(url, this.apiKey, 'GET');
     }
 
-    async getTokenIdInternalTokenIdMapByTargetContractName(contractName: string, minted: boolean = false) {
-        let url = `${this.v3Url}/tokenIdInternalTokenIdMap/${contractName}${minted?`?minted=${minted}` : ''}`;
+    async getTokenIdInternalTokenIdMapByTargetContractName(contractName: string, minted: boolean = true) {
+        let url = `${this.v3Url}/tokenIdInternalTokenIdMap/${contractName}?minted=${minted}`;
         return await fetchData(url, this.apiKey, 'GET');
     }
 
