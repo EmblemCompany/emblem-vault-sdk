@@ -1,0 +1,96 @@
+# Task ID: 1
+# Title: SDK Code Analysis and Method Mapping
+# Status: in-progress
+# Dependencies: None
+# Priority: high
+# Description: Analyze the Emblem Vault SDK codebase to identify all available endpoints, methods, and their parameters.
+# Details:
+Create a script to scan the SDK source code and generate a structured JSON representation of all public methods, their parameters, return types, and descriptions. This will serve as the foundation for the toolbox. Include categorization of methods by functionality (e.g., authentication, vault operations, transactions).
+
+# Test Strategy:
+Validate the completeness of the method mapping by cross-referencing with documentation and ensuring all public methods are captured correctly.
+
+# Subtasks:
+## 1. Set up SDK Code Analysis Environment [done]
+### Dependencies: None
+### Description: Create a dedicated analysis environment with all necessary tools and libraries for parsing the Emblem Vault SDK codebase based on its programming language.
+### Details:
+1. Determine the programming language of the Emblem Vault SDK (JavaScript/TypeScript, Python, etc.)
+2. Install appropriate static analysis libraries based on the language (e.g., AST parsers like acorn for JavaScript, ast module for Python)
+3. Set up a project structure with separate directories for the analysis script, output files, and tests
+4. Create configuration files for the analysis tools with appropriate settings
+5. Write a simple test script to verify the environment setup by parsing a sample SDK file
+6. Document the environment setup process for future reference
+7. Testing approach: Verify successful installation of all dependencies and ability to parse a sample file from the SDK
+
+<info added on 2025-05-05T07:17:40.335Z>
+I've completed the SDK analysis environment setup with several enhancements:
+
+The analysis tool leverages the TypeScript compiler API (ts.createProgram, ts.forEachChild) to traverse the SDK's AST, enabling detailed type information extraction and relationship mapping between components. 
+
+The Express development server (port 3000) serves both the analysis API endpoints and a React-based UI for visualizing results. Key endpoints include:
+- GET /api/analyze - Triggers analysis and returns status
+- GET /api/results - Returns current analysis data
+- POST /api/config - Updates analysis parameters
+
+The interactive UI features:
+- Force-directed graph visualization of SDK component relationships
+- Searchable/filterable component explorer with syntax highlighting
+- Dependency chain visualization for selected components
+
+Analysis results can be exported in multiple formats (JSON, CSV, HTML report) with a single-click download option that includes timestamps and analysis configuration metadata.
+
+Error handling includes graceful recovery from parsing failures with detailed logging, progress indicators during long-running analyses, and automatic retry mechanisms for network-related failures when fetching external dependencies.
+</info added on 2025-05-05T07:17:40.335Z>
+
+## 2. Develop SDK File Parser and Method Extractor [in-progress]
+### Dependencies: 1.1
+### Description: Create a core parser module that can traverse SDK source files, identify public methods, and extract their signatures, parameters, and metadata.
+### Details:
+1. Implement a file discovery mechanism to locate all relevant SDK source files
+2. Create a parser that uses AST (Abstract Syntax Tree) analysis to identify class and method definitions
+3. Extract method signatures including name, parameters, return types, and access modifiers
+4. Implement docstring/comment extraction to capture method descriptions and parameter documentation
+5. Create a standardized internal representation for storing extracted method information
+6. Add error handling for parsing edge cases and malformed code
+7. Implement logging to track parsing progress and issues
+8. Testing approach: Create unit tests with sample SDK code snippets to verify correct extraction of different method types, parameters, and documentation
+
+## 3. Implement Method Categorization and Relationship Mapping [pending]
+### Dependencies: 1.2
+### Description: Enhance the parser to categorize methods by functionality and identify relationships between methods, including dependencies and inheritance.
+### Details:
+1. Define categorization rules based on method naming conventions, namespaces, or class hierarchies
+2. Implement pattern matching to assign methods to categories (e.g., authentication, vault operations, transactions)
+3. Create logic to identify method relationships such as inheritance, overrides, and internal dependencies
+4. Build a graph representation of method relationships to visualize dependencies
+5. Implement heuristics to detect API endpoints based on method signatures or decorators
+6. Add metadata tags for public vs. private methods, deprecated methods, and version information
+7. Testing approach: Verify correct categorization using predefined test cases with methods from different functional areas, and validate relationship mapping with known method dependencies
+
+## 4. Create JSON Schema and Output Generator [pending]
+### Dependencies: 1.2, 1.3
+### Description: Design a comprehensive JSON schema for representing SDK methods and implement a generator to output the analyzed data in this structured format.
+### Details:
+1. Design a JSON schema that includes all necessary fields: method name, description, parameters (with types and descriptions), return type, category, dependencies, and examples
+2. Implement a converter that transforms the internal representation into the defined JSON schema
+3. Add pretty-printing and formatting options for human readability
+4. Implement validation to ensure all generated JSON conforms to the schema
+5. Create options for different output formats (full detailed output vs. summary output)
+6. Add versioning information to the output to track changes over time
+7. Implement file output with appropriate error handling
+8. Testing approach: Validate generated JSON against the schema definition, ensure all extracted method information is correctly represented, and verify the output is valid JSON
+
+## 5. Build Automated Analysis Pipeline with CI/CD Integration [pending]
+### Dependencies: 1.1, 1.2, 1.3, 1.4
+### Description: Create a complete automation pipeline that can be triggered manually or as part of CI/CD to analyze the SDK and generate up-to-date method documentation.
+### Details:
+1. Create a main script that orchestrates the entire analysis process from file discovery to JSON generation
+2. Implement command-line arguments for customizing the analysis (input directory, output file, verbosity)
+3. Add configuration options for different analysis modes (quick scan vs. deep analysis)
+4. Create GitHub Actions or similar CI/CD workflow files to automate analysis on repository changes
+5. Implement diff generation to highlight changes between SDK versions
+6. Add reporting capabilities to summarize the analysis results (total methods, categories, coverage)
+7. Create documentation on how to use the analysis tools and interpret the results
+8. Testing approach: End-to-end testing of the complete pipeline with the actual Emblem Vault SDK, verifying all components work together correctly and produce accurate output
+

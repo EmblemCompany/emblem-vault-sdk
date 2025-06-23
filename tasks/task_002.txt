@@ -1,0 +1,11 @@
+# Task ID: 2
+# Title: Documentation Parser for Usage Patterns
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Develop a parser to extract usage examples and patterns from SDK documentation.
+# Details:
+Create a utility that parses markdown or other documentation formats to extract code examples, usage patterns, and important notes. Store these in a structured format that can be linked to the corresponding SDK methods identified in Task 1. This will provide contextual help within the toolbox.
+
+# Test Strategy:
+Test with various documentation files to ensure accurate extraction of code examples and proper association with SDK methods.

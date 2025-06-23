@@ -1,0 +1,191 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "SDK Code Analysis and Method Mapping",
+      "description": "Analyze the Emblem Vault SDK codebase to identify all available endpoints, methods, and their parameters.",
+      "status": "in-progress",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Create a script to scan the SDK source code and generate a structured JSON representation of all public methods, their parameters, return types, and descriptions. This will serve as the foundation for the toolbox. Include categorization of methods by functionality (e.g., authentication, vault operations, transactions).",
+      "testStrategy": "Validate the completeness of the method mapping by cross-referencing with documentation and ensuring all public methods are captured correctly.",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Set up SDK Code Analysis Environment",
+          "description": "Create a dedicated analysis environment with all necessary tools and libraries for parsing the Emblem Vault SDK codebase based on its programming language.",
+          "dependencies": [],
+          "details": "1. Determine the programming language of the Emblem Vault SDK (JavaScript/TypeScript, Python, etc.)\n2. Install appropriate static analysis libraries based on the language (e.g., AST parsers like acorn for JavaScript, ast module for Python)\n3. Set up a project structure with separate directories for the analysis script, output files, and tests\n4. Create configuration files for the analysis tools with appropriate settings\n5. Write a simple test script to verify the environment setup by parsing a sample SDK file\n6. Document the environment setup process for future reference\n7. Testing approach: Verify successful installation of all dependencies and ability to parse a sample file from the SDK\n\n<info added on 2025-05-05T07:17:40.335Z>\nI've completed the SDK analysis environment setup with several enhancements:\n\nThe analysis tool leverages the TypeScript compiler API (ts.createProgram, ts.forEachChild) to traverse the SDK's AST, enabling detailed type information extraction and relationship mapping between components. \n\nThe Express development server (port 3000) serves both the analysis API endpoints and a React-based UI for visualizing results. Key endpoints include:\n- GET /api/analyze - Triggers analysis and returns status\n- GET /api/results - Returns current analysis data\n- POST /api/config - Updates analysis parameters\n\nThe interactive UI features:\n- Force-directed graph visualization of SDK component relationships\n- Searchable/filterable component explorer with syntax highlighting\n- Dependency chain visualization for selected components\n\nAnalysis results can be exported in multiple formats (JSON, CSV, HTML report) with a single-click download option that includes timestamps and analysis configuration metadata.\n\nError handling includes graceful recovery from parsing failures with detailed logging, progress indicators during long-running analyses, and automatic retry mechanisms for network-related failures when fetching external dependencies.\n</info added on 2025-05-05T07:17:40.335Z>",
+          "status": "done",
+          "parentTaskId": 1
+        },
+        {
+          "id": 2,
+          "title": "Develop SDK File Parser and Method Extractor",
+          "description": "Create a core parser module that can traverse SDK source files, identify public methods, and extract their signatures, parameters, and metadata.",
+          "dependencies": [
+            1
+          ],
+          "details": "1. Implement a file discovery mechanism to locate all relevant SDK source files\n2. Create a parser that uses AST (Abstract Syntax Tree) analysis to identify class and method definitions\n3. Extract method signatures including name, parameters, return types, and access modifiers\n4. Implement docstring/comment extraction to capture method descriptions and parameter documentation\n5. Create a standardized internal representation for storing extracted method information\n6. Add error handling for parsing edge cases and malformed code\n7. Implement logging to track parsing progress and issues\n8. Testing approach: Create unit tests with sample SDK code snippets to verify correct extraction of different method types, parameters, and documentation",
+          "status": "in-progress",
+          "parentTaskId": 1
+        },
+        {
+          "id": 3,
+          "title": "Implement Method Categorization and Relationship Mapping",
+          "description": "Enhance the parser to categorize methods by functionality and identify relationships between methods, including dependencies and inheritance.",
+          "dependencies": [
+            2
+          ],
+          "details": "1. Define categorization rules based on method naming conventions, namespaces, or class hierarchies\n2. Implement pattern matching to assign methods to categories (e.g., authentication, vault operations, transactions)\n3. Create logic to identify method relationships such as inheritance, overrides, and internal dependencies\n4. Build a graph representation of method relationships to visualize dependencies\n5. Implement heuristics to detect API endpoints based on method signatures or decorators\n6. Add metadata tags for public vs. private methods, deprecated methods, and version information\n7. Testing approach: Verify correct categorization using predefined test cases with methods from different functional areas, and validate relationship mapping with known method dependencies",
+          "status": "pending",
+          "parentTaskId": 1
+        },
+        {
+          "id": 4,
+          "title": "Create JSON Schema and Output Generator",
+          "description": "Design a comprehensive JSON schema for representing SDK methods and implement a generator to output the analyzed data in this structured format.",
+          "dependencies": [
+            2,
+            3
+          ],
+          "details": "1. Design a JSON schema that includes all necessary fields: method name, description, parameters (with types and descriptions), return type, category, dependencies, and examples\n2. Implement a converter that transforms the internal representation into the defined JSON schema\n3. Add pretty-printing and formatting options for human readability\n4. Implement validation to ensure all generated JSON conforms to the schema\n5. Create options for different output formats (full detailed output vs. summary output)\n6. Add versioning information to the output to track changes over time\n7. Implement file output with appropriate error handling\n8. Testing approach: Validate generated JSON against the schema definition, ensure all extracted method information is correctly represented, and verify the output is valid JSON",
+          "status": "pending",
+          "parentTaskId": 1
+        },
+        {
+          "id": 5,
+          "title": "Build Automated Analysis Pipeline with CI/CD Integration",
+          "description": "Create a complete automation pipeline that can be triggered manually or as part of CI/CD to analyze the SDK and generate up-to-date method documentation.",
+          "dependencies": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "details": "1. Create a main script that orchestrates the entire analysis process from file discovery to JSON generation\n2. Implement command-line arguments for customizing the analysis (input directory, output file, verbosity)\n3. Add configuration options for different analysis modes (quick scan vs. deep analysis)\n4. Create GitHub Actions or similar CI/CD workflow files to automate analysis on repository changes\n5. Implement diff generation to highlight changes between SDK versions\n6. Add reporting capabilities to summarize the analysis results (total methods, categories, coverage)\n7. Create documentation on how to use the analysis tools and interpret the results\n8. Testing approach: End-to-end testing of the complete pipeline with the actual Emblem Vault SDK, verifying all components work together correctly and produce accurate output",
+          "status": "pending",
+          "parentTaskId": 1
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Documentation Parser for Usage Patterns",
+      "description": "Develop a parser to extract usage examples and patterns from SDK documentation.",
+      "status": "pending",
+      "dependencies": [
+        1
+      ],
+      "priority": "high",
+      "details": "Create a utility that parses markdown or other documentation formats to extract code examples, usage patterns, and important notes. Store these in a structured format that can be linked to the corresponding SDK methods identified in Task 1. This will provide contextual help within the toolbox.",
+      "testStrategy": "Test with various documentation files to ensure accurate extraction of code examples and proper association with SDK methods."
+    },
+    {
+      "id": 3,
+      "title": "Basic UI Layout and Navigation Structure",
+      "description": "Design and implement the foundational UI layout and navigation for the development toolbox.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Create a responsive HTML/CSS/JS layout with a sidebar for navigation, main content area, and appropriate headers/footers. Implement navigation between different sections (method explorer, configuration, documentation). Use CSS Grid or Flexbox for responsive behavior and ensure the design works on various screen sizes.",
+      "testStrategy": "Test the layout on different devices and screen sizes to verify responsive behavior. Validate navigation paths between all sections."
+    },
+    {
+      "id": 4,
+      "title": "State Management Implementation",
+      "description": "Develop a state management system to handle toolbox configuration and session data.",
+      "status": "pending",
+      "dependencies": [
+        3
+      ],
+      "priority": "medium",
+      "details": "Implement a state management solution (using native JS or a lightweight library) to handle user preferences, active SDK configuration, method history, and session persistence. Include functionality to save/load configurations and export test cases. Store state in localStorage where appropriate for persistence between sessions.",
+      "testStrategy": "Verify state persistence across page reloads, test state updates from different components, and ensure proper initialization of state on first load."
+    },
+    {
+      "id": 5,
+      "title": "SDK Method Explorer Component with Direct SDK Integration",
+      "description": "Create an interactive component for exploring and testing SDK methods using the built SDK available in the docs folder.",
+      "status": "pending",
+      "dependencies": [
+        1,
+        2,
+        4
+      ],
+      "priority": "high",
+      "details": "Develop a component that displays SDK methods organized by category, allows selection of methods, displays parameter inputs dynamically based on method signature, and provides a way to execute methods with the provided parameters. Include syntax highlighting for code examples and results using a library like Prism.js or highlight.js. Directly integrate with the built SDK from the docs folder to enable live method execution within the explorer component.",
+      "testStrategy": "Test with various SDK methods to ensure proper parameter rendering, method execution, and result display. Verify that all method categories are accessible and that the SDK integration works correctly with the built SDK from the docs folder."
+    },
+    {
+      "id": 6,
+      "title": "SDK Method Execution and Result Handling",
+      "description": "Implement execution of SDK methods and proper handling of results using the built SDK.",
+      "status": "pending",
+      "dependencies": [
+        5
+      ],
+      "priority": "high",
+      "details": "Implement the logic to execute SDK methods from the built SDK based on user selections in the explorer. Handle asynchronous methods properly with loading indicators. Create a sandbox environment for safe method execution and result display. Include the ability to chain method calls where appropriate. Focus on direct integration with the existing SDK rather than dynamic imports.",
+      "testStrategy": "Execute various SDK methods with different parameters to verify correct integration. Test error cases and asynchronous behavior using the built SDK from the docs folder."
+    },
+    {
+      "id": 7,
+      "title": "Real-time Feedback and Result Visualization",
+      "description": "Implement real-time feedback mechanisms and result visualization for SDK operations.",
+      "status": "pending",
+      "dependencies": [
+        6
+      ],
+      "priority": "medium",
+      "details": "Create components to display method execution results in appropriate formats (JSON, tables, graphs where relevant). Implement real-time updates for long-running operations. Add copy-to-clipboard functionality for results and generated code snippets. Consider adding visual indicators for performance metrics. Ensure compatibility with the response formats from the built SDK.",
+      "testStrategy": "Test with various result types to ensure proper visualization. Verify real-time updates for asynchronous operations and validate the accuracy of displayed information from the built SDK."
+    },
+    {
+      "id": 8,
+      "title": "Error Handling and Debugging Tools",
+      "description": "Develop comprehensive error handling and debugging capabilities for the toolbox.",
+      "status": "pending",
+      "dependencies": [
+        6,
+        7
+      ],
+      "priority": "medium",
+      "details": "Implement error catching and display for SDK method execution. Create a dedicated error console that shows detailed error information, stack traces, and potential solutions. Add the ability to log method calls and responses for debugging. Include links to relevant documentation for common errors. Ensure compatibility with the error formats from the built SDK in the docs folder.",
+      "testStrategy": "Deliberately trigger various error conditions to verify proper error catching, display, and suggested resolutions. Test logging functionality for accuracy with the built SDK."
+    },
+    {
+      "id": 9,
+      "title": "Configuration Management Interface",
+      "description": "Create an interface for managing SDK configurations and environments.",
+      "status": "pending",
+      "dependencies": [
+        4,
+        6
+      ],
+      "priority": "medium",
+      "details": "Develop a UI for creating, editing, and switching between different SDK configurations (e.g., development, staging, production environments). Include form validation for configuration parameters. Implement preset configurations for common scenarios and the ability to import/export configurations. Ensure compatibility with the configuration options supported by the built SDK in the docs folder.",
+      "testStrategy": "Test configuration switching to verify SDK behavior changes appropriately. Validate form inputs and test import/export functionality with various configuration formats. Verify that configurations work correctly with the built SDK."
+    },
+    {
+      "id": 10,
+      "title": "Documentation Integration and Help System",
+      "description": "Integrate documentation and contextual help throughout the toolbox interface.",
+      "status": "pending",
+      "dependencies": [
+        2,
+        5,
+        9
+      ],
+      "priority": "low",
+      "details": "Incorporate the parsed documentation into the UI with contextual help for each method and parameter. Create a searchable documentation browser within the toolbox. Add tooltips and hints for UI elements. Include a getting started guide and tutorials for common workflows using the SDK. Leverage the documentation available in the docs folder alongside the built SDK.",
+      "testStrategy": "Verify documentation accuracy and accessibility throughout the interface. Test search functionality and ensure contextual help appears in appropriate locations. Confirm that documentation correctly reflects the capabilities of the built SDK."
+    }
+  ],
+  "metadata": {
+    "projectName": "Emblem Vault SDK Development Toolbox",
+    "totalTasks": 10,
+    "sourceFile": "/Users/shannoncode/repo/Emblem.Current/emblem-vault-sdk/scripts/prd.txt",
+    "generatedAt": "2023-11-14"
+  }
+}

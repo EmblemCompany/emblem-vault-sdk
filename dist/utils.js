@@ -324,6 +324,7 @@ function generateTemplate(record) {
          * @param {function} - msgCallback should be a function that takes a string message
          */
         allowed: (data, _this, msgCallback = null) => {
+            var _a;
             if (recordName == "Embels") {
                 return true;
             }
@@ -336,7 +337,7 @@ function generateTemplate(record) {
             let message = null;
             if (recordName == "Filthy Fiat") {
                 data = _this.filterNativeBalances({ balances: data }, _this);
-                allowed = data[0].project == recordName;
+                allowed = ((_a = data[0]) === null || _a === void 0 ? void 0 : _a.project) == recordName;
             }
             else if (recordName == "Cursed Ordinal") {
                 if (data && data.length > 0) {
@@ -420,14 +421,14 @@ function generateTemplate(record) {
                 if (recordName == "Bitcoin Punks") {
                     firstAsset = _this.filterNativeBalances({ balances: data }, _this)[0];
                 }
-                const allowedChain = firstAsset.coin.toLowerCase() == _this.collectionChain.toLowerCase();
+                const allowedChain = (firstAsset === null || firstAsset === void 0 ? void 0 : firstAsset.coin.toLowerCase()) == _this.collectionChain.toLowerCase();
                 if (!allowedChain) {
-                    message = `Found ${firstAsset.coin} asset, expected ${_this.collectionChain} asset.`;
+                    message = `Found ${firstAsset === null || firstAsset === void 0 ? void 0 : firstAsset.coin} asset, expected ${_this.collectionChain} asset.`;
                 }
-                const allowedProject = firstAsset.project == recordName;
+                const allowedProject = (firstAsset === null || firstAsset === void 0 ? void 0 : firstAsset.project) == recordName;
                 if (!allowedProject) {
                     message = (message ? `${message} ` : '') +
-                        `Found asset from ${firstAsset.project} collection, expected asset from  ${recordName} collection.`;
+                        `Found asset from ${firstAsset === null || firstAsset === void 0 ? void 0 : firstAsset.project} collection, expected asset from  ${recordName} collection.`;
                 }
                 allowed = allowedChain && allowedProject;
             }

@@ -304,7 +304,7 @@ export function generateTemplate(record: any) {
             let message = null
             if (recordName == "Filthy Fiat") {
                 data = _this.filterNativeBalances({balances: data}, _this)
-                allowed = data[0].project == recordName
+                allowed = data[0]?.project == recordName
             }
             else if (recordName == "Cursed Ordinal") {
                 if (data && data.length > 0) {
@@ -374,14 +374,14 @@ export function generateTemplate(record: any) {
                 if (recordName == "Bitcoin Punks") {
                     firstAsset = _this.filterNativeBalances({balances: data}, _this)[0]
                 }
-                const allowedChain = firstAsset.coin.toLowerCase() == _this.collectionChain.toLowerCase()
+                const allowedChain = firstAsset?.coin.toLowerCase() == _this.collectionChain.toLowerCase()
                 if(!allowedChain) {
-                    message = `Found ${firstAsset.coin} asset, expected ${_this.collectionChain} asset.`
+                    message = `Found ${firstAsset?.coin} asset, expected ${_this.collectionChain} asset.`
                 }
-                const allowedProject = firstAsset.project == recordName
+                const allowedProject = firstAsset?.project == recordName
                 if(!allowedProject){
                     message = (message ? `${message} ` : '') +
-                        `Found asset from ${firstAsset.project} collection, expected asset from  ${recordName} collection.`
+                        `Found asset from ${firstAsset?.project} collection, expected asset from  ${recordName} collection.`
                 }
                 allowed = allowedChain && allowedProject
             } else if(_this) {
