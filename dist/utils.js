@@ -414,7 +414,16 @@ function generateTemplate(record) {
                 let possibleBalances = [5000, 50000, 500000];
                 let covalAssets = data.filter((item) => item.name == "Circuits of Value");
                 let covalTotalBalance = covalAssets.reduce((acc, item) => acc + item.balance, 0);
-                allowed = possibleBalances.includes(covalTotalBalance) || false;
+                const normalizedBalance = possibleBalances.reduce((closest, target) => {
+                    // If balance is less than current target, return the previous closest
+                    if (covalTotalBalance < target) {
+                        return closest;
+                    }
+                    // If we're at or above this target, it becomes our new closest
+                    return target;
+                }, 0);
+                allowed = normalizedBalance > 0;
+                // allowed = possibleBalances.includes(covalTotalBalance) || false 
                 message = !allowed ? `Load vault with 5000, 50000, or 500000 Circuits of Value` : message;
             }
             else if (_this.vaultCollectionType && _this.vaultCollectionType == "collection") {
