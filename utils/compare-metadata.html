@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metadata Comparison</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .count {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 10px 0;
+        }
+        .item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+        .item-key {
+            font-weight: bold;
+            color: #2980b9;
+            margin-bottom: 5px;
+        }
+        .missing-prop {
+            color: #e74c3c;
+            margin-left: 20px;
+            font-family: monospace;
+        }
+        .extra-prop {
+            color: #27ae60;
+            margin-left: 20px;
+            font-family: monospace;
+        }
+        .conflict-box {
+            margin: 10px 0;
+            padding: 10px;
+            background: #fff3cd;
+            border-left: 4px solid #ff6b6b;
+            border-radius: 4px;
+        }
+        .conflict-prop-name {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 5px;
+        }
+        .conflict-value {
+            margin-left: 10px;
+            font-family: monospace;
+        }
+        .conflict-sdk {
+            color: #c0392b;
+        }
+        .conflict-site {
+            color: #2980b9;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .summary-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .summary-card .number {
+            font-size: 36px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Metadata Comparison Tool</h1>
+
+    <div class="section">
+        <h2>Select Collection</h2>
+        <label for="collectionSelect">Choose a collection to compare:</label>
+        <select id="collectionSelect" onchange="loadComparison()" style="padding: 10px; font-size: 16px; margin-left: 10px;">
+            <option value="">Loading collections...</option>
+        </select>
+    </div>
+
+    <div id="status" class="status">Select a collection to begin...</div>
+
+    <div id="summary" class="summary" style="display:none;"></div>
+
+    <div id="fakeRaresSection" style="display:none;"></div>
+
+    <div id="redundantOldImagesSection" style="display:none;"></div>
+
+    <div id="results"></div>
+
+    <script>
+        let currentCollection = null;
+        let availableCollections = [];
+        let sdkMetadataGlobal = null;
+        let siteMetadataGlobal = null;
+        let incomingDataGlobal = null;
+        async function loadJSON(path) {
+            const response = await fetch(path);
+            if (!response.ok) {
+                throw new Error(`Failed to load ${path}: ${response.statusText}`);
+            }
+            return await response.json();
+        }
+
+        function getAllProperties(obj) {
+            const props = new Set();
+            Object.values(obj).forEach(item => {
+                Object.keys(item).forEach(key => props.add(key));
+            });
+            return props;
+        }
+
+        function compareMetadata(sdk, site, fakeRares) {
+            const results = {
+                onlyInSDK: [],
+                onlyInSite: [],
+                missingPropsInSDK: [],
+                missingPropsInSite: [],
+                conflicts: [],
+                conflictsWithRaw: [],
+                rawPropertyComparison: [],
+                identical: 0
+            };
+
+            const sdkKeys = new Set(Object.keys(sdk));
+            const siteKeys = new Set(Object.keys(site));
+            const allKeys = new Set([...sdkKeys, ...siteKeys]);
+
+            // Find items only in SDK
+            sdkKeys.forEach(key => {
+                if (!siteKeys.has(key)) {
+                    results.onlyInSDK.push(key);
+                }
+            });
+
+            // Find items only in Site
+            siteKeys.forEach(key => {
+                if (!sdkKeys.has(key)) {
+                    results.onlyInSite.push(key);
+                }
+            });
+
+            // Compare items in both
+            sdkKeys.forEach(key => {
+                if (siteKeys.has(key)) {
+                    const sdkItem = sdk[key];
+                    const siteItem = site[key];
+                    const rawItem = fakeRares[key];
+
+                    const sdkProps = Object.keys(sdkItem);
+                    const siteProps = Object.keys(siteItem);
+
+                    const missingInSDK = siteProps.filter(prop => !sdkProps.includes(prop));
+                    const missingInSite = sdkProps.filter(prop => !siteProps.includes(prop));
+
+                    // Check for conflicting values in shared properties
+                    const sharedProps = sdkProps.filter(prop => siteProps.includes(prop));
+                    const conflicts = [];
+
+                    sharedProps.forEach(prop => {
+                        const sdkValue = sdkItem[prop];
+                        const siteValue = siteItem[prop];
+
+                        // Deep comparison for values
+                        if (JSON.stringify(sdkValue) !== JSON.stringify(siteValue)) {
+                            const conflictObj = {
+                                prop: prop,
+                                sdkValue: sdkValue,
+                                siteValue: siteValue
+                            };
+
+                            // Check if raw data exists and has this property
+                            if (rawItem && rawItem[prop] !== undefined) {
+                                const rawValue = rawItem[prop];
+
+                                // For image property, check if basename is included
+                                if (prop === 'image') {
+                                    conflictObj.rawValue = rawValue;
+                                    conflictObj.sdkMatchesRaw = sdkValue && sdkValue.includes(rawValue);
+                                    conflictObj.siteMatchesRaw = siteValue && siteValue.includes(rawValue);
+                                } else {
+                                    conflictObj.rawValue = rawValue;
+                                    conflictObj.sdkMatchesRaw = JSON.stringify(sdkValue) === JSON.stringify(rawValue);
+                                    conflictObj.siteMatchesRaw = JSON.stringify(siteValue) === JSON.stringify(rawValue);
+                                }
+                            }
+
+                            conflicts.push(conflictObj);
+                        }
+                    });
+
+                    // Check for conflicts with raw fake-rares data (source of truth)
+                    if (rawItem) {
+                        const rawConflicts = [];
+
+                        // Check properties that exist in raw data
+                        Object.keys(rawItem).forEach(prop => {
+                            const rawValue = rawItem[prop];
+                            const sdkValue = sdkItem[prop];
+                            const siteValue = siteItem[prop];
+
+                            // Map 'image' property to check against both 'image' and potentially constructed URLs
+                            if (prop === 'image') {
+                                const rawImageBasename = rawValue;
+
+                                // Check SDK
+                                const sdkMismatch = sdkValue && !sdkValue.includes(rawImageBasename);
+                                // Check Site
+                                const siteMismatch = siteValue && !siteValue.includes(rawImageBasename);
+
+                                if (sdkMismatch || siteMismatch) {
+                                    rawConflicts.push({
+                                        prop: prop,
+                                        rawValue: rawValue,
+                                        sdkValue: sdkValue || '(missing)',
+                                        siteValue: siteValue || '(missing)',
+                                        sdkConflict: sdkMismatch,
+                                        siteConflict: siteMismatch
+                                    });
+                                }
+                            } else {
+                                // For other properties, do exact comparison
+                                const sdkMismatch = sdkValue !== undefined && JSON.stringify(sdkValue) !== JSON.stringify(rawValue);
+                                const siteMismatch = siteValue !== undefined && JSON.stringify(siteValue) !== JSON.stringify(rawValue);
+
+                                if (sdkMismatch || siteMismatch) {
+                                    rawConflicts.push({
+                                        prop: prop,
+                                        rawValue: rawValue,
+                                        sdkValue: sdkValue !== undefined ? sdkValue : '(missing)',
+                                        siteValue: siteValue !== undefined ? siteValue : '(missing)',
+                                        sdkConflict: sdkMismatch,
+                                        siteConflict: siteMismatch
+                                    });
+                                }
+                            }
+                        });
+
+                        if (rawConflicts.length > 0) {
+                            results.conflictsWithRaw.push({
+                                key: key,
+                                conflicts: rawConflicts
+                            });
+                        }
+                    }
+
+                    if (missingInSDK.length > 0) {
+                        results.missingPropsInSDK.push({
+                            key: key,
+                            missingProps: missingInSDK,
+                            siteValues: missingInSDK.reduce((acc, prop) => {
+                                acc[prop] = siteItem[prop];
+                                return acc;
+                            }, {})
+                        });
+                    }
+
+                    if (missingInSite.length > 0) {
+                        results.missingPropsInSite.push({
+                            key: key,
+                            missingProps: missingInSite,
+                            sdkValues: missingInSite.reduce((acc, prop) => {
+                                acc[prop] = sdkItem[prop];
+                                return acc;
+                            }, {})
+                        });
+                    }
+
+                    if (conflicts.length > 0) {
+                        results.conflicts.push({
+                            key: key,
+                            conflicts: conflicts
+                        });
+                    }
+
+                    if (missingInSDK.length === 0 && missingInSite.length === 0 && conflicts.length === 0) {
+                        results.identical++;
+                    }
+                }
+            });
+
+            // Compare "raw" property in SDK/Site metadata with the actual fake-rares data
+            Object.keys(fakeRares).forEach(key => {
+                const fakeRareItem = fakeRares[key];
+                const sdkItem = sdk[key];
+                const siteItem = site[key];
+
+                if (sdkItem || siteItem) {
+                    const comparison = {
+                        key: key,
+                        fakeRareData: fakeRareItem,
+                        sdkRawProperty: sdkItem ? sdkItem.raw : undefined,
+                        siteRawProperty: siteItem ? siteItem.raw : undefined,
+                        sdkMatches: false,
+                        siteMatches: false,
+                        sdkExists: !!sdkItem,
+                        siteExists: !!siteItem
+                    };
+
+                    // Check if SDK's raw property matches the fake-rare data
+                    if (sdkItem && sdkItem.raw) {
+                        comparison.sdkMatches = JSON.stringify(sdkItem.raw) === JSON.stringify(fakeRareItem);
+                    }
+
+                    // Check if Site's raw property matches the fake-rare data
+                    if (siteItem && siteItem.raw) {
+                        comparison.siteMatches = JSON.stringify(siteItem.raw) === JSON.stringify(fakeRareItem);
+                    }
+
+                    // Only include if at least one has a raw property
+                    if ((sdkItem && sdkItem.raw) || (siteItem && siteItem.raw)) {
+                        results.rawPropertyComparison.push(comparison);
+                    }
+                }
+            });
+
+            return results;
+        }
+
+        let sdkDataGlobal = null;
+        let siteDataGlobal = null;
+        let fakeRaresDataGlobal = null;
+        let comparisonResultsGlobal = null;
+        let redundantOldImagesGlobal = { sdk: [], site: [] };
+        let rawConflictsToFixGlobal = [];
+        let mismatchedRawPropsGlobal = [];
+        let rawPropertyConflictsGlobal = [];
+
+        async function insertSDKItemsToSite() {
+            const button = document.getElementById('insertToSiteBtn');
+            const statusDiv = document.getElementById('insertStatus');
+
+            button.disabled = true;
+            button.textContent = 'Inserting Items...';
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.textContent = `Preparing to insert ${comparisonResultsGlobal.onlyInSDK.length} items into site metadata...`;
+
+            try {
+                // Gather the items from SDK
+                const itemsToInsert = {};
+                comparisonResultsGlobal.onlyInSDK.forEach(key => {
+                    itemsToInsert[key] = sdkDataGlobal[key];
+                });
+
+                const response = await fetch('/insert-to-site', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ items: itemsToInsert })
+                });
+
+                const results = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(results.error || 'Failed to insert items');
+                }
+
+                statusDiv.className = 'status success';
+                let statusHTML = `
+                    <strong>Insert Complete!</strong><br>
+                    <div style="margin: 10px 0;">
+                        <span style="color: #27ae60;">✓ Added: ${results.added.length}</span> |
+                        <span style="color: #f39c12;">⊘ Skipped: ${results.skipped.length}</span> |
+                        <span style="color: #e74c3c;">✗ Failed: ${results.failed.length}</span>
+                    </div>
+                `;
+
+                if (results.added.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #155724;">
+                                Added Items (${results.added.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+                                ${results.added.map(a => `<div style="margin: 2px 0; padding: 3px; background: white; border-radius: 3px;">${a.key}</div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.skipped.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #856404;">
+                                Skipped Items (${results.skipped.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.skipped.map(s => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${s.key}</strong><br><span style="color: #f39c12;">Reason: ${s.reason}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.failed.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #f8d7da; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #721c24;">
+                                Failed Items (${results.failed.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.failed.map(f => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${f.key}</strong><br><span style="color: #e74c3c;">Error: ${f.error}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                statusHTML += `<p style="margin-top: 10px; color: #666;"><em>A backup of the original file was created. Reload the page to see updated comparison.</em></p>`;
+
+                statusDiv.innerHTML = statusHTML;
+                button.textContent = 'Insert Complete';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `Error: ${error.message}`;
+                button.disabled = false;
+                button.textContent = 'Insert to Site Metadata';
+            }
+        }
+
+        async function insertSiteItemsToSDK() {
+            const button = document.getElementById('insertToSDKBtn');
+            const statusDiv = document.getElementById('insertToSDKStatus');
+
+            button.disabled = true;
+            button.textContent = 'Inserting Items...';
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.textContent = `Preparing to insert ${comparisonResultsGlobal.onlyInSite.length} items into SDK metadata...`;
+
+            try {
+                // Gather the items from Site
+                const itemsToInsert = {};
+                comparisonResultsGlobal.onlyInSite.forEach(key => {
+                    itemsToInsert[key] = siteDataGlobal[key];
+                });
+
+                const response = await fetch('/insert-to-sdk', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ items: itemsToInsert })
+                });
+
+                const results = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(results.error || 'Failed to insert items');
+                }
+
+                statusDiv.className = 'status success';
+                let statusHTML = `
+                    <strong>Insert Complete!</strong><br>
+                    <div style="margin: 10px 0;">
+                        <span style="color: #27ae60;">✓ Added: ${results.added.length}</span> |
+                        <span style="color: #f39c12;">⊘ Skipped: ${results.skipped.length}</span> |
+                        <span style="color: #e74c3c;">✗ Failed: ${results.failed.length}</span>
+                    </div>
+                `;
+
+                if (results.added.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #155724;">
+                                Added Items (${results.added.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+                                ${results.added.map(a => `<div style="margin: 2px 0; padding: 3px; background: white; border-radius: 3px;">${a.key}</div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.skipped.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #856404;">
+                                Skipped Items (${results.skipped.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.skipped.map(s => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${s.key}</strong><br><span style="color: #f39c12;">Reason: ${s.reason}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.failed.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #f8d7da; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #721c24;">
+                                Failed Items (${results.failed.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.failed.map(f => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${f.key}</strong><br><span style="color: #e74c3c;">Error: ${f.error}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                statusHTML += `<p style="margin-top: 10px; color: #666;"><em>A backup of the original file was created. Reload the page to see updated comparison.</em></p>`;
+
+                statusDiv.innerHTML = statusHTML;
+                button.textContent = 'Insert Complete';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `Error: ${error.message}`;
+                button.disabled = false;
+                button.textContent = 'Insert to SDK Metadata';
+            }
+        }
+
+        async function addMissingPropsToSDK() {
+            const button = document.getElementById('addMissingPropsBtn');
+            const statusDiv = document.getElementById('addMissingPropsStatus');
+
+            button.disabled = true;
+            button.textContent = 'Adding Properties...';
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.textContent = `Adding missing properties to ${comparisonResultsGlobal.missingPropsInSDK.length} items...`;
+
+            try {
+                const response = await fetch('/add-missing-props', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ items: comparisonResultsGlobal.missingPropsInSDK })
+                });
+
+                const results = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(results.error || 'Failed to add properties');
+                }
+
+                statusDiv.className = 'status success';
+                let statusHTML = `
+                    <strong>Properties Added!</strong><br>
+                    <div style="margin: 10px 0;">
+                        <span style="color: #27ae60;">✓ Added: ${results.added.length}</span> |
+                        <span style="color: #f39c12;">⊘ Not Found: ${results.notFound.length}</span> |
+                        <span style="color: #e74c3c;">✗ Failed: ${results.failed.length}</span>
+                    </div>
+                `;
+
+                if (results.added.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #155724;">
+                                Items Updated (${results.added.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+                                ${results.added.map(a => `
+                                    <div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;">
+                                        <strong>${a.key}</strong><br>
+                                        <span style="color: #666;">Added: ${a.props.join(', ')}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.notFound.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #856404;">
+                                Not Found (${results.notFound.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.notFound.map(n => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${n.key}</strong><br><span style="color: #f39c12;">Reason: ${n.reason}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.failed.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #f8d7da; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #721c24;">
+                                Failed (${results.failed.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.failed.map(f => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${f.key}</strong><br><span style="color: #e74c3c;">Error: ${f.error}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                statusHTML += `<p style="margin-top: 10px; color: #666;"><em>A backup of the original file was created. Reload the page to see updated comparison.</em></p>`;
+
+                statusDiv.innerHTML = statusHTML;
+                button.textContent = 'Properties Added';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `Error: ${error.message}`;
+                button.disabled = false;
+                button.textContent = 'Add Missing Properties';
+            }
+        }
+
+        async function updateImageConflicts() {
+            const button = document.getElementById('updateImageConflictsBtn');
+            const statusDiv = document.getElementById('updateImageConflictsStatus');
+
+            // Filter to get only items with image conflicts
+            const imageConflictItems = comparisonResultsGlobal.conflicts.filter(item =>
+                item.conflicts.some(c => c.prop === 'image')
+            );
+
+            button.disabled = true;
+            button.textContent = 'Updating Images...';
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.textContent = `Updating image URLs in ${imageConflictItems.length} items...`;
+
+            try {
+                const response = await fetch('/update-conflicts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ items: imageConflictItems })
+                });
+
+                const results = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(results.error || 'Failed to update image URLs');
+                }
+
+                statusDiv.className = 'status success';
+                let statusHTML = `
+                    <strong>Images Updated!</strong><br>
+                    <div style="margin: 10px 0;">
+                        <span style="color: #27ae60;">✓ Updated: ${results.updated.length}</span> |
+                        <span style="color: #f39c12;">⊘ Not Found: ${results.notFound.length}</span> |
+                        <span style="color: #e74c3c;">✗ Failed: ${results.failed.length}</span>
+                    </div>
+                `;
+
+                if (results.updated.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #155724;">
+                                Items Updated (${results.updated.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+                                ${results.updated.map(u => `
+                                    <div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;">
+                                        <strong>${u.key}</strong><br>
+                                        ${u.props.map(p => `<span style="color: #666;">Old: ${p.oldValue}</span><br><span style="color: #27ae60;">New: ${p.newValue}</span>`).join('<br>')}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.notFound.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #856404;">
+                                Not Found (${results.notFound.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.notFound.map(n => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${n.key}</strong><br><span style="color: #f39c12;">Reason: ${n.reason}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.failed.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #f8d7da; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #721c24;">
+                                Failed (${results.failed.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.failed.map(f => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${f.key}</strong><br><span style="color: #e74c3c;">Error: ${f.error}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                statusHTML += `<p style="margin-top: 10px; color: #666;"><em>A backup of the original file was created. Reload the page to see updated comparison.</em></p>`;
+
+                statusDiv.innerHTML = statusHTML;
+                button.textContent = 'Images Updated';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `Error: ${error.message}`;
+                button.disabled = false;
+                button.textContent = 'Update Image URLs in Site';
+            }
+        }
+
+        async function updateSiteRawFromSDK() {
+            const button = document.getElementById('updateSiteRawFromSDKBtn');
+            const statusDiv = document.getElementById('updateSiteRawFromSDKStatus');
+
+            button.disabled = true;
+            button.textContent = 'Updating Site raw...';
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.textContent = `Copying 'raw' property from SDK to Site for ${rawPropertyConflictsGlobal.length} items...`;
+
+            try {
+                const response = await fetch('/update-site-raw-from-sdk', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ items: rawPropertyConflictsGlobal })
+                });
+
+                const results = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(results.error || 'Failed to update Site raw properties');
+                }
+
+                statusDiv.className = 'status success';
+                let statusHTML = `
+                    <strong>Site 'raw' Properties Updated from SDK!</strong><br>
+                    <div style="margin: 10px 0;">
+                        <span style="color: #27ae60;">✓ Updated: ${results.updated.length}</span> |
+                        <span style="color: #f39c12;">⊘ Not Found: ${results.notFound.length}</span> |
+                        <span style="color: #e74c3c;">✗ Failed: ${results.failed.length}</span>
+                    </div>
+                `;
+
+                if (results.updated.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #155724;">
+                                Items Updated (${results.updated.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+                                ${results.updated.map(u => `<div style="margin: 2px 0; padding: 3px; background: white; border-radius: 3px;">${u}</div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.notFound.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #856404;">
+                                Not Found (${results.notFound.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.notFound.map(n => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${n.key}</strong><br><span style="color: #f39c12;">Reason: ${n.reason}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.failed.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #f8d7da; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #721c24;">
+                                Failed (${results.failed.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.failed.map(f => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${f.key}</strong><br><span style="color: #e74c3c;">Error: ${f.error}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                statusHTML += `<p style="margin-top: 10px; color: #666;"><em>A backup of the Site metadata file was created. Reload the page to see updated comparison.</em></p>`;
+
+                statusDiv.innerHTML = statusHTML;
+                button.textContent = 'Update Complete';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `Error: ${error.message}`;
+                button.disabled = false;
+                button.textContent = 'Update Site raw from SDK';
+            }
+        }
+
+        async function updateRawProperties() {
+            const button = document.getElementById('updateRawPropsBtn');
+            const statusDiv = document.getElementById('updateRawPropsStatus');
+
+            button.disabled = true;
+            button.textContent = 'Updating raw properties...';
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.textContent = `Updating 'raw' property in ${mismatchedRawPropsGlobal.length} items...`;
+
+            try {
+                const response = await fetch('/update-raw-properties', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ items: mismatchedRawPropsGlobal, collection: currentCollection })
+                });
+
+                const results = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(results.error || 'Failed to update raw properties');
+                }
+
+                statusDiv.className = 'status success';
+                let statusHTML = `
+                    <strong>Raw Properties Updated!</strong><br>
+                    <div style="margin: 10px 0;">
+                        <span style="color: #27ae60;">✓ SDK Updated: ${results.sdkUpdated.length}</span> |
+                        <span style="color: #27ae60;">✓ Site Updated: ${results.siteUpdated.length}</span> |
+                        <span style="color: #f39c12;">⊘ Not Found: ${results.notFound.length}</span> |
+                        <span style="color: #e74c3c;">✗ Failed: ${results.failed.length}</span>
+                    </div>
+                `;
+
+                if (results.sdkUpdated.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #155724;">
+                                SDK Items Updated (${results.sdkUpdated.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+                                ${results.sdkUpdated.map(u => `<div style="margin: 2px 0; padding: 3px; background: white; border-radius: 3px;">${u}</div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.siteUpdated.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #155724;">
+                                Site Items Updated (${results.siteUpdated.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+                                ${results.siteUpdated.map(u => `<div style="margin: 2px 0; padding: 3px; background: white; border-radius: 3px;">${u}</div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.notFound.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #856404;">
+                                Not Found (${results.notFound.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.notFound.map(n => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${n.key}</strong><br><span style="color: #f39c12;">Reason: ${n.reason}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.failed.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #f8d7da; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #721c24;">
+                                Failed (${results.failed.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.failed.map(f => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${f.key}</strong><br><span style="color: #e74c3c;">Error: ${f.error}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                statusHTML += `<p style="margin-top: 10px; color: #666;"><em>Backups of both SDK and Site files were created. Reload the page to see updated comparison.</em></p>`;
+
+                statusDiv.innerHTML = statusHTML;
+                button.textContent = 'Update Complete';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `Error: ${error.message}`;
+                button.disabled = false;
+                button.textContent = `Update raw Properties from ${currentCollection || 'collection'}`;
+            }
+        }
+
+        async function updateConflictsFromRaw() {
+            const button = document.getElementById('updateConflictsFromRawBtn');
+            const statusDiv = document.getElementById('updateConflictsFromRawStatus');
+
+            button.disabled = true;
+            button.textContent = 'Updating from Raw...';
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.textContent = `Updating ${rawConflictsToFixGlobal.length} items from raw source data...`;
+
+            try {
+                const response = await fetch('/update-from-raw', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ items: rawConflictsToFixGlobal, collection: currentCollection })
+                });
+
+                const results = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(results.error || 'Failed to update from raw source');
+                }
+
+                statusDiv.className = 'status success';
+                let statusHTML = `
+                    <strong>Update from Raw Complete!</strong><br>
+                    <div style="margin: 10px 0;">
+                        <span style="color: #27ae60;">✓ SDK Updated: ${results.sdkUpdated.length}</span> |
+                        <span style="color: #27ae60;">✓ Site Updated: ${results.siteUpdated.length}</span> |
+                        <span style="color: #f39c12;">⊘ Not Found: ${results.notFound.length}</span> |
+                        <span style="color: #e74c3c;">✗ Failed: ${results.failed.length}</span>
+                    </div>
+                `;
+
+                if (results.sdkUpdated.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #155724;">
+                                SDK Items Updated (${results.sdkUpdated.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+                                ${results.sdkUpdated.map(u => `
+                                    <div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;">
+                                        <strong>${u.key}</strong><br>
+                                        ${u.props.map(p => `<span style="color: #666;">${p.prop}: ${JSON.stringify(p.oldValue)} → ${JSON.stringify(p.newValue)}</span>`).join('<br>')}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.siteUpdated.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #155724;">
+                                Site Items Updated (${results.siteUpdated.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+                                ${results.siteUpdated.map(u => `
+                                    <div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;">
+                                        <strong>${u.key}</strong><br>
+                                        ${u.props.map(p => `<span style="color: #666;">${p.prop}: ${JSON.stringify(p.oldValue)} → ${JSON.stringify(p.newValue)}</span>`).join('<br>')}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.notFound.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #856404;">
+                                Not Found (${results.notFound.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.notFound.map(n => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${n.key}</strong><br><span style="color: #f39c12;">Reason: ${n.reason}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.failed.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #f8d7da; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #721c24;">
+                                Failed (${results.failed.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.failed.map(f => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${f.key}</strong><br><span style="color: #e74c3c;">Error: ${f.error}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                statusHTML += `<p style="margin-top: 10px; color: #666;"><em>Backups of both SDK and Site files were created. Reload the page to see updated comparison.</em></p>`;
+
+                statusDiv.innerHTML = statusHTML;
+                button.textContent = 'Update Complete';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `Error: ${error.message}`;
+                button.disabled = false;
+                button.textContent = 'Update from Raw Source';
+            }
+        }
+
+        async function updateFromRaw() {
+            const button = document.getElementById('updateFromRawBtn');
+            const statusDiv = document.getElementById('updateFromRawStatus');
+
+            button.disabled = true;
+            button.textContent = 'Updating from Raw...';
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.textContent = `Updating ${comparisonResultsGlobal.conflictsWithRaw.length} items from raw source data...`;
+
+            try {
+                const response = await fetch('/update-from-raw', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ items: comparisonResultsGlobal.conflictsWithRaw, collection: currentCollection })
+                });
+
+                const results = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(results.error || 'Failed to update from raw source');
+                }
+
+                statusDiv.className = 'status success';
+                let statusHTML = `
+                    <strong>Update from Raw Complete!</strong><br>
+                    <div style="margin: 10px 0;">
+                        <span style="color: #27ae60;">✓ SDK Updated: ${results.sdkUpdated.length}</span> |
+                        <span style="color: #27ae60;">✓ Site Updated: ${results.siteUpdated.length}</span> |
+                        <span style="color: #f39c12;">⊘ Not Found: ${results.notFound.length}</span> |
+                        <span style="color: #e74c3c;">✗ Failed: ${results.failed.length}</span>
+                    </div>
+                `;
+
+                if (results.sdkUpdated.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #155724;">
+                                SDK Items Updated (${results.sdkUpdated.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+                                ${results.sdkUpdated.map(u => `
+                                    <div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;">
+                                        <strong>${u.key}</strong><br>
+                                        ${u.props.map(p => `<span style="color: #666;">${p.prop}: ${p.oldValue} → ${p.newValue}</span>`).join('<br>')}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.siteUpdated.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #155724;">
+                                Site Items Updated (${results.siteUpdated.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+                                ${results.siteUpdated.map(u => `
+                                    <div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;">
+                                        <strong>${u.key}</strong><br>
+                                        ${u.props.map(p => `<span style="color: #666;">${p.prop}: ${p.oldValue} → ${p.newValue}</span>`).join('<br>')}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.notFound.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #856404;">
+                                Not Found (${results.notFound.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.notFound.map(n => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${n.key}</strong><br><span style="color: #f39c12;">Reason: ${n.reason}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.failed.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #f8d7da; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #721c24;">
+                                Failed (${results.failed.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.failed.map(f => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${f.key}</strong><br><span style="color: #e74c3c;">Error: ${f.error}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                statusHTML += `<p style="margin-top: 10px; color: #666;"><em>Backups of both SDK and Site files were created. Reload the page to see updated comparison.</em></p>`;
+
+                statusDiv.innerHTML = statusHTML;
+                button.textContent = 'Update Complete';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `Error: ${error.message}`;
+                button.disabled = false;
+                button.textContent = 'Update from Raw Source';
+            }
+        }
+
+        async function copyVideoPropsToSite() {
+            const button = document.getElementById('copyVideoPropsBtn');
+            const statusDiv = document.getElementById('copyVideoPropsStatus');
+
+            // Filter to get only items with video properties
+            const videoItems = comparisonResultsGlobal.missingPropsInSite.filter(item =>
+                item.missingProps.includes('video')
+            );
+
+            button.disabled = true;
+            button.textContent = 'Copying Videos...';
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.textContent = `Copying video properties to ${videoItems.length} items...`;
+
+            try {
+                const response = await fetch('/copy-video-props', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ items: videoItems })
+                });
+
+                const results = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(results.error || 'Failed to copy video properties');
+                }
+
+                statusDiv.className = 'status success';
+                let statusHTML = `
+                    <strong>Videos Copied!</strong><br>
+                    <div style="margin: 10px 0;">
+                        <span style="color: #27ae60;">✓ Copied: ${results.copied.length}</span> |
+                        <span style="color: #f39c12;">⊘ Not Found: ${results.notFound.length}</span> |
+                        <span style="color: #e74c3c;">✗ Failed: ${results.failed.length}</span>
+                    </div>
+                `;
+
+                if (results.copied.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #155724;">
+                                Items Updated (${results.copied.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+                                ${results.copied.map(c => `
+                                    <div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;">
+                                        <strong>${c.key}</strong><br>
+                                        ${c.props.map(p => `<span style="color: #27ae60;">Added: ${p.prop} = ${p.value}</span>`).join('<br>')}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.notFound.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #856404;">
+                                Not Found (${results.notFound.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.notFound.map(n => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${n.key}</strong><br><span style="color: #f39c12;">Reason: ${n.reason}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.failed.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #f8d7da; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #721c24;">
+                                Failed (${results.failed.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.failed.map(f => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${f.key}</strong><br><span style="color: #e74c3c;">Error: ${f.error}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                statusHTML += `<p style="margin-top: 10px; color: #666;"><em>A backup of the original file was created. Reload the page to see updated comparison.</em></p>`;
+
+                statusDiv.innerHTML = statusHTML;
+                button.textContent = 'Videos Copied';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `Error: ${error.message}`;
+                button.disabled = false;
+                button.textContent = 'Copy Video Properties to Site';
+            }
+        }
+
+        function displayResults(results, collectionName = 'fake-rares.json') {
+            const summaryDiv = document.getElementById('summary');
+            const resultsDiv = document.getElementById('results');
+
+            comparisonResultsGlobal = results;
+
+            // Summary cards
+            summaryDiv.innerHTML = `
+                <div class="summary-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>Only in SDK</h3>
+                    <div class="number">${results.onlyInSDK.length}</div>
+                </div>
+                <div class="summary-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>Only in Site</h3>
+                    <div class="number">${results.onlyInSite.length}</div>
+                </div>
+                <div class="summary-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>Missing Props in SDK</h3>
+                    <div class="number">${results.missingPropsInSDK.length}</div>
+                </div>
+                <div class="summary-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+                    <h3>Missing Props in Site</h3>
+                    <div class="number">${results.missingPropsInSite.length}</div>
+                </div>
+                <div class="summary-card" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);">
+                    <h3>Conflicting Values</h3>
+                    <div class="number">${results.conflicts.length}</div>
+                </div>
+                <div class="summary-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                    <h3>Identical</h3>
+                    <div class="number">${results.identical}</div>
+                </div>
+            `;
+            summaryDiv.style.display = 'grid';
+
+            let html = '';
+
+            // Items only in SDK
+            if (results.onlyInSDK.length > 0) {
+                html += `
+                    <div class="section">
+                        <h2>Items Only in SDK Metadata</h2>
+                        <div class="count">Count: ${results.onlyInSDK.length}</div>
+                        <button id="insertToSiteBtn" onclick="insertSDKItemsToSite()" style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin: 10px 0;">
+                            Insert to Site Metadata (${results.onlyInSDK.length})
+                        </button>
+                        <div id="insertStatus" style="display:none;"></div>
+                `;
+                results.onlyInSDK.forEach(key => {
+                    html += `<div class="item"><div class="item-key">${key}</div></div>`;
+                });
+                html += `</div>`;
+            }
+
+            // Items only in Site
+            if (results.onlyInSite.length > 0) {
+                html += `
+                    <div class="section">
+                        <h2>Items Only in Site Metadata</h2>
+                        <div class="count">Count: ${results.onlyInSite.length}</div>
+                        <button id="insertToSDKBtn" onclick="insertSiteItemsToSDK()" style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin: 10px 0;">
+                            Insert to SDK Metadata (${results.onlyInSite.length})
+                        </button>
+                        <div id="insertToSDKStatus" style="display:none;"></div>
+                `;
+                results.onlyInSite.forEach(key => {
+                    html += `<div class="item"><div class="item-key">${key}</div></div>`;
+                });
+                html += `</div>`;
+            }
+
+            // Missing properties in SDK
+            if (results.missingPropsInSDK.length > 0) {
+                html += `
+                    <div class="section">
+                        <h2>Items Missing Properties in SDK Metadata</h2>
+                        <div class="count">Count: ${results.missingPropsInSDK.length}</div>
+                        <button id="addMissingPropsBtn" onclick="addMissingPropsToSDK()" style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin: 10px 0;">
+                            Add Missing Properties (${results.missingPropsInSDK.length})
+                        </button>
+                        <div id="addMissingPropsStatus" style="display:none;"></div>
+                `;
+                results.missingPropsInSDK.forEach(item => {
+                    html += `
+                        <div class="item">
+                            <div class="item-key">${item.key}</div>
+                            <div class="missing-prop">Missing: ${item.missingProps.join(', ')}</div>
+                            <div class="missing-prop">Values in site: ${JSON.stringify(item.siteValues, null, 2)}</div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            // Missing properties in Site
+            if (results.missingPropsInSite.length > 0) {
+                // Filter items with video property
+                const videoItems = results.missingPropsInSite.filter(item =>
+                    item.missingProps.includes('video')
+                );
+
+                html += `
+                    <div class="section">
+                        <h2>Items with Extra Properties in SDK Metadata</h2>
+                        <div class="count">Count: ${results.missingPropsInSite.length}</div>
+                `;
+
+                if (videoItems.length > 0) {
+                    html += `
+                        <button id="copyVideoPropsBtn" onclick="copyVideoPropsToSite()" style="padding: 10px 20px; background: #9b59b6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin: 10px 0;">
+                            Copy Video Properties to Site (${videoItems.length})
+                        </button>
+                        <div id="copyVideoPropsStatus" style="display:none;"></div>
+                        <p style="color: #666; margin: 10px 0; font-size: 12px;">This will copy the 'video' property from SDK metadata to Site metadata where it's missing.</p>
+                    `;
+                }
+
+                results.missingPropsInSite.forEach(item => {
+                    html += `
+                        <div class="item">
+                            <div class="item-key">${item.key}</div>
+                            <div class="extra-prop">Extra in SDK: ${item.missingProps.join(', ')}</div>
+                            <div class="extra-prop">Values in SDK: ${JSON.stringify(item.sdkValues, null, 2)}</div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            // Raw Property Comparison
+            if (results.rawPropertyComparison && results.rawPropertyComparison.length > 0) {
+                const mismatchedItems = results.rawPropertyComparison.filter(item =>
+                    !item.sdkMatches || !item.siteMatches
+                );
+
+                html += `
+                    <div class="section">
+                        <h2>Raw Property Comparison with ${collectionName}</h2>
+                        <div class="count">Total Items with 'raw' property: ${results.rawPropertyComparison.length}</div>
+                        <div class="count" style="color: #e74c3c;">Items NOT matching ${collectionName} data: ${mismatchedItems.length}</div>
+                        <p style="color: #856404; margin: 10px 0; font-size: 14px; background: #fff3cd; padding: 10px; border-radius: 4px;">
+                            <strong>This section compares the 'raw' property in SDK/Site metadata with the actual ${collectionName} data.</strong><br>
+                            Items should have their 'raw' property set to the complete ${collectionName} object for that item.
+                        </p>
+                `;
+
+                if (mismatchedItems.length > 0) {
+                    // Store globally for the button function
+                    mismatchedRawPropsGlobal = mismatchedItems;
+
+                    html += `
+                        <button id="updateRawPropsBtn" onclick="updateRawProperties()" style="padding: 10px 20px; background: #8e44ad; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin: 10px 0;">
+                            Update 'raw' Properties from ${collectionName} (${mismatchedItems.length})
+                        </button>
+                        <div id="updateRawPropsStatus" style="display:none;"></div>
+                        <p style="color: #666; margin: 10px 0; font-size: 12px;">This will update the 'raw' property in both SDK and Site metadata with the complete object from ${collectionName}.</p>
+                    `;
+                }
+
+                results.rawPropertyComparison.forEach(item => {
+                    const hasIssue = !item.sdkMatches || !item.siteMatches;
+
+                    html += `
+                        <div class="item" style="${hasIssue ? 'border-left: 4px solid #e74c3c;' : 'border-left: 4px solid #27ae60;'}">
+                            <div class="item-key">${item.key}</div>
+                            <div style="margin: 10px 0;">
+                                <strong style="color: #27ae60;">Source Data (${collectionName}):</strong>
+                                <details style="margin: 5px 0;">
+                                    <summary style="cursor: pointer; color: #666;">View ${collectionName} data</summary>
+                                    <pre style="background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 11px;">${JSON.stringify(item.fakeRareData, null, 2)}</pre>
+                                </details>
+                            </div>
+                    `;
+
+                    if (item.sdkExists) {
+                        if (item.sdkRawProperty) {
+                            html += `
+                                <div style="margin: 10px 0; padding: 10px; background: ${item.sdkMatches ? '#d4edda' : '#f8d7da'}; border-radius: 4px;">
+                                    <strong style="color: ${item.sdkMatches ? '#155724' : '#721c24'};">
+                                        SDK 'raw' property ${item.sdkMatches ? '✓ MATCHES' : '❌ DOES NOT MATCH'}
+                                    </strong>
+                                    <details style="margin: 5px 0;">
+                                        <summary style="cursor: pointer;">View SDK raw property</summary>
+                                        <pre style="background: white; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 11px;">${JSON.stringify(item.sdkRawProperty, null, 2)}</pre>
+                                    </details>
+                                </div>
+                            `;
+                        } else {
+                            html += `
+                                <div style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px;">
+                                    <strong style="color: #856404;">SDK: 'raw' property not found</strong>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        html += `
+                            <div style="margin: 10px 0; padding: 10px; background: #e2e3e5; border-radius: 4px;">
+                                <strong style="color: #383d41;">SDK: Item does not exist</strong>
+                            </div>
+                        `;
+                    }
+
+                    if (item.siteExists) {
+                        if (item.siteRawProperty) {
+                            html += `
+                                <div style="margin: 10px 0; padding: 10px; background: ${item.siteMatches ? '#d4edda' : '#f8d7da'}; border-radius: 4px;">
+                                    <strong style="color: ${item.siteMatches ? '#155724' : '#721c24'};">
+                                        Site 'raw' property ${item.siteMatches ? '✓ MATCHES' : '❌ DOES NOT MATCH'}
+                                    </strong>
+                                    <details style="margin: 5px 0;">
+                                        <summary style="cursor: pointer;">View Site raw property</summary>
+                                        <pre style="background: white; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 11px;">${JSON.stringify(item.siteRawProperty, null, 2)}</pre>
+                                    </details>
+                                </div>
+                            `;
+                        } else {
+                            html += `
+                                <div style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px;">
+                                    <strong style="color: #856404;">Site: 'raw' property not found</strong>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        html += `
+                            <div style="margin: 10px 0; padding: 10px; background: #e2e3e5; border-radius: 4px;">
+                                <strong style="color: #383d41;">Site: Item does not exist</strong>
+                            </div>
+                        `;
+                    }
+
+                    html += `</div>`;
+                });
+
+                html += `</div>`;
+            }
+
+            // Conflicts with raw data (source of truth)
+            if (results.conflictsWithRaw && results.conflictsWithRaw.length > 0) {
+                html += `
+                    <div class="section">
+                        <h2>Conflicts with Raw Source Data (${collectionName})</h2>
+                        <div class="count">Count: ${results.conflictsWithRaw.length}</div>
+                        <p style="color: #856404; margin: 10px 0; font-size: 14px; background: #fff3cd; padding: 10px; border-radius: 4px;">
+                            <strong>⚠️ These items have values that differ from the raw source data (${collectionName}).</strong><br>
+                            The raw source is considered the source of truth. Use the button below to update SDK and Site metadata with raw values.
+                        </p>
+                        <button id="updateFromRawBtn" onclick="updateFromRaw()" style="padding: 10px 20px; background: #c0392b; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin: 10px 0;">
+                            Update from Raw Source (${results.conflictsWithRaw.length})
+                        </button>
+                        <div id="updateFromRawStatus" style="display:none;"></div>
+                `;
+
+                results.conflictsWithRaw.forEach(item => {
+                    html += `<div class="item"><div class="item-key">${item.key}</div>`;
+                    item.conflicts.forEach(conflict => {
+                        html += `
+                            <div class="conflict-box">
+                                <div class="conflict-prop-name">Property: ${conflict.prop}</div>
+                                <div class="conflict-value">
+                                    <div style="color: #27ae60; font-weight: bold; margin-bottom: 5px;">RAW (Source of Truth): ${JSON.stringify(conflict.rawValue)}</div>
+                                    <div class="conflict-sdk" style="${conflict.sdkConflict ? 'color: #c0392b; font-weight: bold;' : 'color: #999;'}">
+                                        SDK: ${JSON.stringify(conflict.sdkValue)} ${conflict.sdkConflict ? '❌' : '✓'}
+                                    </div>
+                                    <div class="conflict-site" style="${conflict.siteConflict ? 'color: #c0392b; font-weight: bold;' : 'color: #999;'}">
+                                        Site: ${JSON.stringify(conflict.siteValue)} ${conflict.siteConflict ? '❌' : '✓'}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                });
+                html += `</div>`;
+            }
+
+            // Conflicting values (SDK vs Site only)
+            if (results.conflicts.length > 0) {
+                // Filter conflicts to find those with 'image' property
+                const imageConflicts = results.conflicts.filter(item =>
+                    item.conflicts.some(c => c.prop === 'image')
+                );
+
+                // Count how many have raw data available
+                const conflictsWithRawData = results.conflicts.filter(item =>
+                    item.conflicts.some(c => c.rawValue !== undefined)
+                ).length;
+
+                html += `
+                    <div class="section">
+                        <h2>Items with Conflicting Property Values (SDK vs Site)</h2>
+                        <div class="count">Count: ${results.conflicts.length}</div>
+                        ${conflictsWithRawData > 0 ? `<p style="color: #856404; margin: 10px 0; font-size: 13px; background: #fff3cd; padding: 8px; border-radius: 4px;">
+                            ${conflictsWithRawData} items have raw source data available for comparison (shown in green below)
+                        </p>` : ''}
+                `;
+
+                // Check for 'raw' property conflicts between SDK and Site
+                const rawPropertyConflicts = results.conflicts.filter(item =>
+                    item.conflicts.some(c => c.prop === 'raw')
+                );
+
+                // Add button to update from raw if raw data is available
+                if (conflictsWithRawData > 0) {
+                    // Filter to get conflicts that have raw data and don't match
+                    const rawConflictsToFix = [];
+                    results.conflicts.forEach(item => {
+                        const conflictsNeedingFix = item.conflicts.filter(c =>
+                            c.rawValue !== undefined && (!c.sdkMatchesRaw || !c.siteMatchesRaw)
+                        );
+                        if (conflictsNeedingFix.length > 0) {
+                            rawConflictsToFix.push({
+                                key: item.key,
+                                conflicts: conflictsNeedingFix.map(c => ({
+                                    prop: c.prop,
+                                    rawValue: c.rawValue,
+                                    sdkValue: c.sdkValue,
+                                    siteValue: c.siteValue,
+                                    sdkConflict: !c.sdkMatchesRaw,
+                                    siteConflict: !c.siteMatchesRaw
+                                }))
+                            });
+                        }
+                    });
+
+                    if (rawConflictsToFix.length > 0) {
+                        // Store globally for the button function
+                        rawConflictsToFixGlobal = rawConflictsToFix;
+
+                        html += `
+                            <button id="updateConflictsFromRawBtn" onclick="updateConflictsFromRaw()" style="padding: 10px 20px; background: #c0392b; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin: 10px 5px 10px 0;">
+                                Update from Raw Source (${rawConflictsToFix.length})
+                            </button>
+                            <div id="updateConflictsFromRawStatus" style="display:none;"></div>
+                        `;
+                    }
+                }
+
+                // Add button to update Site 'raw' property from SDK
+                if (rawPropertyConflicts.length > 0) {
+                    // Store globally for the button function
+                    rawPropertyConflictsGlobal = rawPropertyConflicts;
+
+                    html += `
+                        <button id="updateSiteRawFromSDKBtn" onclick="updateSiteRawFromSDK()" style="padding: 10px 20px; background: #16a085; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin: 10px 5px 10px 0;">
+                            Update Site 'raw' from SDK (${rawPropertyConflicts.length})
+                        </button>
+                        <div id="updateSiteRawFromSDKStatus" style="display:none;"></div>
+                        <p style="color: #666; margin: 10px 0; font-size: 12px;">This will copy the 'raw' property from SDK metadata to Site metadata where they differ.</p>
+                    `;
+                }
+
+                if (imageConflicts.length > 0) {
+                    html += `
+                        <button id="updateImageConflictsBtn" onclick="updateImageConflicts()" style="padding: 10px 20px; background: #e67e22; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin: 10px 0;">
+                            Update Image URLs in Site (${imageConflicts.length})
+                        </button>
+                        <div id="updateImageConflictsStatus" style="display:none;"></div>
+                        <p style="color: #666; margin: 10px 0; font-size: 12px;">This will update the 'image' property in Site metadata with the full URL from SDK metadata.</p>
+                    `;
+                }
+
+                results.conflicts.forEach(item => {
+                    html += `<div class="item"><div class="item-key">${item.key}</div>`;
+                    item.conflicts.forEach(conflict => {
+                        html += `
+                            <div class="conflict-box">
+                                <div class="conflict-prop-name">Property: ${conflict.prop}</div>
+                                <div class="conflict-value">
+                        `;
+
+                        // Show raw value if available
+                        if (conflict.rawValue !== undefined) {
+                            html += `
+                                <div style="color: #27ae60; font-weight: bold; margin-bottom: 5px; background: #d4edda; padding: 5px; border-radius: 3px;">
+                                    RAW (Source of Truth): ${JSON.stringify(conflict.rawValue)}
+                                </div>
+                            `;
+                        }
+
+                        // Show SDK value with indicator if it matches raw
+                        html += `<div class="conflict-sdk" style="${conflict.rawValue !== undefined ? (conflict.sdkMatchesRaw ? 'color: #27ae60;' : 'color: #c0392b; font-weight: bold;') : ''}">
+                            SDK: ${JSON.stringify(conflict.sdkValue)} ${conflict.rawValue !== undefined ? (conflict.sdkMatchesRaw ? '✓' : '❌') : ''}
+                        </div>`;
+
+                        // Show Site value with indicator if it matches raw
+                        html += `<div class="conflict-site" style="${conflict.rawValue !== undefined ? (conflict.siteMatchesRaw ? 'color: #27ae60;' : 'color: #c0392b; font-weight: bold;') : ''}">
+                            Site: ${JSON.stringify(conflict.siteValue)} ${conflict.rawValue !== undefined ? (conflict.siteMatchesRaw ? '✓' : '❌') : ''}
+                        </div>`;
+
+                        html += `
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                });
+                html += `</div>`;
+            }
+
+            resultsDiv.innerHTML = html;
+        }
+
+        function convertFakeRaresToObject(fakeRaresArray) {
+            const obj = {};
+            fakeRaresArray.forEach(item => {
+                if (item.name) {
+                    obj[item.name] = item;
+                }
+            });
+            return obj;
+        }
+
+        function findMissingFromBoth(fakeRares, sdk, site) {
+            const missing = [];
+            const sdkKeys = new Set(Object.keys(sdk));
+            const siteKeys = new Set(Object.keys(site));
+
+            Object.keys(fakeRares).forEach(key => {
+                if (!sdkKeys.has(key) && !siteKeys.has(key)) {
+                    missing.push({
+                        name: key,
+                        data: fakeRares[key]
+                    });
+                }
+            });
+
+            return missing;
+        }
+
+        function findRedundantOldImages(data) {
+            const redundant = [];
+
+            Object.keys(data).forEach(key => {
+                const item = data[key];
+                if (item.oldImage && item.image && item.oldImage === item.image) {
+                    redundant.push({
+                        key: key,
+                        value: item.image
+                    });
+                }
+            });
+
+            return redundant;
+        }
+
+        async function removeOldImages(target) {
+            const buttonId = target === 'sdk' ? 'removeOldImagesSDKBtn' : 'removeOldImagesSiteBtn';
+            const statusId = target === 'sdk' ? 'removeOldImagesSDKStatus' : 'removeOldImagesSiteStatus';
+            const button = document.getElementById(buttonId);
+            const statusDiv = document.getElementById(statusId);
+            const items = redundantOldImagesGlobal[target];
+
+            button.disabled = true;
+            button.textContent = 'Removing...';
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.textContent = `Removing oldImage from ${items.length} items in ${target.toUpperCase()} metadata...`;
+
+            try {
+                const response = await fetch('/remove-old-images', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        items: items.map(i => i.key),
+                        target: target
+                    })
+                });
+
+                const results = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(results.error || 'Failed to remove oldImage properties');
+                }
+
+                statusDiv.className = 'status success';
+                let statusHTML = `
+                    <strong>Removal Complete!</strong><br>
+                    <div style="margin: 10px 0;">
+                        <span style="color: #27ae60;">✓ Removed: ${results.removed.length}</span> |
+                        <span style="color: #f39c12;">⊘ Not Found: ${results.notFound.length}</span> |
+                        <span style="color: #e74c3c;">✗ Failed: ${results.failed.length}</span>
+                    </div>
+                `;
+
+                if (results.removed.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #155724;">
+                                Removed oldImage from (${results.removed.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+                                ${results.removed.map(r => `<div style="margin: 2px 0; padding: 3px; background: white; border-radius: 3px;">${r.key}</div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.notFound.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #856404;">
+                                Not Found (${results.notFound.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.notFound.map(n => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${n.key}</strong><br><span style="color: #f39c12;">Reason: ${n.reason}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.failed.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #f8d7da; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #721c24;">
+                                Failed (${results.failed.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.failed.map(f => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${f.key}</strong><br><span style="color: #e74c3c;">Error: ${f.error}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                statusHTML += `<p style="margin-top: 10px; color: #666;"><em>A backup of the original file was created. Reload the page to see updated comparison.</em></p>`;
+
+                statusDiv.innerHTML = statusHTML;
+                button.textContent = 'Removal Complete';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `Error: ${error.message}`;
+                button.disabled = false;
+                button.textContent = 'Remove Redundant oldImage';
+            }
+        }
+
+        function displayRedundantOldImages(sdkRedundant, siteRedundant) {
+            const section = document.getElementById('redundantOldImagesSection');
+
+            if (sdkRedundant.length === 0 && siteRedundant.length === 0) {
+                return;
+            }
+
+            redundantOldImagesGlobal = { sdk: sdkRedundant, site: siteRedundant };
+            section.style.display = 'block';
+
+            let html = '';
+
+            if (sdkRedundant.length > 0) {
+                html += `
+                    <div class="section">
+                        <h2>SDK: Redundant oldImage Properties</h2>
+                        <div class="count">Count: ${sdkRedundant.length}</div>
+                        <p style="color: #666; margin: 10px 0;">These items have oldImage property that matches the image property and can be safely removed.</p>
+                        <button id="removeOldImagesSDKBtn" onclick="removeOldImages('sdk')" style="padding: 10px 20px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin: 10px 0;">
+                            Remove Redundant oldImage (${sdkRedundant.length})
+                        </button>
+                        <div id="removeOldImagesSDKStatus" style="display:none;"></div>
+                `;
+                sdkRedundant.forEach(item => {
+                    html += `
+                        <div class="item">
+                            <div class="item-key">${item.key}</div>
+                            <div style="margin-left: 20px; font-family: monospace; font-size: 12px; color: #666;">
+                                <div>image: ${item.value}</div>
+                                <div style="color: #e74c3c;">oldImage: ${item.value} (redundant)</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            if (siteRedundant.length > 0) {
+                html += `
+                    <div class="section">
+                        <h2>Site: Redundant oldImage Properties</h2>
+                        <div class="count">Count: ${siteRedundant.length}</div>
+                        <p style="color: #666; margin: 10px 0;">These items have oldImage property that matches the image property and can be safely removed.</p>
+                        <button id="removeOldImagesSiteBtn" onclick="removeOldImages('site')" style="padding: 10px 20px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin: 10px 0;">
+                            Remove Redundant oldImage (${siteRedundant.length})
+                        </button>
+                        <div id="removeOldImagesSiteStatus" style="display:none;"></div>
+                `;
+                siteRedundant.forEach(item => {
+                    html += `
+                        <div class="item">
+                            <div class="item-key">${item.key}</div>
+                            <div style="margin-left: 20px; font-family: monospace; font-size: 12px; color: #666;">
+                                <div>image: ${item.value}</div>
+                                <div style="color: #e74c3c;">oldImage: ${item.value} (redundant)</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            section.innerHTML = html;
+        }
+
+        let missingItemsGlobal = [];
+
+        async function addMissingItemsToBoth() {
+            const button = document.getElementById('addMissingItemsBtn');
+            const statusDiv = document.getElementById('addMissingItemsStatus');
+
+            button.disabled = true;
+            button.textContent = 'Adding Items...';
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.textContent = `Preparing to add ${missingItemsGlobal.length} items to both SDK and Site metadata...`;
+
+            try {
+                const response = await fetch('/add-missing-items-to-both', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ items: missingItemsGlobal, collection: currentCollection })
+                });
+
+                const results = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(results.error || 'Failed to add items');
+                }
+
+                statusDiv.className = 'status success';
+                let statusHTML = `
+                    <strong>Items Added!</strong><br>
+                    <div style="margin: 10px 0;">
+                        <span style="color: #27ae60;">✓ SDK Added: ${results.sdkAdded.length}</span> |
+                        <span style="color: #27ae60;">✓ Site Added: ${results.siteAdded.length}</span> |
+                        <span style="color: #f39c12;">⊘ Skipped: ${results.skipped.length}</span> |
+                        <span style="color: #e74c3c;">✗ Failed: ${results.failed.length}</span>
+                    </div>
+                `;
+
+                if (results.sdkAdded.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #155724;">
+                                SDK Items Added (${results.sdkAdded.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+                                ${results.sdkAdded.map(a => `<div style="margin: 2px 0; padding: 3px; background: white; border-radius: 3px;">${a}</div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.siteAdded.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #155724;">
+                                Site Items Added (${results.siteAdded.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+                                ${results.siteAdded.map(a => `<div style="margin: 2px 0; padding: 3px; background: white; border-radius: 3px;">${a}</div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.skipped.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #856404;">
+                                Skipped Items (${results.skipped.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.skipped.map(s => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${s.key}</strong><br><span style="color: #f39c12;">Reason: ${s.reason}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.failed.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #f8d7da; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #721c24;">
+                                Failed Items (${results.failed.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.failed.map(f => `<div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;"><strong>${f.key}</strong><br><span style="color: #e74c3c;">Error: ${f.error}</span></div>`).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                statusHTML += `<p style="margin-top: 10px; color: #666;"><em>Backups of both SDK and Site files were created. Reload the page to see updated comparison.</em></p>`;
+
+                statusDiv.innerHTML = statusHTML;
+                button.textContent = 'Items Added';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `Error: ${error.message}`;
+                button.disabled = false;
+                button.textContent = 'Add Missing Items to Both SDK & Site';
+            }
+        }
+
+        async function copyMissingImages() {
+            const button = document.getElementById('copyImagesBtn');
+            const statusDiv = document.getElementById('copyStatus');
+
+            button.disabled = true;
+            button.textContent = 'Copying Images...';
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.textContent = `Preparing to copy ${missingItemsGlobal.length} images...`;
+
+            try {
+                const items = missingItemsGlobal.map(item => ({
+                    name: item.name,
+                    image: item.data.image,
+                    serie: item.data.serie
+                }));
+
+                const response = await fetch('/copy-images', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ items, collection: currentCollection })
+                });
+
+                const results = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(results.error || 'Failed to copy images');
+                }
+
+                statusDiv.className = 'status success';
+
+                let statusHTML = `
+                    <strong>Copy Complete!</strong><br>
+                    <div style="margin: 10px 0;">
+                        <span style="color: #27ae60;">✓ Success: ${results.success.length}</span> |
+                        <span style="color: #f39c12;">⊘ Skipped: ${results.skipped.length}</span> |
+                        <span style="color: #e74c3c;">✗ Failed: ${results.failed.length}</span>
+                    </div>
+                `;
+
+                if (results.skipped.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #856404;">
+                                Skipped Images (${results.skipped.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.skipped.map(s => `
+                                    <div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;">
+                                        <strong>${s.name}</strong><br>
+                                        <span style="color: #666;">Image: ${s.image}</span><br>
+                                        <span style="color: #f39c12;">Reason: ${s.reason}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.failed.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #f8d7da; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #721c24;">
+                                Failed Images (${results.failed.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px;">
+                                ${results.failed.map(f => `
+                                    <div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;">
+                                        <strong>${f.name}</strong><br>
+                                        <span style="color: #666;">Image: ${f.image}</span><br>
+                                        <span style="color: #666;">URL: ${f.url}</span><br>
+                                        <span style="color: #e74c3c;">Error: ${f.error}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                if (results.success.length > 0) {
+                    statusHTML += `
+                        <details style="margin: 10px 0; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #155724;">
+                                Successfully Copied Images (${results.success.length})
+                            </summary>
+                            <div style="margin-top: 10px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+                                ${results.success.map(s => `
+                                    <div style="margin: 2px 0; padding: 3px; background: white; border-radius: 3px;">
+                                        <strong>${s.name}</strong> - ${s.image}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+
+                statusDiv.innerHTML = statusHTML;
+                button.textContent = 'Copy Images Complete';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `Error: ${error.message}`;
+                button.disabled = false;
+                button.textContent = 'Copy Missing Images';
+            }
+        }
+
+        function displayMissingFromBoth(missing, collectionName = 'collection') {
+            const section = document.getElementById('fakeRaresSection');
+
+            if (missing.length === 0) {
+                return;
+            }
+
+            missingItemsGlobal = missing;
+            section.style.display = 'block';
+
+            let html = `
+                <div class="section">
+                    <h2>Items Missing from Both SDK and Site</h2>
+                    <div class="count">Count: ${missing.length}</div>
+                    <p style="color: #666; margin: 10px 0;">These items exist in ${collectionName} but are not present in either sdk-metadata.json or emblem-site-metadata.json</p>
+                    <button id="addMissingItemsBtn" onclick="addMissingItemsToBoth()" style="padding: 10px 20px; background: #8e44ad; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin: 10px 5px 10px 0;">
+                        Add Missing Items to Both SDK & Site (${missing.length})
+                    </button>
+                    <button id="copyImagesBtn" onclick="copyMissingImages()" style="padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin: 10px 0;">
+                        Copy Missing Images (${missing.length})
+                    </button>
+                    <div id="addMissingItemsStatus" style="display:none;"></div>
+                    <div id="copyStatus" style="display:none;"></div>
+                    <p style="color: #666; margin: 10px 0; font-size: 12px;">The "Add Missing Items" button will create entries in both SDK and Site metadata using the template structure with ${collectionName} data in the 'raw' property.</p>
+            `;
+
+            missing.forEach(item => {
+                html += `
+                    <div class="item">
+                        <div class="item-key">${item.name}</div>
+                        <div style="margin-left: 20px; font-family: monospace; font-size: 12px; color: #666;">
+                            <div>Collection: ${item.data.collection || 'N/A'}</div>
+                            <div>Image: ${item.data.image || 'N/A'}</div>
+                            ${item.data.artist ? `<div>Artist: ${item.data.artist.name || 'N/A'}</div>` : ''}
+                            ${item.data.serie !== undefined ? `<div>Serie: ${item.data.serie}</div>` : ''}
+                            ${item.data.card !== undefined ? `<div>Card: ${item.data.card}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            section.innerHTML = html;
+        }
+
+        async function loadCollections() {
+            try {
+                const response = await fetch('/list-collections');
+                availableCollections = await response.json();
+
+                const select = document.getElementById('collectionSelect');
+                select.innerHTML = '<option value="">-- Select a collection --</option>';
+
+                availableCollections.forEach(collection => {
+                    const option = document.createElement('option');
+                    option.value = collection.filename;
+                    option.textContent = collection.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                document.getElementById('status').textContent = `Error loading collections: ${error.message}`;
+                document.getElementById('status').className = 'status error';
+            }
+        }
+
+        async function loadComparison() {
+            const select = document.getElementById('collectionSelect');
+            const selectedCollection = select.value;
+
+            if (!selectedCollection) {
+                document.getElementById('status').textContent = 'Select a collection to begin...';
+                document.getElementById('status').className = 'status';
+                // Clear all sections
+                document.getElementById('summary').style.display = 'none';
+                document.getElementById('summary').innerHTML = '';
+                document.getElementById('fakeRaresSection').style.display = 'none';
+                document.getElementById('fakeRaresSection').innerHTML = '';
+                document.getElementById('redundantOldImagesSection').style.display = 'none';
+                document.getElementById('redundantOldImagesSection').innerHTML = '';
+                document.getElementById('results').innerHTML = '';
+                return;
+            }
+
+            currentCollection = selectedCollection;
+            const statusDiv = document.getElementById('status');
+
+            // Clear all previous results before loading new collection
+            document.getElementById('summary').style.display = 'none';
+            document.getElementById('summary').innerHTML = '';
+            document.getElementById('fakeRaresSection').style.display = 'none';
+            document.getElementById('fakeRaresSection').innerHTML = '';
+            document.getElementById('redundantOldImagesSection').style.display = 'none';
+            document.getElementById('redundantOldImagesSection').innerHTML = '';
+            document.getElementById('results').innerHTML = '';
+
+            try {
+                statusDiv.textContent = 'Loading sdk-metadata.json...';
+                statusDiv.className = 'status';
+                sdkMetadataGlobal = await loadJSON('./sdk-metadata.json');
+
+                statusDiv.textContent = 'Loading emblem-site-metadata.json...';
+                siteMetadataGlobal = await loadJSON('./emblem-site-metadata.json');
+
+                statusDiv.textContent = `Loading ${selectedCollection}...`;
+                const incomingArray = await loadJSON(`./incoming/${selectedCollection}`);
+                incomingDataGlobal = convertFakeRaresToObject(incomingArray);
+
+                statusDiv.textContent = 'Comparing metadata...';
+                const results = compareMetadata(sdkMetadataGlobal, siteMetadataGlobal, incomingDataGlobal);
+                const missingFromBoth = findMissingFromBoth(incomingDataGlobal, sdkMetadataGlobal, siteMetadataGlobal);
+
+                statusDiv.textContent = 'Checking for redundant oldImage properties...';
+                const sdkRedundant = findRedundantOldImages(sdkMetadataGlobal);
+                const siteRedundant = findRedundantOldImages(siteMetadataGlobal);
+
+                statusDiv.className = 'status success';
+                statusDiv.textContent = `Comparison complete! Found ${missingFromBoth.length} items missing from both SDK and Site. Found ${sdkRedundant.length + siteRedundant.length} redundant oldImage properties.`;
+
+                displayMissingFromBoth(missingFromBoth, selectedCollection);
+                displayRedundantOldImages(sdkRedundant, siteRedundant);
+                displayResults(results, selectedCollection);
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `Error: ${error.message}`;
+                console.error(error);
+            }
+        }
+
+        // Auto-run when page loads
+        loadCollections();
+    </script>
+</body>
+</html>

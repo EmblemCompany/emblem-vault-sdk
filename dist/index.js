@@ -45,7 +45,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const derive_1 = require("./derive");
-const SDK_VERSION = '2.4.0';
+const SDK_VERSION = '2.5.0';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl, v3Url, sigUrl) {
         this.apiKey = apiKey;
