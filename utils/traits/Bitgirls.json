@@ -1,0 +1,236 @@
+[
+  {
+    "id": 332,
+    "tokenId": "BITGIRLSI",
+    "assetId": 279026196496,
+    "creationDate": "2016-12-20 8:36:44",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 333,
+    "tokenId": "BITGIRLSII",
+    "assetId": 7254681108904,
+    "creationDate": "2016-12-20 8:36:44",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 334,
+    "tokenId": "CHIKARINBG",
+    "assetId": 12388148367172,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 335,
+    "tokenId": "CHIKARINVIX",
+    "assetId": 322091857560067,
+    "creationDate": "2016-12-12 12:23:26",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 336,
+    "tokenId": "DJASANYANBG",
+    "assetId": 472511558088212,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 337,
+    "tokenId": "DJASANYANVIX",
+    "assetId": 12285300510307108,
+    "creationDate": "2016-12-12 12:23:26",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 338,
+    "tokenId": "HINANOMAIBG",
+    "assetId": 1034324638578432,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 339,
+    "tokenId": "ICHARLOTTEBG",
+    "assetId": 29683236727166810,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 340,
+    "tokenId": "ITSUKIBG",
+    "assetId": 70347066640,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 341,
+    "tokenId": "KAORIBG",
+    "assetId": 3095859656,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 342,
+    "tokenId": "KINOBG",
+    "assetId": 122707552,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 343,
+    "tokenId": "LEENABG",
+    "assetId": 3447655464,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 344,
+    "tokenId": "MAMICHANBG",
+    "assetId": 65252924166436,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 345,
+    "tokenId": "MIZUKIBG",
+    "assetId": 99159403440,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 346,
+    "tokenId": "MIZUKIVIX",
+    "assetId": 2578144503035,
+    "creationDate": "2016-12-12 12:23:26",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 347,
+    "tokenId": "RUMIRUMIBG",
+    "assetId": 96577168221696,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 348,
+    "tokenId": "RURUBG",
+    "assetId": 211435256,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 349,
+    "tokenId": "SANOMAYABG",
+    "assetId": 97839947573088,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 350,
+    "tokenId": "SANOMAYAVIX",
+    "assetId": 2543838636913883,
+    "creationDate": "2016-12-12 12:23:26",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 351,
+    "tokenId": "SATOAYAKABG",
+    "assetId": 2545088166658992,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 352,
+    "tokenId": "SHIMARENABG",
+    "assetId": 2580781449792136,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 353,
+    "tokenId": "SHIRAHOSHIBG",
+    "assetId": 67101358861986936,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 354,
+    "tokenId": "SIRAHOSIVIX",
+    "assetId": 2587996148420667,
+    "creationDate": "2016-12-12 12:23:26",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 355,
+    "tokenId": "TSUKASABG",
+    "assetId": 4118584255792,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 356,
+    "tokenId": "TSUKASAVIX",
+    "assetId": 107083190664187,
+    "creationDate": "2016-12-12 12:23:26",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 357,
+    "tokenId": "YAMAGUCHIABG",
+    "assetId": 88153476128133140,
+    "creationDate": "2017-03-14 6:02:38",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  }
+]

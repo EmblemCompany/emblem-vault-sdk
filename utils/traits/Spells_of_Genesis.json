@@ -1,0 +1,2216 @@
+[
+  {
+    "id": 1,
+    "tokenId": "BADROMANCE",
+    "assetId": 5459022509516,
+    "creationDate": "2018-02-12 16:48:31",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 12
+  },
+  {
+    "id": 2,
+    "tokenId": "BADWOLF",
+    "assetId": 310683131,
+    "creationDate": "2017-04-27 15:03:14",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 3,
+    "tokenId": "BALABASTER",
+    "assetId": 5517865801621,
+    "creationDate": "2017-12-01 9:04:30",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 4,
+    "tokenId": "BARDCARD",
+    "assetId": 8235200093,
+    "creationDate": "2016-10-19 10:12:56",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 5,
+    "tokenId": "BAZAARCARD",
+    "assetId": 5630306737565,
+    "creationDate": "2015-10-21 8:16:01",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 6,
+    "tokenId": "BCINVESTCARD",
+    "assetId": 3998999585825533,
+    "creationDate": "2017-06-26 13:16:07",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 7,
+    "tokenId": "BCYDRAGON",
+    "assetId": 232348080705,
+    "creationDate": "2015-11-16 13:51:14",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 8,
+    "tokenId": "BEARSPIRIT",
+    "assetId": 6270284377207,
+    "creationDate": "2019-09-04 15:40:50",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 9,
+    "tokenId": "BEARWHALECD",
+    "assetId": 163028530655071,
+    "creationDate": "2015-07-24 16:20:24",
+    "supply": 430,
+    "destructions": 2570,
+    "burns": 3
+  },
+  {
+    "id": 10,
+    "tokenId": "BITCOINCOMCD",
+    "assetId": 4903374548539223,
+    "creationDate": "2016-10-03 14:28:43",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 11,
+    "tokenId": "BITCOINISTCD",
+    "assetId": 4903374551356115,
+    "creationDate": "2016-10-25 8:38:29",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 12,
+    "tokenId": "BITCOINMAGCD",
+    "assetId": 4903374552858863,
+    "creationDate": "2016-11-28 13:59:36",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 13,
+    "tokenId": "BITSHARESCD",
+    "assetId": 188717582156847,
+    "creationDate": "2016-04-18 16:09:54",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 14,
+    "tokenId": "BLOCKSIZECD",
+    "assetId": 203834585767023,
+    "creationDate": "2015-08-27 17:00:34",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 15,
+    "tokenId": "BLOCKTRAILCD",
+    "assetId": 5299699634442723,
+    "creationDate": "2015-12-10 17:10:02",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 16,
+    "tokenId": "BROTHERFOX",
+    "assetId": 9097963819071,
+    "creationDate": "2019-11-12 10:28:22",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 17,
+    "tokenId": "BTCCCOINCARD",
+    "assetId": 6363816455357533,
+    "creationDate": "2017-01-26 9:40:54",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 18,
+    "tokenId": "BTCCFORGECD",
+    "assetId": 244763102098375,
+    "creationDate": "2017-01-23 11:34:42",
+    "supply": 2000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 19,
+    "tokenId": "BTCDRAGONCD",
+    "assetId": 244774669678555,
+    "creationDate": "2015-11-16 13:51:14",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 20,
+    "tokenId": "BTCMEETUPCD",
+    "assetId": 244842993638051,
+    "creationDate": "2017-06-12 15:54:27",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 21,
+    "tokenId": "CALABASTER",
+    "assetId": 10947369480597,
+    "creationDate": "2017-12-01 17:39:46",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 22,
+    "tokenId": "CAMILACARD",
+    "assetId": 10957991137005,
+    "creationDate": "2017-11-16 10:28:43",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 23,
+    "tokenId": "CARDAIRBITZ",
+    "assetId": 285908449678175,
+    "creationDate": "2015-10-23 14:16:01",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 24,
+    "tokenId": "CARDAMBER",
+    "assetId": 422941553181,
+    "creationDate": "2015-12-10 10:38:24",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 25,
+    "tokenId": "CARDASTEMA",
+    "assetId": 10996483440800,
+    "creationDate": "2015-11-23 15:55:13",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 3
+  },
+  {
+    "id": 26,
+    "tokenId": "CARDAUGUR",
+    "assetId": 422941697585,
+    "creationDate": "2015-10-23 12:55:49",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 27,
+    "tokenId": "CARDMERCHANT",
+    "assetId": 7433714838117821,
+    "creationDate": "2017-10-19 2:15:52",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 28,
+    "tokenId": "CARNIATHCELE",
+    "assetId": 7435769771822162,
+    "creationDate": "2017-09-26 1:40:41",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 1
+  },
+  {
+    "id": 29,
+    "tokenId": "CARNIATHCREA",
+    "assetId": 7435769771830764,
+    "creationDate": "2017-10-18 10:49:48",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 30,
+    "tokenId": "CCMCARD",
+    "assetId": 647113613,
+    "creationDate": "2016-05-13 8:30:27",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 1
+  },
+  {
+    "id": 31,
+    "tokenId": "CENTAURARCHE",
+    "assetId": 7979910000000000,
+    "creationDate": "2017-10-14 19:09:04",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 32,
+    "tokenId": "CHARGEELITE",
+    "assetId": 320479160879882,
+    "creationDate": "2017-10-04 8:00:22",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 33,
+    "tokenId": "CLEFCARD",
+    "assetId": 19511539869,
+    "creationDate": "2015-06-24 21:47:48",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 3
+  },
+  {
+    "id": 34,
+    "tokenId": "CNPCARD",
+    "assetId": 779179677,
+    "creationDate": "2015-07-17 13:52:20",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 3
+  },
+  {
+    "id": 35,
+    "tokenId": "COINDESKCARD",
+    "assetId": 9363204643957868,
+    "creationDate": "2017-03-23 9:39:52",
+    "supply": 2000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 36,
+    "tokenId": "COINOFLITECD",
+    "assetId": 9363293219003104,
+    "creationDate": "2016-03-15 13:28:37",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 37,
+    "tokenId": "COINPORTALCD",
+    "assetId": 9363304107041044,
+    "creationDate": "2017-01-03 9:05:07",
+    "supply": 2000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 38,
+    "tokenId": "CORRUPTEDTRO",
+    "assetId": 9413045433343436,
+    "creationDate": "2017-10-19 2:15:52",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 39,
+    "tokenId": "CRAZYLOLA",
+    "assetId": 554503107054,
+    "creationDate": "2017-02-17 14:18:47",
+    "supply": 2000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 40,
+    "tokenId": "CROWCARD",
+    "assetId": 21491616877,
+    "creationDate": "2016-12-05 11:09:44",
+    "supply": 2000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 41,
+    "tokenId": "CROWWARRIOR",
+    "assetId": 377742836797525,
+    "creationDate": "2019-09-04 15:40:50",
+    "supply": 700,
+    "destructions": "NULL",
+    "burns": 350
+  },
+  {
+    "id": 42,
+    "tokenId": "CRYSTALIBUR",
+    "assetId": 379798050550637,
+    "creationDate": "2017-03-23 12:40:49",
+    "supply": 200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 43,
+    "tokenId": "CRYSTALREFIN",
+    "assetId": 9874749318471712,
+    "creationDate": "2017-10-09 7:22:30",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 44,
+    "tokenId": "CYCLOPSCARD",
+    "assetId": 413152794945933,
+    "creationDate": "2016-04-26 8:29:05",
+    "supply": 2400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 45,
+    "tokenId": "DAOSOGCARD",
+    "assetId": 16406685980077,
+    "creationDate": "2016-06-15 11:31:49",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 395
+  },
+  {
+    "id": 46,
+    "tokenId": "DARKAODH",
+    "assetId": 24301993229,
+    "creationDate": "2017-10-02 17:15:18",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 47,
+    "tokenId": "DARKCHALCOSI",
+    "assetId": 11105441525254292,
+    "creationDate": "2017-10-18 10:38:15",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 48,
+    "tokenId": "DARKSTATUE",
+    "assetId": 16428363528360,
+    "creationDate": "2017-04-07 13:04:21",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 49,
+    "tokenId": "DARYENCARD",
+    "assetId": 16432519290333,
+    "creationDate": "2016-02-18 16:11:01",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 9
+  },
+  {
+    "id": 50,
+    "tokenId": "DASHCD",
+    "assetId": 35965283,
+    "creationDate": "2016-05-13 8:30:27",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 51,
+    "tokenId": "DEALERFLAMES",
+    "assetId": 11578036384537914,
+    "creationDate": "2017-10-18 13:24:53",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 52,
+    "tokenId": "DEVASTATINGM",
+    "assetId": 11689871871650348,
+    "creationDate": "2017-09-26 1:40:41",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 53,
+    "tokenId": "DEVASTATINGT",
+    "assetId": 11689871871650356,
+    "creationDate": "2017-10-18 13:24:53",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 54,
+    "tokenId": "DIMITRICARD",
+    "assetId": 469513570722797,
+    "creationDate": "2017-11-16 10:28:43",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 55,
+    "tokenId": "DISTRICTOXCD",
+    "assetId": 12242208051445012,
+    "creationDate": "2017-10-24 8:31:28",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 56,
+    "tokenId": "DIVINEKNIGHT",
+    "assetId": 12256166194060144,
+    "creationDate": "2017-10-18 10:17:00",
+    "supply": 599,
+    "destructions": 2,
+    "burns": 0
+  },
+  {
+    "id": 57,
+    "tokenId": "DOGECOINCARD",
+    "assetId": 13020805619911260,
+    "creationDate": "2015-12-07 16:07:54",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 58,
+    "tokenId": "DOGENHANCER",
+    "assetId": 500803527398633,
+    "creationDate": "2017-10-11 13:03:22",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 59,
+    "tokenId": "DRACOMANCER",
+    "assetId": 515823380750409,
+    "creationDate": "2017-11-07 8:58:23",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 60,
+    "tokenId": "EALABASTER",
+    "assetId": 21806376838549,
+    "creationDate": "2017-12-01 17:39:46",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 61,
+    "tokenId": "EDSCARD",
+    "assetId": 1279568397,
+    "creationDate": "2016-06-29 18:51:12",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 340
+  },
+  {
+    "id": 62,
+    "tokenId": "ELFMONSTERKI",
+    "assetId": 16263986127184960,
+    "creationDate": "2017-09-20 11:17:01",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 63,
+    "tokenId": "ELFSAGE",
+    "assetId": 1368959648,
+    "creationDate": "2017-10-11 8:09:15",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 64,
+    "tokenId": "EMERALDCARD",
+    "assetId": 630794407894173,
+    "creationDate": "2015-12-10 10:29:24",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 65,
+    "tokenId": "EMERALDETHER",
+    "assetId": 16400654606489676,
+    "creationDate": "2016-11-21 14:16:35",
+    "supply": 2000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 66,
+    "tokenId": "ENCHANTEDSHI",
+    "assetId": 16528875231799198,
+    "creationDate": "2017-10-18 10:38:15",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 67,
+    "tokenId": "ERAOL",
+    "assetId": 2127071,
+    "creationDate": "2017-10-18 9:58:52",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 68,
+    "tokenId": "ETHEREUMCARD",
+    "assetId": 17402532618959308,
+    "creationDate": "2015-06-24 21:47:48",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 761
+  },
+  {
+    "id": 69,
+    "tokenId": "ETHERMAGE",
+    "assetId": 990130567248,
+    "creationDate": "2018-10-10 14:34:20",
+    "supply": 1981,
+    "destructions": "NULL",
+    "burns": 1775
+  },
+  {
+    "id": 70,
+    "tokenId": "ETHXCPCARD",
+    "assetId": 25749087329917,
+    "creationDate": "2015-09-20 4:06:58",
+    "supply": 1000,
+    "destructions": 633,
+    "burns": 1
+  },
+  {
+    "id": 71,
+    "tokenId": "FACTOMCD",
+    "assetId": 40191750407,
+    "creationDate": "2017-04-27 15:28:18",
+    "supply": 2000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 72,
+    "tokenId": "FAIRYTALESHA",
+    "assetId": 18398907162421840,
+    "creationDate": "2017-10-14 11:58:35",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 73,
+    "tokenId": "FDCARD",
+    "assetId": 60813405,
+    "creationDate": "2015-03-11 14:09:49",
+    "supply": 300,
+    "destructions": 0,
+    "burns": 0
+  },
+  {
+    "id": 74,
+    "tokenId": "FIERCERABBIT",
+    "assetId": 19506344776264910,
+    "creationDate": "2019-07-18 15:18:14",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 400
+  },
+  {
+    "id": 75,
+    "tokenId": "FIREANGEL",
+    "assetId": 1113689130643,
+    "creationDate": "2017-02-10 14:43:06",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 11
+  },
+  {
+    "id": 76,
+    "tokenId": "FLYINGBLAZE",
+    "assetId": 770640210611158,
+    "creationDate": "2016-05-23 14:45:15",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 77,
+    "tokenId": "FOOTSOLDIER",
+    "assetId": 784930444978177,
+    "creationDate": "2016-04-14 14:51:33",
+    "supply": 3000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 78,
+    "tokenId": "FORKCARD",
+    "assetId": 44690460493,
+    "creationDate": "2017-04-03 13:28:35",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 79,
+    "tokenId": "FROZENCOLOSS",
+    "assetId": 20832832962675830,
+    "creationDate": "2017-10-18 12:48:56",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 85,
+    "tokenId": "GASTADGRUN",
+    "assetId": 32727465545177,
+    "creationDate": "2016-11-18 12:41:28",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 86,
+    "tokenId": "GEMZCARD",
+    "assetId": 49580560669,
+    "creationDate": "2015-06-02 8:33:33",
+    "supply": 1000,
+    "destructions": 581,
+    "burns": 3
+  },
+  {
+    "id": 87,
+    "tokenId": "GENESISCARD",
+    "assetId": 871473131512493,
+    "creationDate": "2015-07-05 16:50:24",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 443
+  },
+  {
+    "id": 88,
+    "tokenId": "GENOFLIGHT",
+    "assetId": 33521133263793,
+    "creationDate": "2016-12-01 14:24:53",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 913
+  },
+  {
+    "id": 89,
+    "tokenId": "GIANTCARD",
+    "assetId": 1317380044893,
+    "creationDate": "2017-04-27 14:38:28",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 90,
+    "tokenId": "GNOMECARD",
+    "assetId": 1361845180621,
+    "creationDate": "2016-06-22 11:20:58",
+    "supply": 2000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 91,
+    "tokenId": "GOBLINCARD",
+    "assetId": 35512131888925,
+    "creationDate": "2016-01-27 12:59:58",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 92,
+    "tokenId": "GOLEMCARD",
+    "assetId": 1368858848269,
+    "creationDate": "2016-11-02 9:03:39",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 93,
+    "tokenId": "GOXCARD",
+    "assetId": 2030379965,
+    "creationDate": "2015-10-28 13:15:46",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 821
+  },
+  {
+    "id": 94,
+    "tokenId": "GRAVIGASSCAR",
+    "assetId": 24426359032909510,
+    "creationDate": "2017-09-25 9:57:08",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 95,
+    "tokenId": "GRIDCOINCARD",
+    "assetId": 24465990548128092,
+    "creationDate": "2017-10-10 9:21:22",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 96,
+    "tokenId": "GRIFFINMASTE",
+    "assetId": 24466430503120090,
+    "creationDate": "2017-09-27 16:12:23",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 97,
+    "tokenId": "GUARDIANSOUR",
+    "assetId": 24848985468115760,
+    "creationDate": "2017-10-19 2:15:52",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 1
+  },
+  {
+    "id": 98,
+    "tokenId": "GUMMYYUMMY",
+    "assetId": 36853948557216,
+    "creationDate": "2018-12-03 11:31:32",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 99,
+    "tokenId": "HARBINGERDEA",
+    "assetId": 25784990142325180,
+    "creationDate": "2017-10-18 10:07:33",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 100,
+    "tokenId": "HARPIESCARD",
+    "assetId": 991842733936941,
+    "creationDate": "2016-08-24 9:12:44",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 101,
+    "tokenId": "HEAVENLYSHEP",
+    "assetId": 26261501445013604,
+    "creationDate": "2017-10-04 8:00:22",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 102,
+    "tokenId": "HERBODCARD",
+    "assetId": 38978851445693,
+    "creationDate": "2017-03-17 8:36:15",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 103,
+    "tokenId": "HUNGRYAMPHIB",
+    "assetId": 28587733792700004,
+    "creationDate": "2017-10-05 3:42:21",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 104,
+    "tokenId": "HUNTERCARD",
+    "assetId": 42293405306077,
+    "creationDate": "2016-11-15 13:41:04",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 105,
+    "tokenId": "ICEGOLEM",
+    "assetId": 64922833936,
+    "creationDate": "2017-10-18 10:29:42",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 106,
+    "tokenId": "ICEUNICORN",
+    "assetId": 43892147275951,
+    "creationDate": "2017-10-18 9:44:02",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 107,
+    "tokenId": "INFECTEDSORM",
+    "assetId": 31225932948292096,
+    "creationDate": "2017-10-18 9:44:02",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 108,
+    "tokenId": "ITLANEXPERTD",
+    "assetId": 32104761183189060,
+    "creationDate": "2017-10-19 2:15:52",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 109,
+    "tokenId": "ITLANKINGGAR",
+    "assetId": 32104762857576360,
+    "creationDate": "2017-10-18 13:24:53",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 110,
+    "tokenId": "JAYACARD",
+    "assetId": 72571480205,
+    "creationDate": "2017-08-09 12:50:58",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 111,
+    "tokenId": "JEWELDRAGONS",
+    "assetId": 33718142633457196,
+    "creationDate": "2017-02-14 10:33:05",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 112,
+    "tokenId": "KARMACARD",
+    "assetId": 2093664826061,
+    "creationDate": "2017-01-16 10:42:46",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 113,
+    "tokenId": "KAYLAGRUN",
+    "assetId": 2095815437001,
+    "creationDate": "2016-11-18 12:41:28",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 114,
+    "tokenId": "KEEPKEYCARD",
+    "assetId": 1434347904346893,
+    "creationDate": "2016-05-02 13:51:30",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 115,
+    "tokenId": "KINGHURIENK",
+    "assetId": 1457872336616316,
+    "creationDate": "2019-11-12 11:15:42",
+    "supply": 1000,
+    "destructions": 926,
+    "burns": 0
+  },
+  {
+    "id": 116,
+    "tokenId": "KINGREINDEER",
+    "assetId": 37904756022802260,
+    "creationDate": "2016-12-15 11:27:34",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 118,
+    "tokenId": "KRAKENCARD",
+    "assetId": 57848239547101,
+    "creationDate": "2016-07-19 10:24:11",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 119,
+    "tokenId": "LALABASTER",
+    "assetId": 59812902591381,
+    "creationDate": "2017-12-01 17:39:46",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 120,
+    "tokenId": "LAMUSECARD",
+    "assetId": 59827316234637,
+    "creationDate": "2016-12-15 16:07:31",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 121,
+    "tokenId": "LEVIOTHAN",
+    "assetId": 2335813969697,
+    "creationDate": "2017-10-18 12:48:56",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 122,
+    "tokenId": "LIGHTWARRIOR",
+    "assetId": 41537324342232024,
+    "creationDate": "2019-09-04 15:40:50",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 10
+  },
+  {
+    "id": 123,
+    "tokenId": "LRIKTHEFIGHT",
+    "assetId": 42819309099809520,
+    "creationDate": "2018-08-27 12:09:32",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 124,
+    "tokenId": "LTBCARD",
+    "assetId": 3624312253,
+    "creationDate": "2015-10-06 8:05:47",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 125,
+    "tokenId": "LTCDRAGON",
+    "assetId": 2450363352385,
+    "creationDate": "2016-03-02 13:36:18",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 2
+  },
+  {
+    "id": 126,
+    "tokenId": "LYSANDERCARD",
+    "assetId": 43859636114377440,
+    "creationDate": "2017-11-16 10:28:43",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 128,
+    "tokenId": "MAIDSAFECD",
+    "assetId": 65219439331855,
+    "creationDate": "2016-04-05 10:17:54",
+    "supply": 700,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 129,
+    "tokenId": "MAMAGRUN",
+    "assetId": 96524416105,
+    "creationDate": "2016-11-18 12:41:28",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 131,
+    "tokenId": "MARKETACARD",
+    "assetId": 1697636987484909,
+    "creationDate": "2017-01-30 16:16:13",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 132,
+    "tokenId": "MAYACARD",
+    "assetId": 96666910733,
+    "creationDate": "2017-11-16 10:28:43",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 133,
+    "tokenId": "MAYALCARD",
+    "assetId": 2513343815869,
+    "creationDate": "2016-05-30 13:37:49",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 134,
+    "tokenId": "MIGHTYSTORK",
+    "assetId": 1738756525453204,
+    "creationDate": "2017-02-06 11:27:20",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 135,
+    "tokenId": "MINERCARD",
+    "assetId": 2574250491101,
+    "creationDate": "2015-11-04 10:00:50",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 136,
+    "tokenId": "MONSTERDEPTH",
+    "assetId": 46094969661481340,
+    "creationDate": "2017-10-19 2:15:52",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 137,
+    "tokenId": "MOTHERBIRD",
+    "assetId": 68232445173077,
+    "creationDate": "2017-04-26 13:21:40",
+    "supply": 2000,
+    "destructions": "NULL",
+    "burns": 7
+  },
+  {
+    "id": 138,
+    "tokenId": "MUSHROOMSIMP",
+    "assetId": 46966809650333370,
+    "creationDate": "2017-04-27 15:28:18",
+    "supply": 2000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 139,
+    "tokenId": "MYSTRSMAID",
+    "assetId": 70316546100531,
+    "creationDate": "2019-11-12 11:15:42",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 140,
+    "tokenId": "NEMCARD",
+    "assetId": 4068949901,
+    "creationDate": "2016-08-02 13:43:54",
+    "supply": 2000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 142,
+    "tokenId": "ORCSASSAULT",
+    "assetId": 2069203350506337,
+    "creationDate": "2018-11-13 12:54:31",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 143,
+    "tokenId": "OUTRAGIOUSWA",
+    "assetId": 54314900000000000,
+    "creationDate": "2017-09-27 7:27:06",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 144,
+    "tokenId": "OVERARMEDDWA",
+    "assetId": 54374605297391390,
+    "creationDate": "2017-10-18 10:49:48",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 145,
+    "tokenId": "PAPIIGAS",
+    "assetId": 120659173770,
+    "creationDate": "2017-10-18 9:58:52",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 146,
+    "tokenId": "PEACOCKCARD",
+    "assetId": 2139244866325869,
+    "creationDate": "2016-09-26 14:48:22",
+    "supply": 2000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 147,
+    "tokenId": "PIRANHAMANIP",
+    "assetId": 56276912214021680,
+    "creationDate": "2017-10-05 3:42:21",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 148,
+    "tokenId": "PIXIECARD",
+    "assetId": 3203862427405,
+    "creationDate": "2016-12-05 11:09:44",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 149,
+    "tokenId": "POLYMATHCARD",
+    "assetId": 57096339644685150,
+    "creationDate": "2018-12-05 16:56:10",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 150,
+    "tokenId": "POWERSCATTER",
+    "assetId": 57151900000000000,
+    "creationDate": "2017-10-18 10:49:48",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 151,
+    "tokenId": "PRINCEAUTUMN",
+    "assetId": 57501200000000000,
+    "creationDate": "2017-10-14 19:09:04",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 152,
+    "tokenId": "PRINCEOFICE",
+    "assetId": 2211583699240192,
+    "creationDate": "2017-04-07 9:39:34",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 153,
+    "tokenId": "PRINCEOFWINT",
+    "assetId": 57501176180495370,
+    "creationDate": "2017-10-09 7:22:30",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 154,
+    "tokenId": "PRINCESSSPRI",
+    "assetId": 57501176233896080,
+    "creationDate": "2017-10-14 19:09:04",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 155,
+    "tokenId": "PRINCESSSUMM",
+    "assetId": 57501176233899330,
+    "creationDate": "2017-10-14 19:09:04",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 156,
+    "tokenId": "PROSSESSORFL",
+    "assetId": 57534925900186370,
+    "creationDate": "2017-09-26 1:40:41",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 157,
+    "tokenId": "PURPLEDRAGON",
+    "assetId": 57974032815387580,
+    "creationDate": "2017-04-27 15:03:14",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 158,
+    "tokenId": "QUEENSHEALER",
+    "assetId": 61571517086867496,
+    "creationDate": "2017-10-18 9:44:02",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 159,
+    "tokenId": "QUEENSVIRBUL",
+    "assetId": 61571500000000000,
+    "creationDate": "2017-10-19 2:15:52",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 160,
+    "tokenId": "QUIRINCARD",
+    "assetId": 91118207232029,
+    "creationDate": "2017-03-17 8:36:15",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 16
+  },
+  {
+    "id": 161,
+    "tokenId": "REINFORCEDOC",
+    "assetId": 63006720129518776,
+    "creationDate": "2017-10-18 13:24:53",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 162,
+    "tokenId": "REINFORCEMEN",
+    "assetId": 63006720129524616,
+    "creationDate": "2017-10-19 2:15:52",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 163,
+    "tokenId": "RIDANCARD",
+    "assetId": 3615247302813,
+    "creationDate": "2017-03-17 8:36:15",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 164,
+    "tokenId": "RIPPLECARD",
+    "assetId": 94097422507117,
+    "creationDate": "2015-07-05 16:36:53",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 509
+  },
+  {
+    "id": 165,
+    "tokenId": "ROOSTERYEAR",
+    "assetId": 2478927754218673,
+    "creationDate": "2017-01-26 9:40:54",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 166,
+    "tokenId": "ROYALDEER",
+    "assetId": 3669924501169,
+    "creationDate": "2017-09-04 7:31:32",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 167,
+    "tokenId": "ROYALGRIFFIN",
+    "assetId": 64502594115372150,
+    "creationDate": "2017-08-09 12:50:58",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 168,
+    "tokenId": "RUBYCARD",
+    "assetId": 142741972909,
+    "creationDate": "2015-12-10 10:38:24",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 169,
+    "tokenId": "SADICARD",
+    "assetId": 144611918701,
+    "creationDate": "2016-05-09 15:41:57",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 170,
+    "tokenId": "SAPPHIRECARD",
+    "assetId": 66150834624777580,
+    "creationDate": "2015-12-10 10:38:24",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 171,
+    "tokenId": "SAPPHIREELF",
+    "assetId": 2544262870185379,
+    "creationDate": "2017-02-17 9:54:48",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 172,
+    "tokenId": "SARUTOBICARD",
+    "assetId": 66162835814401070,
+    "creationDate": "2015-12-19 19:52:41",
+    "supply": 1600,
+    "destructions": 0,
+    "burns": 0
+  },
+  {
+    "id": 175,
+    "tokenId": "SATOSHICARD",
+    "assetId": 2545093528675181,
+    "creationDate": "2015-06-24 22:09:13",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 800
+  },
+  {
+    "id": 176,
+    "tokenId": "SATOSHILITE",
+    "assetId": 2545093528838826,
+    "creationDate": "2016-02-03 15:06:20",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 177,
+    "tokenId": "SAYOSIATAX",
+    "assetId": 97928372020099,
+    "creationDate": "2016-02-11 8:59:14",
+    "supply": 1200,
+    "destructions": 897,
+    "burns": 0
+  },
+  {
+    "id": 178,
+    "tokenId": "SCARECROWCD",
+    "assetId": 2552004537347151,
+    "creationDate": "2016-10-31 9:42:03",
+    "supply": 2000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 179,
+    "tokenId": "SCORPIGAS",
+    "assetId": 3779484586298,
+    "creationDate": "2017-09-27 14:59:30",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 180,
+    "tokenId": "SELENACARD",
+    "assetId": 98656114548397,
+    "creationDate": "2017-11-16 10:28:43",
+    "supply": 700,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 181,
+    "tokenId": "SGDARKNESS",
+    "assetId": 99008330824382,
+    "creationDate": "2015-12-10 10:46:42",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 182,
+    "tokenId": "SHAPESHIFTCD",
+    "assetId": 67057540615973130,
+    "creationDate": "2015-06-24 21:47:48",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 817
+  },
+  {
+    "id": 183,
+    "tokenId": "SHIELDWALLCD",
+    "assetId": 67098731311294070,
+    "creationDate": "2016-03-15 13:28:37",
+    "supply": 700,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 184,
+    "tokenId": "SHOPKEEPERCD",
+    "assetId": 67133597501054760,
+    "creationDate": "2016-04-13 17:27:44",
+    "supply": 2000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 185,
+    "tokenId": "SHUMAICARD",
+    "assetId": 99357202557837,
+    "creationDate": "2015-07-17 13:52:20",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 3
+  },
+  {
+    "id": 186,
+    "tokenId": "SIACARD",
+    "assetId": 5655570573,
+    "creationDate": "2017-04-27 15:03:14",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 20
+  },
+  {
+    "id": 187,
+    "tokenId": "SJCXCARD",
+    "assetId": 147387133949,
+    "creationDate": "2015-06-01 17:28:20",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 443
+  },
+  {
+    "id": 188,
+    "tokenId": "SLACKCARD",
+    "assetId": 3847265442413,
+    "creationDate": "2016-09-14 9:44:23",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 189,
+    "tokenId": "SLASHINGCRIR",
+    "assetId": 67622856556373530,
+    "creationDate": "2017-10-04 8:00:22",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 190,
+    "tokenId": "SOGBCYBOX",
+    "assetId": 3873199217703,
+    "creationDate": "2019-07-18 15:15:54",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 25
+  },
+  {
+    "id": 191,
+    "tokenId": "SOGHALLOWEEN",
+    "assetId": 68076582452008950,
+    "creationDate": "2017-10-29 10:57:10",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 192,
+    "tokenId": "SOGHARELORD",
+    "assetId": 2618330162339661,
+    "creationDate": "2019-11-12 10:25:39",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 200
+  },
+  {
+    "id": 193,
+    "tokenId": "SOGJANUS",
+    "assetId": 148972814398,
+    "creationDate": "2019-07-18 15:15:54",
+    "supply": 700,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 194,
+    "tokenId": "SOGLAUNCHCD",
+    "assetId": 2618362329173971,
+    "creationDate": "2017-04-26 13:28:45",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 195,
+    "tokenId": "SOGWEREWOLF",
+    "assetId": 2618451875348587,
+    "creationDate": "2019-06-24 12:40:38",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 196,
+    "tokenId": "SOGWHTDRAGON",
+    "assetId": 68079773457909890,
+    "creationDate": "2019-06-20 23:59:09",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 1
+  },
+  {
+    "id": 197,
+    "tokenId": "SOGWILDHORSE",
+    "assetId": 68079800000000000,
+    "creationDate": "2019-07-18 15:18:14",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 198,
+    "tokenId": "SORCERERAKAM",
+    "assetId": 68135296755708740,
+    "creationDate": "2017-04-27 15:03:14",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 199,
+    "tokenId": "SORCERESSCD",
+    "assetId": 2620588336787567,
+    "creationDate": "2016-08-10 8:50:26",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 13
+  },
+  {
+    "id": 200,
+    "tokenId": "SPRINGSDAWN",
+    "assetId": 2626068686996833,
+    "creationDate": "2018-03-14 11:45:41",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 201,
+    "tokenId": "STAGWARRIOR",
+    "assetId": 2644223286742613,
+    "creationDate": "2017-04-26 14:14:22",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 203,
+    "tokenId": "SWARMCD",
+    "assetId": 5822181199,
+    "creationDate": "2015-07-06 13:17:59",
+    "supply": 1000,
+    "destructions": 661,
+    "burns": 4
+  },
+  {
+    "id": 204,
+    "tokenId": "SYLVANELF",
+    "assetId": 3955298420507,
+    "creationDate": "2017-04-27 14:38:28",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 205,
+    "tokenId": "TALISMANCARD",
+    "assetId": 69798088695301860,
+    "creationDate": "2015-12-02 13:50:14",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 206,
+    "tokenId": "TATIANACARD",
+    "assetId": 2686206940615981,
+    "creationDate": "2017-01-04 16:10:06",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 207,
+    "tokenId": "THEMESSENGER",
+    "assetId": 70749000000000000,
+    "creationDate": "2017-04-27 14:41:39",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 208,
+    "tokenId": "THEWATCHER",
+    "assetId": 104661291462901,
+    "creationDate": "2019-09-04 15:40:50",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 300
+  },
+  {
+    "id": 209,
+    "tokenId": "TINYGRUN",
+    "assetId": 155241262345,
+    "creationDate": "2016-11-18 12:41:28",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 210,
+    "tokenId": "TRANSCENDEN",
+    "assetId": 2774586379794281,
+    "creationDate": "2017-10-24 2:44:05",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 211,
+    "tokenId": "TREZORCD",
+    "assetId": 157915169051,
+    "creationDate": "2016-08-24 9:12:44",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 212,
+    "tokenId": "TRIDENTQUEEN",
+    "assetId": 72180484766058560,
+    "creationDate": "2017-10-02 17:15:18",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 213,
+    "tokenId": "TROLLBERSERK",
+    "assetId": 72214784742532460,
+    "creationDate": "2017-10-25 14:04:14",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 214,
+    "tokenId": "TROLLDEPTHS",
+    "assetId": 2777491744594988,
+    "creationDate": "2017-09-25 9:57:08",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 215,
+    "tokenId": "TROLLSCLUBCD",
+    "assetId": 72214789967628780,
+    "creationDate": "2016-07-12 9:15:14",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 216,
+    "tokenId": "TROYGRUN",
+    "assetId": 158033385705,
+    "creationDate": "2016-11-18 12:41:28",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 217,
+    "tokenId": "VANBEXCARD",
+    "assetId": 114124357778109,
+    "creationDate": "2016-07-05 10:35:51",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 218,
+    "tokenId": "VICTORIACARD",
+    "assetId": 78221515505552460,
+    "creationDate": "2016-12-05 11:05:26",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 219,
+    "tokenId": "VIGILANTWATE",
+    "assetId": 78240900000000000,
+    "creationDate": "2017-09-27 16:12:23",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 220,
+    "tokenId": "VIRBULOSELIT",
+    "assetId": 78299245590497330,
+    "creationDate": "2017-10-18 9:44:02",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 221,
+    "tokenId": "VISCULABEETL",
+    "assetId": 78304883747128580,
+    "creationDate": "2017-10-18 10:29:42",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 222,
+    "tokenId": "VISCULACENTI",
+    "assetId": 78304883747591630,
+    "creationDate": "2017-10-18 12:48:56",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 223,
+    "tokenId": "VISCULADRAGO",
+    "assetId": 78304883748267970,
+    "creationDate": "2017-09-19 5:31:29",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 224,
+    "tokenId": "VISCULAFIREF",
+    "assetId": 78304883749035170,
+    "creationDate": "2017-10-18 12:48:56",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 225,
+    "tokenId": "VISCULAFROZE",
+    "assetId": 78304883749191870,
+    "creationDate": "2017-10-11 9:42:37",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 226,
+    "tokenId": "VISCULALADYB",
+    "assetId": 78304883751627470,
+    "creationDate": "2017-10-18 13:24:53",
+    "supply": 700,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 227,
+    "tokenId": "VISCULAMANTI",
+    "assetId": 78304883752091090,
+    "creationDate": "2017-10-06 7:25:18",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 228,
+    "tokenId": "VISCULASCARA",
+    "assetId": 78304883754859250,
+    "creationDate": "2017-09-04 7:31:32",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 229,
+    "tokenId": "VISCULATICK",
+    "assetId": 3011726298285494,
+    "creationDate": "2017-09-27 14:59:30",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 230,
+    "tokenId": "WAARTHCARD",
+    "assetId": 119454561486237,
+    "creationDate": "2016-12-05 11:09:44",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 231,
+    "tokenId": "WAGATECARD",
+    "assetId": 119497499408173,
+    "creationDate": "2015-12-10 10:38:24",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 232,
+    "tokenId": "WARRIORLUMIN",
+    "assetId": 80843499123043710,
+    "creationDate": "2017-10-18 10:49:48",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 233,
+    "tokenId": "WARRIOROBSCU",
+    "assetId": 80843500000000000,
+    "creationDate": "2017-10-18 12:48:56",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 234,
+    "tokenId": "WATERANGEL",
+    "assetId": 119603123209971,
+    "creationDate": "2017-02-10 14:43:06",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 235,
+    "tokenId": "WATERELFADMI",
+    "assetId": 80851712501308380,
+    "creationDate": "2017-10-18 9:44:02",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 236,
+    "tokenId": "WATERSCARD",
+    "assetId": 119603131238477,
+    "creationDate": "2016-11-08 11:06:17",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 237,
+    "tokenId": "WATERSCOURT",
+    "assetId": 3109681412448877,
+    "creationDate": "2016-06-23 13:44:42",
+    "supply": 3500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 238,
+    "tokenId": "WATERSPEARFI",
+    "assetId": 80851716873207060,
+    "creationDate": "2017-10-18 9:44:02",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 1
+  },
+  {
+    "id": 239,
+    "tokenId": "WAVESCARD",
+    "assetId": 4600738438637,
+    "creationDate": "2016-09-21 8:46:14",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 240,
+    "tokenId": "WEANARAASSAS",
+    "assetId": 81314967100080820,
+    "creationDate": "2017-09-01 11:43:03",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 241,
+    "tokenId": "WEASELSCARD",
+    "assetId": 3127540066292749,
+    "creationDate": "2016-07-26 10:13:57",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 242,
+    "tokenId": "WHEREBCYCARD",
+    "assetId": 81761048929040660,
+    "creationDate": "2015-10-23 13:52:26",
+    "supply": 700,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 243,
+    "tokenId": "WISETHRAL",
+    "assetId": 4664066728631,
+    "creationDate": "2017-10-14 19:09:04",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 244,
+    "tokenId": "WISEWIZARD",
+    "assetId": 121265771186277,
+    "creationDate": "2019-11-12 11:15:42",
+    "supply": 400,
+    "destructions": "NULL",
+    "burns": 200
+  },
+  {
+    "id": 245,
+    "tokenId": "WIZARDTROLL",
+    "assetId": 3154338106623897,
+    "creationDate": "2017-10-14 19:09:04",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 246,
+    "tokenId": "WOODMONSTER",
+    "assetId": 3184640709813125,
+    "creationDate": "2017-03-13 11:34:57",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 247,
+    "tokenId": "WTRSUCCUBUS",
+    "assetId": 3212537510300734,
+    "creationDate": "2019-11-12 10:28:22",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 248,
+    "tokenId": "XAJIARKETAAR",
+    "assetId": 84468464722890060,
+    "creationDate": "2015-10-26 15:53:35",
+    "supply": 700,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 249,
+    "tokenId": "XAJIBASILAAR",
+    "assetId": 84468467599870350,
+    "creationDate": "2015-10-12 8:28:23",
+    "supply": 2000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 250,
+    "tokenId": "XAJIBESAAR",
+    "assetId": 124953356259905,
+    "creationDate": "2015-10-12 8:28:23",
+    "supply": 500,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 251,
+    "tokenId": "XAJIBOSS",
+    "assetId": 184842249766,
+    "creationDate": "2015-11-26 9:26:29",
+    "supply": 300,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 252,
+    "tokenId": "XAJIJASPAAR",
+    "assetId": 3248789686821449,
+    "creationDate": "2015-10-12 8:28:23",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 253,
+    "tokenId": "XAJIYEREMAAR",
+    "assetId": 84468653553475790,
+    "creationDate": "2015-11-02 15:23:28",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 254,
+    "tokenId": "XCPCARD",
+    "assetId": 7135715837,
+    "creationDate": "2015-06-24 21:47:48",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 3
+  },
+  {
+    "id": 255,
+    "tokenId": "XULNOCCARD",
+    "assetId": 129147659013805,
+    "creationDate": "2016-06-08 12:23:30",
+    "supply": 800,
+    "destructions": "NULL",
+    "burns": 11
+  },
+  {
+    "id": 256,
+    "tokenId": "YELLOWSHAMAN",
+    "assetId": 88715077167060460,
+    "creationDate": "2017-10-18 9:58:52",
+    "supply": 600,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 257,
+    "tokenId": "ZAIFCARD",
+    "assetId": 200892625885,
+    "creationDate": "2015-10-13 9:48:05",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 3351,
+    "tokenId": "MERCHANTCARD",
+    "assetId": 44701577828985820,
+    "creationDate": "2016-03-11 10:04:33",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  }
+]

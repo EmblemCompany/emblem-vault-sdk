@@ -1,0 +1,92 @@
+[
+  {
+    "id": 427,
+    "tokenId": "CRUSADECARD",
+    "assetId": 378956905231661,
+    "creationDate": "2017-08-13 17:27:14",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 982
+  },
+  {
+    "id": 428,
+    "tokenId": "DEVSTATCARD",
+    "assetId": 449755120733181,
+    "creationDate": "2017-08-12 17:12:21",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 981
+  },
+  {
+    "id": 429,
+    "tokenId": "FGTNWASTELND",
+    "assetId": 19304777253048430,
+    "creationDate": "2017-05-01 1:51:15",
+    "supply": 2000,
+    "destructions": "NULL",
+    "burns": 1973
+  },
+  {
+    "id": 430,
+    "tokenId": "GHOSTPILOT",
+    "assetId": 34157050101531,
+    "creationDate": "2017-07-12 15:12:06",
+    "supply": 6000,
+    "destructions": "NULL",
+    "burns": 5982
+  },
+  {
+    "id": 431,
+    "tokenId": "LASTLIGHT",
+    "assetId": 2302889112049,
+    "creationDate": "2017-08-12 17:12:21",
+    "supply": 200,
+    "destructions": "NULL",
+    "burns": 184
+  },
+  {
+    "id": 432,
+    "tokenId": "MECHRUNNERS",
+    "assetId": 1716202534724852,
+    "creationDate": "2017-07-12 15:12:06",
+    "supply": 2000,
+    "destructions": "NULL",
+    "burns": 1979
+  },
+  {
+    "id": 433,
+    "tokenId": "REVENGECARD",
+    "assetId": 2425980225476941,
+    "creationDate": "2017-08-23 15:25:43",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 980
+  },
+  {
+    "id": 434,
+    "tokenId": "ROGUEMECH",
+    "assetId": 3664598604011,
+    "creationDate": "2017-05-01 1:37:48",
+    "supply": 1200,
+    "destructions": "NULL",
+    "burns": 1145
+  },
+  {
+    "id": 435,
+    "tokenId": "THEBOUNTY",
+    "assetId": 4025191201146,
+    "creationDate": "2017-07-12 15:06:02",
+    "supply": 5000,
+    "destructions": "NULL",
+    "burns": 4976
+  },
+  {
+    "id": 436,
+    "tokenId": "THEORIGIN",
+    "assetId": 4025346814021,
+    "creationDate": "2017-07-14 23:55:03",
+    "supply": 100,
+    "destructions": "NULL",
+    "burns": 97
+  }
+]

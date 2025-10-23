@@ -15,23 +15,13 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -45,7 +35,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const derive_1 = require("./derive");
-const SDK_VERSION = '2.5.0';
+const SDK_VERSION = '2.6.0';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl, v3Url, sigUrl) {
         this.apiKey = apiKey;
@@ -90,8 +80,8 @@ class EmblemVaultSDK {
     }
     // ** Curated **
     //
-    fetchCuratedContracts() {
-        return __awaiter(this, arguments, void 0, function* (hideUnMintable = false, overrideFunc = false) {
+    fetchCuratedContracts(hideUnMintable = false, overrideFunc = false) {
+        return __awaiter(this, void 0, void 0, function* () {
             let url = `${this.baseUrl}/curated`;
             // Fetch using URL or override function
             let data = typeof overrideFunc === 'function' ? yield overrideFunc() : yield (0, utils_1.fetchData)(url, this.apiKey);
@@ -113,15 +103,15 @@ class EmblemVaultSDK {
             return data;
         });
     }
-    fetchCuratedContractByName(name_1) {
-        return __awaiter(this, arguments, void 0, function* (name, contracts = false) {
+    fetchCuratedContractByName(name, contracts = false) {
+        return __awaiter(this, void 0, void 0, function* () {
             !contracts ? contracts = yield this.fetchCuratedContracts() : null;
             let contract = contracts.find((contract) => contract.name === name);
             return contract || null;
         });
     }
-    createCuratedVault(template_1) {
-        return __awaiter(this, arguments, void 0, function* (template, callback = null) {
+    createCuratedVault(template, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
             (0, utils_1.templateGuard)(template);
             template.chainId == 1 ? delete template.targetContract[5] : delete template.targetContract[1];
             let url = `${this.baseUrl}/create-curated`;
@@ -135,8 +125,8 @@ class EmblemVaultSDK {
             return vaultCreationResponse.data;
         });
     }
-    refreshOwnershipForTokenId(tokenId_1) {
-        return __awaiter(this, arguments, void 0, function* (tokenId, callback = null) {
+    refreshOwnershipForTokenId(tokenId, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
             (0, utils_1.genericGuard)(tokenId, "string", "tokenId");
             let url = `${this.baseUrl}/refreshBalanceForTokenId`;
             let response = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { tokenId });
@@ -146,8 +136,8 @@ class EmblemVaultSDK {
             return response;
         });
     }
-    refreshOwnershipForAccount(account_1) {
-        return __awaiter(this, arguments, void 0, function* (account, callback = null) {
+    refreshOwnershipForAccount(account, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
             (0, utils_1.genericGuard)(account, "string", "account");
             let url = `${this.baseUrl}/refreshBalanceForAccount`;
             let response = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { account });
@@ -157,8 +147,8 @@ class EmblemVaultSDK {
             return response;
         });
     }
-    fetchMetadata(tokenId_1) {
-        return __awaiter(this, arguments, void 0, function* (tokenId, callback = null) {
+    fetchMetadata(tokenId, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
             (0, utils_1.genericGuard)(tokenId, "string", "tokenId");
             if (callback) {
                 callback('getting Metadata');
@@ -171,8 +161,8 @@ class EmblemVaultSDK {
             return metadata;
         });
     }
-    refreshBalance(tokenId_1) {
-        return __awaiter(this, arguments, void 0, function* (tokenId, callback = null) {
+    refreshBalance(tokenId, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
             (0, utils_1.genericGuard)(tokenId, "string", "tokenId");
             if (callback) {
                 callback('refreshing Balance');
@@ -194,8 +184,8 @@ class EmblemVaultSDK {
             return vaults;
         });
     }
-    generateJumpReport(address_1) {
-        return __awaiter(this, arguments, void 0, function* (address, hideUnMintable = false) {
+    generateJumpReport(address, hideUnMintable = false) {
+        return __awaiter(this, void 0, void 0, function* () {
             let vaultType = "unclaimed";
             let curated = yield this.fetchCuratedContracts();
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
@@ -233,8 +223,8 @@ class EmblemVaultSDK {
             }));
         });
     }
-    generateMintReport(address_1) {
-        return __awaiter(this, arguments, void 0, function* (address, hideUnMintable = false) {
+    generateMintReport(address, hideUnMintable = false) {
+        return __awaiter(this, void 0, void 0, function* () {
             let vaults = yield this.fetchVaultsOfType("created", address);
             let curated = yield this.fetchCuratedContracts();
             let map = {};
@@ -265,8 +255,8 @@ class EmblemVaultSDK {
             }));
         });
     }
-    generateMigrateReport(address_1) {
-        return __awaiter(this, arguments, void 0, function* (address, hideUnMintable = false) {
+    generateMigrateReport(address, hideUnMintable = false) {
+        return __awaiter(this, void 0, void 0, function* () {
             let vaultType = "unclaimed";
             let curated = yield this.fetchCuratedContracts();
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
@@ -332,8 +322,8 @@ class EmblemVaultSDK {
             }
         });
     }
-    performMintChain(web3_1, tokenId_1, collectionName_1) {
-        return __awaiter(this, arguments, void 0, function* (web3, tokenId, collectionName, callback = null) {
+    performMintChain(web3, tokenId, collectionName, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
             let collection = yield this.fetchCuratedContractByName(collectionName);
             let mintRequestSig = yield this.requestLocalMintSignature(web3, tokenId, callback);
             let remoteMintSig = yield this.requestRemoteMintSignature(web3, tokenId, mintRequestSig, callback);
@@ -343,16 +333,16 @@ class EmblemVaultSDK {
             return { mintResponse };
         });
     }
-    performClaimChain(web3_1, tokenId_1, serialNumber_1) {
-        return __awaiter(this, arguments, void 0, function* (web3, tokenId, serialNumber, callback = null) {
+    performClaimChain(web3, tokenId, serialNumber, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
             let sig = yield this.requestLocalClaimSignature(web3, tokenId, serialNumber, callback);
             let jwt = yield this.requestRemoteClaimToken(web3, tokenId, sig, callback);
             let dkeys = yield this.requestRemoteKey(tokenId, jwt, callback);
             return yield this.decryptVaultKeys(tokenId, dkeys, callback);
         });
     }
-    requestLocalMintSignature(web3_1, tokenId_1) {
-        return __awaiter(this, arguments, void 0, function* (web3, tokenId, callback = null) {
+    requestLocalMintSignature(web3, tokenId, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
             if (callback) {
                 callback('requesting User Mint Signature');
             }
@@ -365,8 +355,8 @@ class EmblemVaultSDK {
             return signature;
         });
     }
-    requestLocalClaimSignature(web3_1, tokenId_1, serialNumber_1) {
-        return __awaiter(this, arguments, void 0, function* (web3, tokenId, serialNumber, callback = null) {
+    requestLocalClaimSignature(web3, tokenId, serialNumber, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
             if (callback) {
                 callback('requesting User Claim Signature');
             }
@@ -379,8 +369,8 @@ class EmblemVaultSDK {
             return signature;
         });
     }
-    requestRemoteMintSignature(web3_1, tokenId_1, signature_1) {
-        return __awaiter(this, arguments, void 0, function* (web3, tokenId, signature, callback = null) {
+    requestRemoteMintSignature(web3, tokenId, signature, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
             if (callback) {
                 callback('requesting Remote Mint signature');
             }
@@ -396,8 +386,8 @@ class EmblemVaultSDK {
             return remoteMintResponse;
         });
     }
-    requestRemoteClaimToken(web3_1, tokenId_1, signature_1) {
-        return __awaiter(this, arguments, void 0, function* (web3, tokenId, signature, callback = null) {
+    requestRemoteClaimToken(web3, tokenId, signature, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
             if (callback) {
                 callback('requesting Remote Claim token');
             }
@@ -410,8 +400,8 @@ class EmblemVaultSDK {
             return remoteClaimResponse;
         });
     }
-    requestRemoteKey(tokenId_1, jwt_1) {
-        return __awaiter(this, arguments, void 0, function* (tokenId, jwt, callback = null) {
+    requestRemoteKey(tokenId, jwt, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
             if (callback) {
                 callback('requesting Remote Key');
             }
@@ -422,8 +412,8 @@ class EmblemVaultSDK {
             return dkeys;
         });
     }
-    decryptVaultKeys(tokenId_1, dkeys_1) {
-        return __awaiter(this, arguments, void 0, function* (tokenId, dkeys, callback = null) {
+    decryptVaultKeys(tokenId, dkeys, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
             if (callback) {
                 callback('decrypting Vault Keys');
             }
@@ -435,8 +425,8 @@ class EmblemVaultSDK {
             return ukeys;
         });
     }
-    getQuote(web3_1, amount_1) {
-        return __awaiter(this, arguments, void 0, function* (web3, amount, callback = null) {
+    getQuote(web3, amount, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
             if (callback) {
                 callback('requesting Quote');
             }
@@ -449,8 +439,8 @@ class EmblemVaultSDK {
             return quote;
         });
     }
-    performMint(web3_1, quote_1, remoteMintSig_1) {
-        return __awaiter(this, arguments, void 0, function* (web3, quote, remoteMintSig, callback = null) {
+    performMint(web3, quote, remoteMintSig, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
             // async performMint(web3, quote, remoteMintSig, callback = null) {
             if (callback) {
                 callback('performing Mint');
@@ -487,8 +477,8 @@ class EmblemVaultSDK {
             return mintResponse;
         });
     }
-    performBurn(web3_1, tokenId_1) {
-        return __awaiter(this, arguments, void 0, function* (web3, tokenId, callback = null) {
+    performBurn(web3, tokenId, callback = null) {
+        return __awaiter(this, void 0, void 0, function* () {
             let metadata = yield this.fetchMetadata(tokenId);
             let targetContract = yield this.fetchCuratedContractByName(metadata.targetContract.name);
             if (callback) {
@@ -549,20 +539,20 @@ class EmblemVaultSDK {
             }));
         });
     }
-    checkLiveliness(tokenId_1) {
-        return __awaiter(this, arguments, void 0, function* (tokenId, chainId = 1) {
+    checkLiveliness(tokenId, chainId = 1) {
+        return __awaiter(this, void 0, void 0, function* () {
             let url = `${this.baseUrl}/liveliness-curated/`;
             return yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { tokenId: tokenId }, { chainid: chainId, "Content-Type": "application/json" });
         });
     }
-    checkLivelinessBulk(tokenIds_1) {
-        return __awaiter(this, arguments, void 0, function* (tokenIds, chainId = 1) {
+    checkLivelinessBulk(tokenIds, chainId = 1) {
+        return __awaiter(this, void 0, void 0, function* () {
             const chunkSize = 20;
             let results = [];
             let url = `${this.baseUrl}/batch_liveliness/`;
             let apiKey = this.apiKey;
-            function processChunks() {
-                return __awaiter(this, arguments, void 0, function* (i = 0, delay = 1000) {
+            function processChunks(i = 0, delay = 1000) {
+                return __awaiter(this, void 0, void 0, function* () {
                     if (i < tokenIds.length) {
                         let chunk = tokenIds.slice(i, i + chunkSize);
                         try {
@@ -582,8 +572,8 @@ class EmblemVaultSDK {
         });
     }
     // BTC
-    sweepVaultUsingPhrase(phrase_1) {
-        return __awaiter(this, arguments, void 0, function* (phrase, satsPerByte = 20, broadcast = false) {
+    sweepVaultUsingPhrase(phrase, satsPerByte = 20, broadcast = false) {
+        return __awaiter(this, void 0, void 0, function* () {
             const { paymentAddress, paymentPublicKey, ordinalsAddress } = yield (0, utils_1.getSatsConnectAddress)();
             // change this to mainnet
             if (window.bitcoin) {

@@ -12,20 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.COIN_TO_NETWORK = exports.fetchData = exports.metadataAllProjects = exports.metadataObj2Arr = exports.evaluateFacts = exports.pad = exports.NFT_DATA = void 0;
-exports.generateAttributeTemplate = generateAttributeTemplate;
-exports.generateImageTemplate = generateImageTemplate;
-exports.generateTemplate = generateTemplate;
-exports.templateGuard = templateGuard;
-exports.genericGuard = genericGuard;
-exports.getQuoteContractObject = getQuoteContractObject;
-exports.getHandlerContract = getHandlerContract;
-exports.getLegacyContract = getLegacyContract;
-exports.checkContentType = checkContentType;
-exports.getTorusKeys = getTorusKeys;
-exports.decryptKeys = decryptKeys;
-exports.getSatsConnectAddress = getSatsConnectAddress;
-exports.signPSBT = signPSBT;
+exports.signPSBT = exports.getSatsConnectAddress = exports.decryptKeys = exports.getTorusKeys = exports.COIN_TO_NETWORK = exports.checkContentType = exports.getLegacyContract = exports.getHandlerContract = exports.getQuoteContractObject = exports.genericGuard = exports.templateGuard = exports.generateTemplate = exports.generateImageTemplate = exports.generateAttributeTemplate = exports.fetchData = exports.metadataAllProjects = exports.metadataObj2Arr = exports.evaluateFacts = exports.pad = exports.NFT_DATA = void 0;
 const crypto_js_1 = __importDefault(require("crypto-js"));
 const metadata_json_1 = __importDefault(require("./curated/metadata.json"));
 const darkfarms_metadata_json_1 = __importDefault(require("./curated/darkfarms-metadata.json"));
@@ -81,7 +68,7 @@ const metadataAllProjects = (projects) => projects.reduce((unique, item) => {
     return unique;
 }, []);
 exports.metadataAllProjects = metadataAllProjects;
-const fetchData = (url_1, apiKey_1, ...args_1) => __awaiter(void 0, [url_1, apiKey_1, ...args_1], void 0, function* (url, apiKey, method = 'GET', body = null, headers = null) {
+const fetchData = (url, apiKey, method = 'GET', body = null, headers = null) => __awaiter(void 0, void 0, void 0, function* () {
     const options = {
         method: method,
         headers: headers ? Object.assign(Object.assign({}, headers), { 'x-api-key': apiKey }) : { 'x-api-key': apiKey },
@@ -272,6 +259,7 @@ function generateAttributeTemplate(record) {
     }
     return template;
 }
+exports.generateAttributeTemplate = generateAttributeTemplate;
 function generateImageTemplate(record) {
     let template = {};
     if (record.imageHandler) {
@@ -293,6 +281,7 @@ function generateImageTemplate(record) {
     }
     return template;
 }
+exports.generateImageTemplate = generateImageTemplate;
 /**
  * generateTemplate defines rules and utilitites for a given curated
  * collection. This is used by callers, like emblem.finance website
@@ -637,6 +626,7 @@ function generateTemplate(record) {
     });
     return template;
 }
+exports.generateTemplate = generateTemplate;
 function templateGuard(input) {
     if (!input)
         throw new Error(`No template provided`);
@@ -671,12 +661,14 @@ function templateGuard(input) {
         }
     }
 }
+exports.templateGuard = templateGuard;
 function genericGuard(input, type, key) {
     if (!input)
         throw new Error(`No ${key} provided`);
     if (typeof input !== type)
         throw new Error(`Invalid ${key} provided`);
 }
+exports.genericGuard = genericGuard;
 function getQuoteContractObject(web3) {
     return __awaiter(this, void 0, void 0, function* () {
         let contractAddress = '0xE5dec92911c78069d727a67C85936EDDbc9B02Cf';
@@ -684,6 +676,7 @@ function getQuoteContractObject(web3) {
         return quoteContract;
     });
 }
+exports.getQuoteContractObject = getQuoteContractObject;
 function getHandlerContract(web3) {
     return __awaiter(this, void 0, void 0, function* () {
         let contractAddress = '0x23859b51117dbFBcdEf5b757028B18d7759a4460';
@@ -691,6 +684,7 @@ function getHandlerContract(web3) {
         return handlerContract;
     });
 }
+exports.getHandlerContract = getHandlerContract;
 function getLegacyContract(web3) {
     return __awaiter(this, void 0, void 0, function* () {
         let contractAddress = '0x82c7a8f707110f5fbb16184a5933e9f78a34c6ab';
@@ -698,6 +692,7 @@ function getLegacyContract(web3) {
         return handlerContract;
     });
 }
+exports.getLegacyContract = getLegacyContract;
 function checkContentType(url) {
     return new Promise((resolve, reject) => {
         let returnVal = { valid: false };
@@ -747,6 +742,7 @@ function checkContentType(url) {
         });
     });
 }
+exports.checkContentType = checkContentType;
 // export function checkContentType(url: string) {
 //     return new Promise((resolve, reject) => {
 //         // Making a HTTP HEAD request to get only the headers
@@ -861,8 +857,8 @@ const mimeToExtensionMap = {
     "video/vnd.dlna.mpeg-tts": ".ts"
     // Add more mappings if needed
 };
-function getTorusKeys(verifierId_1, idToken_1) {
-    return __awaiter(this, arguments, void 0, function* (verifierId, idToken, cb = null) {
+function getTorusKeys(verifierId, idToken, cb = null) {
+    return __awaiter(this, void 0, void 0, function* () {
         const FetchNodeDetails = require("@toruslabs/fetch-node-details").default;
         const TorusUtils = require("@toruslabs/torus.js").default;
         const fetchNodeDetails = new FetchNodeDetails();
@@ -872,6 +868,7 @@ function getTorusKeys(verifierId_1, idToken_1) {
         return { privateKey: privKey };
     });
 }
+exports.getTorusKeys = getTorusKeys;
 function decryptKeys(vaultCiphertextV2, keys, addresses) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -889,6 +886,7 @@ function decryptKeys(vaultCiphertextV2, keys, addresses) {
         }
     });
 }
+exports.decryptKeys = decryptKeys;
 function getSatsConnectAddress() {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => {
@@ -919,8 +917,9 @@ function getSatsConnectAddress() {
         });
     });
 }
-function signPSBT(psbtBase64_1, paymentAddress_1, indexes_1) {
-    return __awaiter(this, arguments, void 0, function* (psbtBase64, paymentAddress, indexes, broadcast = false) {
+exports.getSatsConnectAddress = getSatsConnectAddress;
+function signPSBT(psbtBase64, paymentAddress, indexes, broadcast = false) {
+    return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => {
             (0, sats_connect_1.signTransaction)({
                 payload: {
@@ -951,3 +950,4 @@ function signPSBT(psbtBase64_1, paymentAddress_1, indexes_1) {
         });
     });
 }
+exports.signPSBT = signPSBT;

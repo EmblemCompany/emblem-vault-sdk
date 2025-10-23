@@ -1,3 +1,4 @@
+/// <reference types="node" />
 declare global {
     interface Window {
         bitcoin: any;

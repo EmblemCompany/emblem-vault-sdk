@@ -1,0 +1,1442 @@
+[
+  {
+    "id": 471,
+    "tokenId": "FWCFCALHAZRC",
+    "assetId": 21469317879525650,
+    "creationDate": "2016-08-13 2:55:25",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 472,
+    "tokenId": "FWCFCALTEANC",
+    "assetId": 21469317885062660,
+    "creationDate": "2016-08-12 7:39:15",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 473,
+    "tokenId": "FWCFCANCAUTC",
+    "assetId": 21469317901000190,
+    "creationDate": "2016-08-12 7:39:15",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 474,
+    "tokenId": "FWCFCANCIENC",
+    "assetId": 21469317901129828,
+    "creationDate": "2016-08-12 4:34:43",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 475,
+    "tokenId": "FWCFCANENCOC",
+    "assetId": 21469317902130336,
+    "creationDate": "2016-08-13 2:55:25",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 476,
+    "tokenId": "FWCFCAZATHOC",
+    "assetId": 21469318042987776,
+    "creationDate": "2016-08-13 2:55:25",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 477,
+    "tokenId": "FWCFCBIRDOFC",
+    "assetId": 21469318157412036,
+    "creationDate": "2016-08-13 1:52:39",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 478,
+    "tokenId": "FWCFCCAPTAIC",
+    "assetId": 21469318370634680,
+    "creationDate": "2016-08-12 17:53:10",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 479,
+    "tokenId": "FWCFCCHAPROC",
+    "assetId": 21469318446891016,
+    "creationDate": "2016-08-12 17:53:10",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 480,
+    "tokenId": "FWCFCCHARLOC",
+    "assetId": 21469318446922110,
+    "creationDate": "2016-08-12 17:53:10",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 481,
+    "tokenId": "FWCFCCHAWATC",
+    "assetId": 21469318447002690,
+    "creationDate": "2016-08-12 17:53:10",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 482,
+    "tokenId": "FWCFCCHESHIC",
+    "assetId": 21469318448764736,
+    "creationDate": "2016-08-12 17:53:10",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 483,
+    "tokenId": "FWCFCCLONINC",
+    "assetId": 21469318500772924,
+    "creationDate": "2016-08-13 1:52:39",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 484,
+    "tokenId": "FWCFCCOMBATC",
+    "assetId": 21469318535286936,
+    "creationDate": "2016-08-12 4:34:43",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 485,
+    "tokenId": "FWCFCCREAMUC",
+    "assetId": 21469318567265816,
+    "creationDate": "2016-08-13 1:52:39",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 486,
+    "tokenId": "FWCFCCREATUC",
+    "assetId": 21469318567270550,
+    "creationDate": "2016-08-13 2:55:25",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 487,
+    "tokenId": "FWCFCDARKNEC",
+    "assetId": 21469318680314910,
+    "creationDate": "2016-08-13 3:50:50",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 488,
+    "tokenId": "FWCFCDEMONOC",
+    "assetId": 21469318725626096,
+    "creationDate": "2016-08-12 7:28:08",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 489,
+    "tokenId": "FWCFCDRAGONC",
+    "assetId": 21469318874460316,
+    "creationDate": "2016-08-12 7:28:08",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 490,
+    "tokenId": "FWCFCDREAMIC",
+    "assetId": 21469318876181280,
+    "creationDate": "2016-08-12 3:22:54",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 491,
+    "tokenId": "FWCFCDREAMSC",
+    "assetId": 21469318876181544,
+    "creationDate": "2016-08-12 3:22:54",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 492,
+    "tokenId": "FWCFCELFOFTC",
+    "assetId": 21469319114507396,
+    "creationDate": "2016-08-13 1:52:39",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 493,
+    "tokenId": "FWCFCESCAPEC",
+    "assetId": 21469319196066410,
+    "creationDate": "2016-08-12 3:22:54",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 494,
+    "tokenId": "FWCFCETERECC",
+    "assetId": 21469319209153040,
+    "creationDate": "2016-08-15 6:51:24",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 495,
+    "tokenId": "FWCFCETERNAC",
+    "assetId": 21469319209159070,
+    "creationDate": "2016-08-12 3:22:54",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 496,
+    "tokenId": "FWCFCFAIRYOC",
+    "assetId": 21469319294164410,
+    "creationDate": "2016-08-12 3:22:54",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 497,
+    "tokenId": "FWCFCFAIRYTC",
+    "assetId": 21469319294164536,
+    "creationDate": "2016-08-12 7:28:08",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 498,
+    "tokenId": "FWCFCFAVORAC",
+    "assetId": 21469319300047270,
+    "creationDate": "2016-08-13 1:52:39",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 499,
+    "tokenId": "FWCFCFIERYCC",
+    "assetId": 21469300000000000,
+    "creationDate": "2016-08-12 7:28:08",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 500,
+    "tokenId": "FWCFCFIREMAC",
+    "assetId": 21469319393091230,
+    "creationDate": "2016-08-13 3:50:50",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 501,
+    "tokenId": "FWCFCFLAMEDC",
+    "assetId": 21469319421102050,
+    "creationDate": "2016-08-12 7:28:08",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 502,
+    "tokenId": "FWCFCFLYINGC",
+    "assetId": 21469319432005330,
+    "creationDate": "2016-08-13 1:52:39",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 503,
+    "tokenId": "FWCFCGLOSUMC",
+    "assetId": 21469319736531990,
+    "creationDate": "2016-08-12 4:26:42",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 504,
+    "tokenId": "FWCFCGLOTHEC",
+    "assetId": 21469319736540576,
+    "creationDate": "2016-08-15 7:28:10",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 505,
+    "tokenId": "FWCFCGUIDETC",
+    "assetId": 21469319840448250,
+    "creationDate": "2016-08-12 17:53:10",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 506,
+    "tokenId": "FWCFCHEAVENC",
+    "assetId": 21469319955922412,
+    "creationDate": "2016-08-13 1:52:39",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 507,
+    "tokenId": "FWCFCINTROSC",
+    "assetId": 21469320380389704,
+    "creationDate": "2016-08-12 7:28:08",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 508,
+    "tokenId": "FWCFCINVITAC",
+    "assetId": 21469320381148384,
+    "creationDate": "2016-08-12 7:28:08",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 509,
+    "tokenId": "FWCFCLIGHTMC",
+    "assetId": 21469321241616930,
+    "creationDate": "2016-08-13 3:50:50",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 510,
+    "tokenId": "FWCFCLUMIASC",
+    "assetId": 21469321386940184,
+    "creationDate": "2016-08-12 17:53:10",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 511,
+    "tokenId": "FWCFCMADONIC",
+    "assetId": 21469321454229640,
+    "creationDate": "2016-08-13 2:55:25",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 512,
+    "tokenId": "FWCFCMAGICBC",
+    "assetId": 21469321455487492,
+    "creationDate": "2016-08-13 1:52:39",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 513,
+    "tokenId": "FWCFCMAGICSC",
+    "assetId": 21469321455487936,
+    "creationDate": "2016-08-13 1:52:39",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 514,
+    "tokenId": "FWCFCMARSFOC",
+    "assetId": 21469321460692350,
+    "creationDate": "2016-08-12 7:28:08",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 515,
+    "tokenId": "FWCFCMELTTOC",
+    "assetId": 21469321505503040,
+    "creationDate": "2016-08-12 17:53:10",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 516,
+    "tokenId": "FWCFCMERMAIC",
+    "assetId": 21469321508108864,
+    "creationDate": "2016-08-13 1:33:21",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 517,
+    "tokenId": "FWCFCNEVERLC",
+    "assetId": 21469321818723508,
+    "creationDate": "2016-08-12 3:22:54",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 518,
+    "tokenId": "FWCFCOFBLACC",
+    "assetId": 21469322130492450,
+    "creationDate": "2016-08-13 3:32:55",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 519,
+    "tokenId": "FWCFCOFBLASC",
+    "assetId": 21469322130492864,
+    "creationDate": "2016-08-13 3:32:55",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 520,
+    "tokenId": "FWCFCOFDARKC",
+    "assetId": 21469322131224760,
+    "creationDate": "2016-08-13 3:32:55",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 521,
+    "tokenId": "FWCFCOFDEEPC",
+    "assetId": 21469322131286410,
+    "creationDate": "2016-08-13 3:32:55",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 522,
+    "tokenId": "FWCFCOFGUSTC",
+    "assetId": 21469322132948120,
+    "creationDate": "2016-08-13 3:32:55",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 523,
+    "tokenId": "FWCFCOFHEARC",
+    "assetId": 21469322133111660,
+    "creationDate": "2016-08-13 3:32:55",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 524,
+    "tokenId": "FWCFCOFHEATC",
+    "assetId": 21469322133111710,
+    "creationDate": "2016-08-13 3:50:50",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 525,
+    "tokenId": "FWCFCOFHEAVC",
+    "assetId": 21469322133111764,
+    "creationDate": "2016-08-13 3:50:50",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 5
+  },
+  {
+    "id": 526,
+    "tokenId": "FWCFCOFLIGHC",
+    "assetId": 21469322135013664,
+    "creationDate": "2016-08-13 3:50:50",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 527,
+    "tokenId": "FWCFCOFSCORC",
+    "assetId": 21469322138112708,
+    "creationDate": "2016-08-13 3:50:50",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 528,
+    "tokenId": "FWCFCONIGOVC",
+    "assetId": 21469322228664364,
+    "creationDate": "2016-08-13 2:55:25",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 529,
+    "tokenId": "FWCFCPANDORC",
+    "assetId": 21469300000000000,
+    "creationDate": "2016-08-12 4:26:42",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 530,
+    "tokenId": "FWCFCPANMARC",
+    "assetId": 21469322385503020,
+    "creationDate": "2016-08-12 4:26:42",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 531,
+    "tokenId": "FWCFCPRIESTC",
+    "assetId": 21469322585073144,
+    "creationDate": "2016-08-13 2:55:25",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 532,
+    "tokenId": "FWCFCPRINCEC",
+    "assetId": 21469322585220120,
+    "creationDate": "2016-08-13 3:20:12",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 533,
+    "tokenId": "FWCFCPROTECC",
+    "assetId": 21469322588068736,
+    "creationDate": "2016-08-13 2:11:25",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 534,
+    "tokenId": "FWCFCPUMPKIC",
+    "assetId": 21469322622732816,
+    "creationDate": "2016-08-12 4:26:42",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 535,
+    "tokenId": "FWCFCRABBITC",
+    "assetId": 21469322997662984,
+    "creationDate": "2016-08-13 1:33:21",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 536,
+    "tokenId": "FWCFCREDRIDC",
+    "assetId": 21469323046383240,
+    "creationDate": "2016-08-13 2:11:25",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 537,
+    "tokenId": "FWCFCRESONAC",
+    "assetId": 21469323053188456,
+    "creationDate": "2016-08-13 3:20:12",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 538,
+    "tokenId": "FWCFCRETELLC",
+    "assetId": 21469323053468604,
+    "creationDate": "2016-08-12 4:26:42",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 539,
+    "tokenId": "FWCFCRETURNC",
+    "assetId": 21469323053753930,
+    "creationDate": "2016-08-13 1:33:21",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 540,
+    "tokenId": "FWCFCRINKASC",
+    "assetId": 21469323098350456,
+    "creationDate": "2016-08-13 3:20:12",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 541,
+    "tokenId": "FWCFCRISINGC",
+    "assetId": 21469323100608656,
+    "creationDate": "2016-08-13 1:33:21",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 542,
+    "tokenId": "FWCFCSACREDC",
+    "assetId": 21469323307313830,
+    "creationDate": "2016-08-12 7:28:08",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 543,
+    "tokenId": "FWCFCSAFEGUC",
+    "assetId": 21469323308458064,
+    "creationDate": "2016-08-12 4:26:42",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 544,
+    "tokenId": "FWCFCSECLUDC",
+    "assetId": 21469323354744696,
+    "creationDate": "2016-08-13 2:11:25",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 545,
+    "tokenId": "FWCFCSERVANC",
+    "assetId": 21469323361761836,
+    "creationDate": "2016-08-13 3:20:12",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 546,
+    "tokenId": "FWCFCSHACKLC",
+    "assetId": 21469323389310136,
+    "creationDate": "2016-08-13 1:33:21",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 547,
+    "tokenId": "FWCFCSHAWUJC",
+    "assetId": 21469323389668364,
+    "creationDate": "2016-08-13 2:11:25",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 548,
+    "tokenId": "FWCFCSORCERC",
+    "assetId": 21469323480244460,
+    "creationDate": "2016-08-13 2:11:25",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 549,
+    "tokenId": "FWCFCSPIRITC",
+    "assetId": 21469323488279450,
+    "creationDate": "2016-08-12 7:39:15",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 550,
+    "tokenId": "FWCFCSTALKIC",
+    "assetId": 21469323532044750,
+    "creationDate": "2016-08-12 7:39:15",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 551,
+    "tokenId": "FWCFCSTARGAC",
+    "assetId": 21469323532147296,
+    "creationDate": "2016-08-13 1:33:21",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 552,
+    "tokenId": "FWCFCSTORYTC",
+    "assetId": 21469323538557624,
+    "creationDate": "2016-08-12 4:26:42",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 553,
+    "tokenId": "FWCFCSUMMONC",
+    "assetId": 21469323549430252,
+    "creationDate": "2016-08-13 1:33:21",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 554,
+    "tokenId": "FWCFCTHEBLAC",
+    "assetId": 21469323700036630,
+    "creationDate": "2016-08-13 3:20:12",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 555,
+    "tokenId": "FWCFCTHEGATC",
+    "assetId": 21469323700117570,
+    "creationDate": "2016-08-13 3:20:12",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 556,
+    "tokenId": "FWCFCTHEMONC",
+    "assetId": 21469323700232332,
+    "creationDate": "2016-08-13 2:11:25",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 557,
+    "tokenId": "FWCFCTHENAMC",
+    "assetId": 21469323700240416,
+    "creationDate": "2016-08-13 3:32:55",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 558,
+    "tokenId": "FWCFCTHEOXKC",
+    "assetId": 21469323700273490,
+    "creationDate": "2016-08-12 7:39:15",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 559,
+    "tokenId": "FWCFCTIGERCC",
+    "assetId": 21469323712888790,
+    "creationDate": "2016-08-12 7:39:15",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 560,
+    "tokenId": "FWCFCTIGERLC",
+    "assetId": 21469323712889028,
+    "creationDate": "2016-08-12 7:39:15",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 561,
+    "tokenId": "FWCFCTINYREC",
+    "assetId": 21469300000000000,
+    "creationDate": "2016-08-12 7:39:15",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 562,
+    "tokenId": "FWCFCUMRATTC",
+    "assetId": 21469300000000000,
+    "creationDate": "2016-08-13 3:32:55",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 563,
+    "tokenId": "FWCFCURASHIC",
+    "assetId": 21469324126234560,
+    "creationDate": "2016-08-13 3:32:55",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 564,
+    "tokenId": "FWCFCWATERMC",
+    "assetId": 21469324550526064,
+    "creationDate": "2016-08-13 3:50:50",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 565,
+    "tokenId": "FWCFCWINDMAC",
+    "assetId": 21469324642813944,
+    "creationDate": "2016-08-13 4:03:57",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 566,
+    "tokenId": "FWCFCWISEMAC",
+    "assetId": 21469300000000000,
+    "creationDate": "2016-08-13 2:55:25",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 567,
+    "tokenId": "FWCFCZEROSFC",
+    "assetId": 21469325524061196,
+    "creationDate": "2016-08-15 6:46:12",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 568,
+    "tokenId": "FWCFCZEROSIC",
+    "assetId": 21469325524061270,
+    "creationDate": "2016-08-12 4:26:42",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 569,
+    "tokenId": "FWCFCZEROSMC",
+    "assetId": 21469325524061376,
+    "creationDate": "2016-08-12 4:34:43",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 570,
+    "tokenId": "FWCFCZHUBAJC",
+    "assetId": 21469300000000000,
+    "creationDate": "2016-08-13 2:55:25",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 571,
+    "tokenId": "FWSDLALLYOFC",
+    "assetId": 21555844572793676,
+    "creationDate": "2016-08-13 6:43:59",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 572,
+    "tokenId": "FWSDLANCIENC",
+    "assetId": 21555844592155876,
+    "creationDate": "2016-08-13 6:02:21",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 573,
+    "tokenId": "FWSDLANCKNOC",
+    "assetId": 21555844592197136,
+    "creationDate": "2016-08-13 6:02:21",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 574,
+    "tokenId": "FWSDLARIAFRC",
+    "assetId": 21555844642283410,
+    "creationDate": "2016-08-13 6:11:33",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 575,
+    "tokenId": "FWSDLASTAROC",
+    "assetId": 21555844659199550,
+    "creationDate": "2016-08-13 6:02:21",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 576,
+    "tokenId": "FWSDLBLOODOC",
+    "assetId": 21555844882897416,
+    "creationDate": "2016-08-13 6:43:59",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 577,
+    "tokenId": "FWSDLCASTLEC",
+    "assetId": 21555845063038990,
+    "creationDate": "2016-08-13 6:43:59",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 578,
+    "tokenId": "FWSDLCHARLAC",
+    "assetId": 21555800000000000,
+    "creationDate": "2016-08-13 4:22:18",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 579,
+    "tokenId": "FWSDLCONFECC",
+    "assetId": 21555845226842530,
+    "creationDate": "2016-08-13 4:10:27",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 580,
+    "tokenId": "FWSDLDARKNEC",
+    "assetId": 21555845371340960,
+    "creationDate": "2016-08-13 7:01:23",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 581,
+    "tokenId": "FWSDLEMISSAC",
+    "assetId": 21555845818864344,
+    "creationDate": "2016-08-13 4:22:18",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 582,
+    "tokenId": "FWSDLFAIRYTC",
+    "assetId": 21555845985190584,
+    "creationDate": "2016-08-13 4:10:27",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 583,
+    "tokenId": "FWSDLFAITHFC",
+    "assetId": 21555845985213880,
+    "creationDate": "2016-08-13 6:43:59",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 584,
+    "tokenId": "FWSDLFAYLITC",
+    "assetId": 21555845992385930,
+    "creationDate": "2016-08-13 4:22:18",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 585,
+    "tokenId": "FWSDLFIETHSC",
+    "assetId": 21555846078437320,
+    "creationDate": "2016-08-13 6:11:33",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 586,
+    "tokenId": "FWSDLFIREMAC",
+    "assetId": 21555846084117280,
+    "creationDate": "2016-08-13 6:02:21",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 587,
+    "tokenId": "FWSDLGENTLEC",
+    "assetId": 21555846343942720,
+    "creationDate": "2016-08-13 4:22:18",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 588,
+    "tokenId": "FWSDLGOURMAC",
+    "assetId": 21555846465920730,
+    "creationDate": "2016-08-13 4:10:27",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 589,
+    "tokenId": "FWSDLGREATHC",
+    "assetId": 21555846493959364,
+    "creationDate": "2016-08-13 6:11:33",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 590,
+    "tokenId": "FWSDLGRIMMKC",
+    "assetId": 21555846495993530,
+    "creationDate": "2016-08-13 4:10:27",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 591,
+    "tokenId": "FWSDLHASTURC",
+    "assetId": 21555846607624292,
+    "creationDate": "2016-08-13 5:23:09",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 592,
+    "tokenId": "FWSDLHEAVENC",
+    "assetId": 21555846646948460,
+    "creationDate": "2016-08-13 6:43:59",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 593,
+    "tokenId": "FWSDLHOMEOFC",
+    "assetId": 21555846770953692,
+    "creationDate": "2016-08-13 6:16:57",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 594,
+    "tokenId": "FWSDLICEDRAC",
+    "assetId": 21555846933621470,
+    "creationDate": "2016-08-13 6:02:21",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 595,
+    "tokenId": "FWSDLKEEPERC",
+    "assetId": 21555847575418340,
+    "creationDate": "2016-08-13 6:02:21",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 596,
+    "tokenId": "FWSDLKIDPUSC",
+    "assetId": 21555847622497710,
+    "creationDate": "2016-08-13 4:10:27",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 597,
+    "tokenId": "FWSDLLIGHTDC",
+    "assetId": 21555847932642740,
+    "creationDate": "2016-08-13 4:10:27",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 598,
+    "tokenId": "FWSDLLIGHTMC",
+    "assetId": 21555847932642976,
+    "creationDate": "2016-08-13 4:22:18",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 599,
+    "tokenId": "FWSDLLIGHTNC",
+    "assetId": 21555800000000000,
+    "creationDate": "2016-08-13 5:23:09",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 600,
+    "tokenId": "FWSDLLUNYASC",
+    "assetId": 21555848078704424,
+    "creationDate": "2016-08-13 5:44:28",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 601,
+    "tokenId": "FWSDLLUNYATC",
+    "assetId": 21555848078704450,
+    "creationDate": "2016-08-13 5:44:28",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 602,
+    "tokenId": "FWSDLMAGICSC",
+    "assetId": 21555848146513984,
+    "creationDate": "2016-08-13 4:10:27",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 603,
+    "tokenId": "FWSDLMALEFIC",
+    "assetId": 21555848148730330,
+    "creationDate": "2016-08-13 6:02:21",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 604,
+    "tokenId": "FWSDLMANIFEC",
+    "assetId": 21555848149714480,
+    "creationDate": "2016-08-13 4:10:27",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 605,
+    "tokenId": "FWSDLMERCURC",
+    "assetId": 21555848198972908,
+    "creationDate": "2016-08-13 6:02:21",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 606,
+    "tokenId": "FWSDLMERICYC",
+    "assetId": 21555848199066376,
+    "creationDate": "2016-08-13 6:11:33",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 607,
+    "tokenId": "FWSDLMESSENC",
+    "assetId": 21555848199700180,
+    "creationDate": "2016-08-13 6:11:33",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 608,
+    "tokenId": "FWSDLMILLIUC",
+    "assetId": 21555848243906704,
+    "creationDate": "2016-08-13 4:22:18",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 609,
+    "tokenId": "FWSDLMOMOTAC",
+    "assetId": 21555848315711584,
+    "creationDate": "2016-08-13 6:43:59",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 610,
+    "tokenId": "FWSDLNIGGURC",
+    "assetId": 21555848550457756,
+    "creationDate": "2016-08-13 5:44:28",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 611,
+    "tokenId": "FWSDLNIGHTMC",
+    "assetId": 21555848550474530,
+    "creationDate": "2016-08-13 5:44:28",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 612,
+    "tokenId": "FWSDLONISTRC",
+    "assetId": 21555800000000000,
+    "creationDate": "2016-08-15 6:46:12",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 613,
+    "tokenId": "FWSDLPOWERAC",
+    "assetId": 21555849246851560,
+    "creationDate": "2016-08-13 7:01:23",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 614,
+    "tokenId": "FWSDLRLYEHWC",
+    "assetId": 21555849829946744,
+    "creationDate": "2016-08-13 5:44:28",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 615,
+    "tokenId": "FWSDLSACREDC",
+    "assetId": 21555849998339880,
+    "creationDate": "2016-08-13 6:16:57",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 616,
+    "tokenId": "FWSDLSERVANC",
+    "assetId": 21555850052787884,
+    "creationDate": "2016-08-13 6:11:33",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 617,
+    "tokenId": "FWSDLSHARATC",
+    "assetId": 21555850080593270,
+    "creationDate": "2016-08-13 7:01:23",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 618,
+    "tokenId": "FWSDLSPIRITC",
+    "assetId": 21555850179305496,
+    "creationDate": "2016-08-13 6:11:33",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 619,
+    "tokenId": "FWSDLSPIWINC",
+    "assetId": 21555850179393220,
+    "creationDate": "2016-08-13 6:16:57",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 620,
+    "tokenId": "FWSDLSUMMONC",
+    "assetId": 21555900000000000,
+    "creationDate": "2016-08-13 4:22:18",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 621,
+    "tokenId": "FWSDLTAMAFAC",
+    "assetId": 21555850311527224,
+    "creationDate": "2016-08-13 6:16:57",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 622,
+    "tokenId": "FWSDLTHEDRUC",
+    "assetId": 21555850391102410,
+    "creationDate": "2016-08-13 7:01:23",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 623,
+    "tokenId": "FWSDLTHEMONC",
+    "assetId": 21555850391258380,
+    "creationDate": "2016-08-13 7:01:23",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 624,
+    "tokenId": "FWSDLTINKERC",
+    "assetId": 21555850407210732,
+    "creationDate": "2016-08-13 4:22:18",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 625,
+    "tokenId": "FWSDLTORRENC",
+    "assetId": 21555850480449820,
+    "creationDate": "2016-08-13 6:16:57",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 626,
+    "tokenId": "FWSDLTWOFOLC",
+    "assetId": 21555850573925696,
+    "creationDate": "2016-08-13 6:16:57",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 627,
+    "tokenId": "FWSDLVAMPIRC",
+    "assetId": 21555850929624884,
+    "creationDate": "2016-08-13 6:16:57",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 628,
+    "tokenId": "FWSDLWATERMC",
+    "assetId": 21555851241552110,
+    "creationDate": "2016-08-13 6:11:33",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 629,
+    "tokenId": "FWSDLWHISPEC",
+    "assetId": 21555851319939510,
+    "creationDate": "2016-08-13 6:16:57",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  },
+  {
+    "id": 630,
+    "tokenId": "FWSDLWINDMAC",
+    "assetId": 21555851333839990,
+    "creationDate": "2016-08-13 6:16:57",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 500
+  }
+]

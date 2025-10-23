@@ -1,0 +1,146 @@
+[
+  {
+    "id": 293,
+    "tokenId": "ELECTRUMCARD",
+    "assetId": 16256509768091660,
+    "creationDate": "2017-01-28 14:36:19",
+    "supply": 111111,
+    "destructions": "NULL",
+    "burns": 1614
+  },
+  {
+    "id": 294,
+    "tokenId": "GALAXYBOARD",
+    "assetId": 849307062549949,
+    "creationDate": "2017-01-26 16:17:00",
+    "supply": 4444,
+    "destructions": "NULL",
+    "burns": 268
+  },
+  {
+    "id": 295,
+    "tokenId": "GUARDIANCARD",
+    "assetId": 24848985467824988,
+    "creationDate": "2016-10-30 13:37:06",
+    "supply": 777,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 296,
+    "tokenId": "HARVESTER",
+    "assetId": 1467292686357,
+    "creationDate": "2017-07-11 10:12:49",
+    "supply": 6666,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 297,
+    "tokenId": "METEORABOARD",
+    "assetId": 44712915802239810,
+    "creationDate": "2017-04-05 13:24:00",
+    "supply": 111111,
+    "destructions": "NULL",
+    "burns": 538
+  },
+  {
+    "id": 298,
+    "tokenId": "MONEROCARD",
+    "assetId": 68183480663821,
+    "creationDate": "2016-12-27 14:37:29",
+    "supply": 33333,
+    "destructions": "NULL",
+    "burns": 544
+  },
+  {
+    "id": 299,
+    "tokenId": "MYRIADCARD",
+    "assetId": 70304907203261,
+    "creationDate": "2017-01-28 14:36:19",
+    "supply": 50000,
+    "destructions": "NULL",
+    "burns": 34790
+  },
+  {
+    "id": 300,
+    "tokenId": "QORACARD",
+    "assetId": 133035802669,
+    "creationDate": "2017-01-28 14:55:53",
+    "supply": 222222,
+    "destructions": "NULL",
+    "burns": 1910
+  },
+  {
+    "id": 301,
+    "tokenId": "QUARKSCARD",
+    "assetId": 91053978798253,
+    "creationDate": "2017-10-22 1:50:51",
+    "supply": 77777,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 302,
+    "tokenId": "RUNEWIZARD",
+    "assetId": 96584018515429,
+    "creationDate": "2017-06-19 18:05:19",
+    "supply": 222222,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 303,
+    "tokenId": "SCOUTCARD",
+    "assetId": 3779521949245,
+    "creationDate": "2017-11-21 15:00:00",
+    "supply": 1000000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 304,
+    "tokenId": "TAUCARD",
+    "assetId": 5878574861,
+    "creationDate": "2016-12-27 14:37:29",
+    "supply": 8888,
+    "destructions": "NULL",
+    "burns": 166
+  },
+  {
+    "id": 305,
+    "tokenId": "THERIPPLER",
+    "assetId": 104659840338317,
+    "creationDate": "2018-02-01 9:25:30",
+    "supply": 10000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 306,
+    "tokenId": "TRUTHFINDER",
+    "assetId": 2778807751345357,
+    "creationDate": "2017-11-21 14:38:44",
+    "supply": 444444,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 378,
+    "tokenId": "XASCENDENCY",
+    "assetId": 3250619542381456,
+    "creationDate": "2018-08-29 2:43:52",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 379,
+    "tokenId": "XANTHRAX",
+    "assetId": 184894909027,
+    "creationDate": "2020-03-17 9:59:32",
+    "supply": 14000,
+    "destructions": "NULL",
+    "burns": 0
+  }
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "id": 34,
+    "tokenId": "CNPCARD",
+    "assetId": 779179677,
+    "creationDate": "2015-07-17 13:52:20",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 3
+  },
+  {
+    "id": 117,
+    "tokenId": "KOSMOCD",
+    "assetId": 3263943023,
+    "creationDate": "2017-08-06 12:06:34",
+    "supply": 500,
+    "destructions": 4500,
+    "burns": 0
+  },
+  {
+    "id": 127,
+    "tokenId": "MACHANCD",
+    "assetId": 96408692539,
+    "creationDate": "2017-08-06 12:06:34",
+    "supply": 500,
+    "destructions": 4500,
+    "burns": 0
+  },
+  {
+    "id": 130,
+    "tokenId": "MANDELDUCKCD",
+    "assetId": 44115379443013580,
+    "creationDate": "2016-09-16 14:11:42",
+    "supply": 500,
+    "destructions": 9500,
+    "burns": 0
+  },
+  {
+    "id": 141,
+    "tokenId": "NINJASUIT",
+    "assetId": 2783129488483,
+    "creationDate": "2016-05-06 8:36:45",
+    "supply": 21000000,
+    "destructions": "NULL",
+    "burns": 20999800
+  },
+  {
+    "id": 172,
+    "tokenId": "SARUTOBICARD",
+    "assetId": 66162835814401070,
+    "creationDate": "2015-12-19 19:52:41",
+    "supply": 1600,
+    "destructions": 0,
+    "burns": 0
+  },
+  {
+    "id": 173,
+    "tokenId": "SARUTOBIISL",
+    "assetId": 2544724454404559,
+    "creationDate": "2017-06-27 14:03:15",
+    "supply": 10000,
+    "destructions": "NULL",
+    "burns": 0
+  },
+  {
+    "id": 175,
+    "tokenId": "SATOSHICARD",
+    "assetId": 2545093528675181,
+    "creationDate": "2015-06-24 22:09:13",
+    "supply": 1000,
+    "destructions": "NULL",
+    "burns": 800
+  },
+  {
+    "id": 202,
+    "tokenId": "STBNIMBUS",
+    "assetId": 3911958797310,
+    "creationDate": "2017-07-12 20:44:21",
+    "supply": 500,
+    "destructions": 19500,
+    "burns": 0
+  },
+  {
+    "id": 279,
+    "tokenId": "SARUTOBI",
+    "assetId": 144784049522,
+    "creationDate": "2015-10-24 11:09:26",
+    "supply": 54926,
+    "destructions": 20945074,
+    "burns": 11989
+  }
+]
