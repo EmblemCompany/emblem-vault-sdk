@@ -123,15 +123,24 @@
     <h1>Metadata Comparison Tool</h1>
 
     <div class="section">
-        <h2>Select Collection</h2>
-        <label for="collectionSelect">Choose a collection to compare:</label>
-        <select id="collectionSelect" onchange="loadComparison()" style="padding: 10px; font-size: 16px; margin-left: 10px;">
-            <option value="">Loading collections...</option>
-        </select>
+        <h2>Select Source</h2>
+        <div style="margin-bottom: 15px;">
+            <label for="collectionSelect">Choose a collection to compare:</label>
+            <select id="collectionSelect" onchange="loadComparison('collection')" style="padding: 10px; font-size: 16px; margin-left: 10px;">
+                <option value="">Loading collections...</option>
+            </select>
+        </div>
+        <div>
+            <label for="traitSelect">Choose a trait file to compare:</label>
+            <select id="traitSelect" onchange="loadComparison('trait')" style="padding: 10px; font-size: 16px; margin-left: 10px;">
+                <option value="">Loading traits...</option>
+            </select>
+        </div>
     </div>
 
     <div id="status" class="status">Select a collection to begin...</div>
 
+    <div id="traitVerification" class="section" style="display:none;"></div>
     <div id="summary" class="summary" style="display:none;"></div>
 
     <div id="fakeRaresSection" style="display:none;"></div>
@@ -160,6 +169,190 @@
                 Object.keys(item).forEach(key => props.add(key));
             });
             return props;
+        }
+
+        // Map trait data to Rare Pepe metadata format
+        function mapTraitToMetadataFormat(traitItem, projectName) {
+            // Detect which format we're dealing with
+            const hasTokenId = traitItem.hasOwnProperty('tokenId');
+            const hasAsset = traitItem.hasOwnProperty('asset');
+
+            let mappedData = {
+                projectProtocol: "Counterparty"
+            };
+
+            // Map project names to their proper display names and sites
+            const projectMappings = {
+                'Age_of_Chains': { name: 'Age of Chains', site: 'https://www.ageofchains.com/' },
+                'Age_of_Rust': { name: 'Age of Rust', site: 'https://www.ageofrustgame.com/' },
+                'Bitgirls': { name: 'Bitgirls', site: 'https://bitcorns.com/' },
+                'Force_of_Will': { name: 'Force of Will', site: 'https://forceofwill.cards/' },
+                'Oasis_Mining': { name: 'Oasis Mining', site: 'https://www.oasismining.com/' },
+                'Sarutobi': { name: 'Sarutobi Island', site: 'https://mandelduck.com/' },
+                'Spells_of_Genesis': { name: 'Spells of Genesis', site: 'https://spellsofgenesis.com/' },
+                'bitcorn': { name: 'Bitcorn Crops', site: 'https://bitcorns.com/' },
+                'memorychain': { name: 'Memorychain', site: 'https://pepecash.cards/' }
+            };
+
+            const projectInfo = projectMappings[projectName.replace('.json', '')] || { name: projectName, site: '' };
+            mappedData.projectName = projectInfo.name;
+            if (projectInfo.site) mappedData.projectSite = projectInfo.site;
+
+            if (hasTokenId) {
+                // Format 1: Age of Chains style (tokenId, assetId, supply, burns)
+                const assetName = traitItem.tokenId;
+
+                mappedData.burned = parseInt(traitItem.burns) || 0;
+                mappedData.divisible = 0; // Most NFTs are not divisible
+                mappedData.quantity = parseInt(traitItem.supply) || 0;
+                mappedData.remaining = mappedData.quantity - mappedData.burned;
+
+                // Store original data in raw
+                mappedData.raw = {
+                    ...traitItem,
+                    supply: parseInt(traitItem.supply) || 0,
+                    name: assetName
+                };
+
+                // Generate image URL based on project
+                const projectFolder = projectName.replace('.json', '').toLowerCase().replace(/_/g, '-');
+                mappedData.image = `https://raw.githubusercontent.com/EmblemCompany/vaultImages/master/collection/${projectFolder}/${assetName}.jpg`;
+
+            } else if (hasAsset) {
+                // Format 2: Bitcorn style (asset, series, card_no, quantity, artist_name)
+                const assetName = traitItem.asset;
+
+                mappedData.burned = 0; // No burn info in this format
+                mappedData.divisible = traitItem.divisible === true ? 1 : 0;
+                mappedData.order = parseInt(traitItem.card_no) || 0;
+                mappedData.quantity = parseInt(traitItem.quantity) || 0;
+                mappedData.series = parseInt(traitItem.series) || 1;
+                mappedData.remaining = mappedData.quantity;
+
+                // Store original data in raw with artist info
+                mappedData.raw = {
+                    ...traitItem,
+                    name: assetName,
+                    supply: parseInt(traitItem.quantity) || 0,
+                    serie: parseInt(traitItem.series) || 1,
+                    card: parseInt(traitItem.card_no) || 0,
+                    artist: {
+                        name: traitItem.artist_name || 'Unknown',
+                        slug: (traitItem.artist_name || 'Unknown').toLowerCase().replace(/\s+/g, '-')
+                    }
+                };
+
+                // Use provided image URL or generate one
+                if (traitItem.img_url) {
+                    mappedData.image = traitItem.img_url;
+                } else {
+                    const projectFolder = projectName.replace('.json', '').toLowerCase().replace(/_/g, '-');
+                    mappedData.image = `https://raw.githubusercontent.com/EmblemCompany/vaultImages/master/collection/${projectFolder}/${assetName}.jpg`;
+                }
+            }
+
+            return mappedData;
+        }
+
+        function verifyTraitCoverage(traitData, sdk, site) {
+            const verification = {
+                foundInBoth: [],
+                foundInSDKOnly: [],
+                foundInSiteOnly: [],
+                foundInNone: [],
+                propertyMatches: [],
+                propertyMismatches: [],
+                missingProperties: [],
+                total: 0
+            };
+
+            Object.keys(traitData).forEach(key => {
+                verification.total++;
+                const traitItem = traitData[key];
+                const sdkItem = sdk[key];
+                const siteItem = site[key];
+                const inSDK = sdk.hasOwnProperty(key);
+                const inSite = site.hasOwnProperty(key);
+
+                const itemAnalysis = {
+                    key: key,
+                    inSDK: inSDK,
+                    inSite: inSite,
+                    traitProps: Object.keys(traitItem).sort(),
+                    sdkProps: sdkItem ? Object.keys(sdkItem).sort() : [],
+                    siteProps: siteItem ? Object.keys(siteItem).sort() : [],
+                    propertyComparison: {}
+                };
+
+                if (inSDK && inSite) {
+                    verification.foundInBoth.push(key);
+
+                    // Compare properties between trait, SDK, and Site
+                    const allProps = new Set([
+                        ...itemAnalysis.traitProps,
+                        ...itemAnalysis.sdkProps,
+                        ...itemAnalysis.siteProps
+                    ]);
+
+                    let hasPropertyIssues = false;
+                    const propertyIssues = {
+                        key: key,
+                        missingInSDK: [],
+                        missingInSite: [],
+                        valueMismatches: []
+                    };
+
+                    allProps.forEach(prop => {
+                        const inTrait = traitItem.hasOwnProperty(prop);
+                        const inSDKProp = sdkItem && sdkItem.hasOwnProperty(prop);
+                        const inSiteProp = siteItem && siteItem.hasOwnProperty(prop);
+
+                        // Check if trait property exists in metadata
+                        if (inTrait) {
+                            if (!inSDKProp) {
+                                propertyIssues.missingInSDK.push(prop);
+                                hasPropertyIssues = true;
+                            }
+                            if (!inSiteProp) {
+                                propertyIssues.missingInSite.push(prop);
+                                hasPropertyIssues = true;
+                            }
+
+                            // Check if values match when property exists in all three
+                            if (inSDKProp && inSiteProp) {
+                                const traitValue = JSON.stringify(traitItem[prop]);
+                                const sdkValue = JSON.stringify(sdkItem[prop]);
+                                const siteValue = JSON.stringify(siteItem[prop]);
+
+                                if (traitValue !== sdkValue || traitValue !== siteValue || sdkValue !== siteValue) {
+                                    propertyIssues.valueMismatches.push({
+                                        prop: prop,
+                                        traitValue: traitItem[prop],
+                                        sdkValue: sdkItem[prop],
+                                        siteValue: siteItem[prop]
+                                    });
+                                    hasPropertyIssues = true;
+                                }
+                            }
+                        }
+                    });
+
+                    if (hasPropertyIssues) {
+                        verification.propertyMismatches.push(propertyIssues);
+                    } else {
+                        verification.propertyMatches.push(key);
+                    }
+
+                } else if (inSDK && !inSite) {
+                    verification.foundInSDKOnly.push(key);
+                } else if (!inSDK && inSite) {
+                    verification.foundInSiteOnly.push(key);
+                } else {
+                    verification.foundInNone.push(key);
+                }
+            });
+
+            return verification;
         }
 
         function compareMetadata(sdk, site, fakeRares) {
@@ -1854,6 +2047,8 @@
         }
 
         let missingItemsGlobal = [];
+        let isCurrentSourceTrait = false;
+        let currentTraitData = null;
 
         async function addMissingItemsToBoth() {
             const button = document.getElementById('addMissingItemsBtn');
@@ -1955,6 +2150,100 @@
             }
         }
 
+        async function applyTraitMappings() {
+            const statusDiv = document.getElementById('applyMappingStatus');
+
+            if (!isCurrentSourceTrait || !currentTraitData) {
+                statusDiv.style.display = 'block';
+                statusDiv.className = 'status error';
+                statusDiv.textContent = 'No trait data loaded. Please select a trait file first.';
+                return;
+            }
+
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.textContent = 'Applying trait mappings to existing metadata items...';
+
+            try {
+                // Map trait items to the correct format - only for items that exist in metadata
+                const mappedItems = {};
+                let foundCount = 0;
+                let notFoundCount = 0;
+
+                Object.keys(currentTraitData).forEach(key => {
+                    // Only process if the item exists in at least one metadata file
+                    if (sdkMetadataGlobal[key] || siteMetadataGlobal[key]) {
+                        const traitItem = currentTraitData[key];
+                        const mappedData = mapTraitToMetadataFormat(traitItem, currentCollection);
+
+                        // Merge with existing metadata if present
+                        const existingSDK = sdkMetadataGlobal[key] || {};
+                        const existingSite = siteMetadataGlobal[key] || {};
+
+                        mappedItems[key] = {
+                            ...existingSDK,  // Preserve existing properties
+                            ...mappedData,   // Apply mapped properties (overwrites conflicts)
+                            // Ensure raw data includes both old and new
+                            raw: {
+                                ...existingSDK.raw,
+                                ...mappedData.raw
+                            }
+                        };
+                        foundCount++;
+                    } else {
+                        notFoundCount++;
+                        console.log(`Skipping ${key} - not found in existing metadata`);
+                    }
+                });
+
+                if (foundCount === 0) {
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = 'No matching items found in metadata to update.';
+                    return;
+                }
+
+                statusDiv.textContent = `Updating ${foundCount} existing items (skipping ${notFoundCount} not found)...`;
+
+                // Send update request to server
+                const response = await fetch('/apply-trait-mappings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ items: mappedItems })
+                });
+
+                const results = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(results.error || 'Failed to apply trait mappings');
+                }
+
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = `
+                    <strong>Trait mappings applied to existing items!</strong><br>
+                    <div style="margin: 10px 0;">
+                        <span style="color: #27ae60;">✓ SDK Updated: ${results.sdkUpdated || 0} items</span> |
+                        <span style="color: #27ae60;">✓ Site Updated: ${results.siteUpdated || 0} items</span>
+                    </div>
+                    <div style="margin: 5px 0; color: #666;">
+                        <span>Processed: ${foundCount} items found in metadata</span><br>
+                        <span>Skipped: ${notFoundCount} items not in metadata</span>
+                    </div>
+                    <p style="color: #666; font-size: 12px; margin-top: 10px;">
+                        Only existing metadata items were updated with trait properties.
+                        Properties have been mapped to match the Rare Pepe format.
+                        Reload the page to see the updated metadata comparison.
+                    </p>
+                `;
+
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `Error: ${error.message}`;
+                console.error('Failed to apply trait mappings:', error);
+            }
+        }
+
         async function copyMissingImages() {
             const button = document.getElementById('copyImagesBtn');
             const statusDiv = document.getElementById('copyStatus');
@@ -1966,18 +2255,44 @@
             statusDiv.textContent = `Preparing to copy ${missingItemsGlobal.length} images...`;
 
             try {
-                const items = missingItemsGlobal.map(item => ({
-                    name: item.name,
-                    image: item.data.image,
-                    serie: item.data.serie
-                }));
+                let items;
+                let collectionName = currentCollection;
+
+                if (isCurrentSourceTrait) {
+                    // For trait files, we need to get the project name from SDK metadata
+                    // and handle the different data structure
+                    items = missingItemsGlobal.map(item => {
+                        // Try to get project info from SDK metadata if the item exists there
+                        const sdkItem = sdkMetadataGlobal[item.name];
+                        let projectName = 'Unknown';
+
+                        if (sdkItem && sdkItem.projectName) {
+                            projectName = sdkItem.projectName;
+                            // Convert project name to folder format (e.g., "Age of Chains" -> "age-of-chains")
+                            collectionName = projectName.toLowerCase().replace(/\s+/g, '-') + '.json';
+                        }
+
+                        return {
+                            name: item.name,
+                            image: item.data.img_url || item.data.image || `${item.name}.jpg`,
+                            serie: item.data.series || item.data.serie || 1
+                        };
+                    });
+                } else {
+                    // Original logic for collection files
+                    items = missingItemsGlobal.map(item => ({
+                        name: item.name,
+                        image: item.data.image,
+                        serie: item.data.serie
+                    }));
+                }
 
                 const response = await fetch('/copy-images', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ items, collection: currentCollection })
+                    body: JSON.stringify({ items, collection: collectionName })
                 });
 
                 const results = await response.json();
@@ -2063,6 +2378,191 @@
             }
         }
 
+        function displayTraitVerification(verification, traitFileName) {
+            const section = document.getElementById('traitVerification');
+
+            if (!verification) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+
+            const percentInBoth = ((verification.foundInBoth.length / verification.total) * 100).toFixed(1);
+            const percentInSDKOnly = ((verification.foundInSDKOnly.length / verification.total) * 100).toFixed(1);
+            const percentInSiteOnly = ((verification.foundInSiteOnly.length / verification.total) * 100).toFixed(1);
+            const percentInNone = ((verification.foundInNone.length / verification.total) * 100).toFixed(1);
+
+            let html = `
+                <h2>Trait Verification Report for ${traitFileName}</h2>
+                <div class="summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+                    <div style="background: #d4edda; padding: 15px; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #155724;">${verification.foundInBoth.length}</div>
+                        <div style="color: #155724;">Found in Both (${percentInBoth}%)</div>
+                    </div>
+                    <div style="background: #cce5ff; padding: 15px; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #004085;">${verification.foundInSDKOnly.length}</div>
+                        <div style="color: #004085;">SDK Only (${percentInSDKOnly}%)</div>
+                    </div>
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #856404;">${verification.foundInSiteOnly.length}</div>
+                        <div style="color: #856404;">Site Only (${percentInSiteOnly}%)</div>
+                    </div>
+                    <div style="background: #f8d7da; padding: 15px; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #721c24;">${verification.foundInNone.length}</div>
+                        <div style="color: #721c24;">Not Found (${percentInNone}%)</div>
+                    </div>
+                </div>
+                <div style="font-weight: bold; margin: 10px 0;">Total Trait Items: ${verification.total}</div>
+            `;
+
+            // Add property analysis for items found in both
+            if (verification.propertyMatches.length > 0 || verification.propertyMismatches.length > 0) {
+                html += `
+                    <div style="margin: 20px 0; padding: 15px; background: #f0f8ff; border-radius: 8px;">
+                        <h3 style="color: #004085;">Property Analysis for Items in Both Metadata Files</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 10px 0;">
+                            <div style="background: #d4edda; padding: 10px; border-radius: 4px;">
+                                <strong style="color: #155724;">Perfect Matches: ${verification.propertyMatches.length}</strong>
+                                <div style="color: #155724; font-size: 14px;">All properties and values match</div>
+                            </div>
+                            <div style="background: #fff3cd; padding: 10px; border-radius: 4px;">
+                                <strong style="color: #856404;">Property Issues: ${verification.propertyMismatches.length}</strong>
+                                <div style="color: #856404; font-size: 14px;">Missing properties or value mismatches</div>
+                            </div>
+                        </div>
+                        <button onclick="applyTraitMappings()" style="margin-top: 10px; padding: 10px 20px; background: #5e72e4; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold;">
+                            Apply Trait Mappings to Metadata
+                        </button>
+                        <div id="applyMappingStatus" style="display:none; margin-top: 10px;"></div>
+                        <p style="color: #666; margin: 10px 0; font-size: 12px;">
+                            This will update the SDK and Site metadata with properly mapped trait properties following the Rare Pepe format,
+                            ensuring Series, Card, Total Supply, and Artist traits will work correctly.
+                        </p>
+                    </div>
+                `;
+            }
+
+            // Show property mismatches in detail
+            if (verification.propertyMismatches.length > 0) {
+                html += `
+                    <details style="margin: 20px 0; padding: 15px; background: #fff3cd; border-radius: 8px;">
+                        <summary style="cursor: pointer; font-weight: bold; color: #856404;">
+                            Property Issues Detail (${verification.propertyMismatches.length} items)
+                        </summary>
+                        <div style="margin-top: 15px;">
+                `;
+
+                verification.propertyMismatches.forEach(issue => {
+                    html += `
+                        <div style="margin: 10px 0; padding: 10px; background: white; border-radius: 4px; border-left: 4px solid #ff6b6b;">
+                            <strong style="color: #2c3e50;">${issue.key}</strong>
+                    `;
+
+                    if (issue.missingInSDK.length > 0) {
+                        html += `
+                            <div style="margin: 5px 0;">
+                                <span style="color: #e74c3c;">Missing in SDK:</span>
+                                ${issue.missingInSDK.map(p => `<code style="background: #f8f9fa; padding: 2px 4px; margin: 0 2px;">${p}</code>`).join(', ')}
+                            </div>
+                        `;
+                    }
+
+                    if (issue.missingInSite.length > 0) {
+                        html += `
+                            <div style="margin: 5px 0;">
+                                <span style="color: #e74c3c;">Missing in Site:</span>
+                                ${issue.missingInSite.map(p => `<code style="background: #f8f9fa; padding: 2px 4px; margin: 0 2px;">${p}</code>`).join(', ')}
+                            </div>
+                        `;
+                    }
+
+                    if (issue.valueMismatches.length > 0) {
+                        html += `
+                            <div style="margin: 5px 0;">
+                                <span style="color: #e67e22;">Value Mismatches:</span>
+                                <table style="width: 100%; margin-top: 5px; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background: #f8f9fa;">
+                                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: left;">Property</th>
+                                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: left;">Trait Value</th>
+                                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: left;">SDK Value</th>
+                                            <th style="padding: 5px; border: 1px solid #dee2e6; text-align: left;">Site Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                        `;
+                        issue.valueMismatches.forEach(mismatch => {
+                            html += `
+                                        <tr>
+                                            <td style="padding: 5px; border: 1px solid #dee2e6; font-family: monospace;">${mismatch.prop}</td>
+                                            <td style="padding: 5px; border: 1px solid #dee2e6; font-family: monospace; font-size: 12px;">${JSON.stringify(mismatch.traitValue)}</td>
+                                            <td style="padding: 5px; border: 1px solid #dee2e6; font-family: monospace; font-size: 12px;">${JSON.stringify(mismatch.sdkValue)}</td>
+                                            <td style="padding: 5px; border: 1px solid #dee2e6; font-family: monospace; font-size: 12px;">${JSON.stringify(mismatch.siteValue)}</td>
+                                        </tr>
+                            `;
+                        });
+                        html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                    }
+
+                    html += `</div>`;
+                });
+
+                html += `
+                        </div>
+                    </details>
+                `;
+            }
+
+            // Show details for items not found
+            if (verification.foundInNone.length > 0) {
+                html += `
+                    <details style="margin: 20px 0;">
+                        <summary style="cursor: pointer; font-weight: bold; color: #721c24;">
+                            Items Not Found in Either Metadata (${verification.foundInNone.length})
+                        </summary>
+                        <div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                            ${verification.foundInNone.map(item => `<span style="display: inline-block; margin: 3px; padding: 5px 10px; background: white; border: 1px solid #dee2e6; border-radius: 3px; font-family: monospace;">${item}</span>`).join('')}
+                        </div>
+                    </details>
+                `;
+            }
+
+            // Show details for items only in SDK
+            if (verification.foundInSDKOnly.length > 0) {
+                html += `
+                    <details style="margin: 20px 0;">
+                        <summary style="cursor: pointer; font-weight: bold; color: #004085;">
+                            Items Only in SDK Metadata (${verification.foundInSDKOnly.length})
+                        </summary>
+                        <div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                            ${verification.foundInSDKOnly.map(item => `<span style="display: inline-block; margin: 3px; padding: 5px 10px; background: white; border: 1px solid #dee2e6; border-radius: 3px; font-family: monospace;">${item}</span>`).join('')}
+                        </div>
+                    </details>
+                `;
+            }
+
+            // Show details for items only in Site
+            if (verification.foundInSiteOnly.length > 0) {
+                html += `
+                    <details style="margin: 20px 0;">
+                        <summary style="cursor: pointer; font-weight: bold; color: #856404;">
+                            Items Only in Site Metadata (${verification.foundInSiteOnly.length})
+                        </summary>
+                        <div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                            ${verification.foundInSiteOnly.map(item => `<span style="display: inline-block; margin: 3px; padding: 5px 10px; background: white; border: 1px solid #dee2e6; border-radius: 3px; font-family: monospace;">${item}</span>`).join('')}
+                        </div>
+                    </details>
+                `;
+            }
+
+            section.innerHTML = html;
+        }
+
         function displayMissingFromBoth(missing, collectionName = 'collection') {
             const section = document.getElementById('fakeRaresSection');
 
@@ -2080,10 +2580,17 @@
                     <p style="color: #666; margin: 10px 0;">These items exist in ${collectionName} but are not present in either sdk-metadata.json or emblem-site-metadata.json</p>
                     <button id="addMissingItemsBtn" onclick="addMissingItemsToBoth()" style="padding: 10px 20px; background: #8e44ad; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin: 10px 5px 10px 0;">
                         Add Missing Items to Both SDK & Site (${missing.length})
-                    </button>
+                    </button>`;
+
+            // Only show Copy Images button for collection files, not trait files
+            if (!isCurrentSourceTrait) {
+                html += `
                     <button id="copyImagesBtn" onclick="copyMissingImages()" style="padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin: 10px 0;">
                         Copy Missing Images (${missing.length})
-                    </button>
+                    </button>`;
+            }
+
+            html += `
                     <div id="addMissingItemsStatus" style="display:none;"></div>
                     <div id="copyStatus" style="display:none;"></div>
                     <p style="color: #666; margin: 10px 0; font-size: 12px;">The "Add Missing Items" button will create entries in both SDK and Site metadata using the template structure with ${collectionName} data in the 'raw' property.</p>
@@ -2128,14 +2635,51 @@
             }
         }
 
-        async function loadComparison() {
-            const select = document.getElementById('collectionSelect');
-            const selectedCollection = select.value;
+        async function loadTraits() {
+            try {
+                const response = await fetch('/list-traits');
+                const availableTraits = await response.json();
 
-            if (!selectedCollection) {
-                document.getElementById('status').textContent = 'Select a collection to begin...';
+                const select = document.getElementById('traitSelect');
+                select.innerHTML = '<option value="">-- Select a trait file --</option>';
+
+                availableTraits.forEach(trait => {
+                    const option = document.createElement('option');
+                    option.value = trait.filename;
+                    option.textContent = trait.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                document.getElementById('status').textContent = `Error loading traits: ${error.message}`;
+                document.getElementById('status').className = 'status error';
+            }
+        }
+
+        async function loadComparison(sourceType) {
+            let selectedFile = '';
+            let isTraitSource = false;
+
+            if (sourceType === 'trait') {
+                const traitSelect = document.getElementById('traitSelect');
+                selectedFile = traitSelect.value;
+                isTraitSource = true;
+                isCurrentSourceTrait = true;  // Set global flag
+                // Clear collection dropdown
+                document.getElementById('collectionSelect').value = '';
+            } else {
+                const collectionSelect = document.getElementById('collectionSelect');
+                selectedFile = collectionSelect.value;
+                isCurrentSourceTrait = false;  // Set global flag
+                // Clear trait dropdown
+                document.getElementById('traitSelect').value = '';
+            }
+
+            if (!selectedFile) {
+                document.getElementById('status').textContent = 'Select a collection or trait file to begin...';
                 document.getElementById('status').className = 'status';
                 // Clear all sections
+                document.getElementById('traitVerification').style.display = 'none';
+                document.getElementById('traitVerification').innerHTML = '';
                 document.getElementById('summary').style.display = 'none';
                 document.getElementById('summary').innerHTML = '';
                 document.getElementById('fakeRaresSection').style.display = 'none';
@@ -2146,10 +2690,12 @@
                 return;
             }
 
-            currentCollection = selectedCollection;
+            currentCollection = selectedFile;
             const statusDiv = document.getElementById('status');
 
             // Clear all previous results before loading new collection
+            document.getElementById('traitVerification').style.display = 'none';
+            document.getElementById('traitVerification').innerHTML = '';
             document.getElementById('summary').style.display = 'none';
             document.getElementById('summary').innerHTML = '';
             document.getElementById('fakeRaresSection').style.display = 'none';
@@ -2166,11 +2712,36 @@
                 statusDiv.textContent = 'Loading emblem-site-metadata.json...';
                 siteMetadataGlobal = await loadJSON('./emblem-site-metadata.json');
 
-                statusDiv.textContent = `Loading ${selectedCollection}...`;
-                const incomingArray = await loadJSON(`./incoming/${selectedCollection}`);
-                incomingDataGlobal = convertFakeRaresToObject(incomingArray);
+                statusDiv.textContent = `Loading ${selectedFile}...`;
+                let incomingArray;
+                if (isTraitSource) {
+                    incomingArray = await loadJSON(`./traits/${selectedFile}`);
+                    // Convert traits format to standard format using asset or tokenId as key
+                    const convertedData = {};
+                    incomingArray.forEach(item => {
+                        const key = item.asset || item.tokenId;
+                        if (key) {
+                            convertedData[key] = item;
+                        }
+                    });
+                    incomingDataGlobal = convertedData;
+                    currentTraitData = convertedData;  // Save for mapping function
+                } else {
+                    incomingArray = await loadJSON(`./incoming/${selectedFile}`);
+                    incomingDataGlobal = convertFakeRaresToObject(incomingArray);
+                }
 
                 statusDiv.textContent = 'Comparing metadata...';
+
+                // If this is a trait source, run verification
+                if (isTraitSource) {
+                    const verification = verifyTraitCoverage(incomingDataGlobal, sdkMetadataGlobal, siteMetadataGlobal);
+                    displayTraitVerification(verification, selectedFile);
+                } else {
+                    // Hide trait verification for collection sources
+                    document.getElementById('traitVerification').style.display = 'none';
+                }
+
                 const results = compareMetadata(sdkMetadataGlobal, siteMetadataGlobal, incomingDataGlobal);
                 const missingFromBoth = findMissingFromBoth(incomingDataGlobal, sdkMetadataGlobal, siteMetadataGlobal);
 
@@ -2179,11 +2750,17 @@
                 const siteRedundant = findRedundantOldImages(siteMetadataGlobal);
 
                 statusDiv.className = 'status success';
-                statusDiv.textContent = `Comparison complete! Found ${missingFromBoth.length} items missing from both SDK and Site. Found ${sdkRedundant.length + siteRedundant.length} redundant oldImage properties.`;
 
-                displayMissingFromBoth(missingFromBoth, selectedCollection);
+                if (isTraitSource) {
+                    const verification = verifyTraitCoverage(incomingDataGlobal, sdkMetadataGlobal, siteMetadataGlobal);
+                    statusDiv.textContent = `Trait verification complete! ${verification.foundInBoth.length} items found in both, ${verification.foundInNone.length} missing from both metadata files.`;
+                } else {
+                    statusDiv.textContent = `Comparison complete! Found ${missingFromBoth.length} items missing from both SDK and Site. Found ${sdkRedundant.length + siteRedundant.length} redundant oldImage properties.`;
+                }
+
+                displayMissingFromBoth(missingFromBoth, selectedFile);
                 displayRedundantOldImages(sdkRedundant, siteRedundant);
-                displayResults(results, selectedCollection);
+                displayResults(results, selectedFile);
             } catch (error) {
                 statusDiv.className = 'status error';
                 statusDiv.textContent = `Error: ${error.message}`;
@@ -2193,6 +2770,7 @@
 
         // Auto-run when page loads
         loadCollections();
+        loadTraits();
     </script>
 </body>
 </html>

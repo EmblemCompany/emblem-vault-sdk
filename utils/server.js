@@ -5,6 +5,7 @@ const path = require('path');
 
 const PORT = 8080;
 const INCOMING_DIR = path.join(__dirname, 'incoming');
+const TRAITS_DIR = path.join(__dirname, 'traits');
 const VAULT_IMAGES_BASE = '/Users/shannoncode/repo/Emblem.Current/vaultImages/collection';
 const SITE_METADATA_PATH = path.join(__dirname, 'emblem-site-metadata.json');
 const SDK_METADATA_PATH = path.join(__dirname, 'sdk-metadata.json');
@@ -44,6 +45,26 @@ async function handleListCollections(req, res) {
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(collections, null, 2));
+    } catch (error) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: error.message }));
+    }
+}
+
+// Handler to list available trait files
+async function handleListTraits(req, res) {
+    try {
+        const files = fs.readdirSync(TRAITS_DIR);
+        const traits = files
+            .filter(file => file.endsWith('.json'))
+            .map(file => ({
+                filename: file,
+                name: getCollectionName(file),
+                folder: getCollectionFolder(file)
+            }));
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(traits, null, 2));
     } catch (error) {
         res.writeHead(500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: error.message }));
@@ -860,6 +881,105 @@ async function handleUpdateFromRaw(req, res) {
     });
 }
 
+async function handleApplyTraitMappings(req, res) {
+    let body = '';
+
+    req.on('data', chunk => {
+        body += chunk.toString();
+    });
+
+    req.on('end', async () => {
+        try {
+            const { items } = JSON.parse(body);
+
+            // Read current metadata files
+            const sdkDataRaw = fs.readFileSync(SDK_METADATA_PATH, 'utf8');
+            const sdkData = JSON.parse(sdkDataRaw);
+
+            const siteDataRaw = fs.readFileSync(SITE_METADATA_PATH, 'utf8');
+            const siteData = JSON.parse(siteDataRaw);
+
+            const results = {
+                sdkUpdated: 0,
+                siteUpdated: 0,
+                failed: []
+            };
+
+            // Update each item with the mapped properties - ONLY if they already exist
+            Object.keys(items).forEach(key => {
+                try {
+                    const mappedItem = items[key];
+
+                    // Update SDK metadata ONLY if item already exists
+                    if (sdkData[key]) {
+                        // Merge existing with new mapped data
+                        sdkData[key] = {
+                            ...sdkData[key],
+                            ...mappedItem,
+                            // Preserve and merge raw data
+                            raw: {
+                                ...sdkData[key].raw,
+                                ...mappedItem.raw
+                            }
+                        };
+                        results.sdkUpdated++;
+                        console.log(`Updated existing item ${key} in SDK metadata`);
+                    }
+
+                    // Update Site metadata ONLY if item already exists
+                    if (siteData[key]) {
+                        // Merge existing with new mapped data
+                        siteData[key] = {
+                            ...siteData[key],
+                            ...mappedItem,
+                            // Preserve and merge raw data
+                            raw: {
+                                ...siteData[key].raw,
+                                ...mappedItem.raw
+                            }
+                        };
+                        results.siteUpdated++;
+                        console.log(`Updated existing item ${key} in Site metadata`);
+                    }
+
+                } catch (error) {
+                    results.failed.push({ key, error: error.message });
+                    console.error(`Failed to update ${key}: ${error.message}`);
+                }
+            });
+
+            // Write back to files if there are updates
+            if (results.sdkUpdated > 0) {
+                // Create SDK backup
+                const sdkBackupPath = SDK_METADATA_PATH + '.backup.' + Date.now();
+                fs.copyFileSync(SDK_METADATA_PATH, sdkBackupPath);
+                console.log(`Created SDK backup at: ${sdkBackupPath}`);
+
+                // Write updated SDK data
+                fs.writeFileSync(SDK_METADATA_PATH, JSON.stringify(sdkData, null, 2), 'utf8');
+                console.log(`Updated SDK metadata with trait mappings - ${results.sdkUpdated} items`);
+            }
+
+            if (results.siteUpdated > 0) {
+                // Create Site backup
+                const siteBackupPath = SITE_METADATA_PATH + '.backup.' + Date.now();
+                fs.copyFileSync(SITE_METADATA_PATH, siteBackupPath);
+                console.log(`Created Site backup at: ${siteBackupPath}`);
+
+                // Write updated Site data
+                fs.writeFileSync(SITE_METADATA_PATH, JSON.stringify(siteData, null, 2), 'utf8');
+                console.log(`Updated Site metadata with trait mappings - ${results.siteUpdated} items`);
+            }
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(results, null, 2));
+        } catch (error) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: error.message }));
+        }
+    });
+}
+
 async function handleAddMissingItemsToBoth(req, res) {
     let body = '';
 
@@ -995,6 +1115,12 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // Handle GET request to list available trait files
+    if (req.method === 'GET' && req.url === '/list-traits') {
+        handleListTraits(req, res);
+        return;
+    }
+
     // Handle POST request to copy images
     if (req.method === 'POST' && req.url === '/copy-images') {
         handleCopyImages(req, res);
@@ -1058,6 +1184,12 @@ const server = http.createServer((req, res) => {
     // Handle POST request to add missing items to both SDK and Site
     if (req.method === 'POST' && req.url === '/add-missing-items-to-both') {
         handleAddMissingItemsToBoth(req, res);
+        return;
+    }
+
+    // Handle POST request to apply trait mappings
+    if (req.method === 'POST' && req.url === '/apply-trait-mappings') {
+        handleApplyTraitMappings(req, res);
         return;
     }
 
