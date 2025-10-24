@@ -109,7 +109,7 @@ export function generateAttributeTemplate(record: any) {
             {
                 "trait_type": "Artist",
                 "value": (metadata: MetaData) => {
-                    return pad(NFT_DATA[metadata.targetAsset.name]?.raw?.artist.name, 2)?.toString();
+                    return pad(NFT_DATA[metadata.targetAsset.name]?.raw?.artist?.name, 2)?.toString();
                 }
             }
         ]

@@ -120,8 +120,8 @@ function generateAttributeTemplate(record) {
             {
                 "trait_type": "Artist",
                 "value": (metadata) => {
-                    var _a, _b, _c;
-                    return (_c = (0, exports.pad)((_b = (_a = exports.NFT_DATA[metadata.targetAsset.name]) === null || _a === void 0 ? void 0 : _a.raw) === null || _b === void 0 ? void 0 : _b.artist.name, 2)) === null || _c === void 0 ? void 0 : _c.toString();
+                    var _a, _b, _c, _d;
+                    return (_d = (0, exports.pad)((_c = (_b = (_a = exports.NFT_DATA[metadata.targetAsset.name]) === null || _a === void 0 ? void 0 : _a.raw) === null || _b === void 0 ? void 0 : _b.artist) === null || _c === void 0 ? void 0 : _c.name, 2)) === null || _d === void 0 ? void 0 : _d.toString();
                 }
             }
         ];
