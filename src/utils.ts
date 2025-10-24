@@ -85,7 +85,8 @@ export function generateAttributeTemplate(record: any) {
         record.name == "Force of Will" ||
         record.name == "Memorychain" ||
         record.name == "Oasis Mining" ||
-        record.name == "Sarutobi Island"
+        record.name == "Sarutobi Island" ||
+        record.name == "Spells of Genesis"
     ) {
         template = [
             {
