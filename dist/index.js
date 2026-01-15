@@ -45,6 +45,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_1 = require("@ethersproject/bignumber");
 const utils_1 = require("./utils");
 const derive_1 = require("./derive");
+const constants_1 = require("./constants");
+const vault_utils_1 = require("./vault-utils");
+const evm_operations_1 = require("./evm-operations");
 const SDK_VERSION = '2.9.1';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl, v3Url, sigUrl) {
@@ -107,7 +110,7 @@ class EmblemVaultSDK {
                         item[key] = template[key];
                 });
                 // Return a new object that combines the properties of the item and the template
-                // return { ...item, ...template };  
+                return Object.assign(Object.assign({}, item), template);
                 return item;
             });
             return data;
@@ -129,8 +132,14 @@ class EmblemVaultSDK {
                 callback(`creating Vault for user`, template.toAddress);
             }
             let vaultCreationResponse = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', template);
+            if (vaultCreationResponse === null || vaultCreationResponse === void 0 ? void 0 : vaultCreationResponse.err) {
+                if (callback)
+                    callback(`error creating Vault: ${vaultCreationResponse.msg}`);
+                return vaultCreationResponse;
+            }
+            const { tokenId } = vaultCreationResponse.data;
             if (callback) {
-                callback(`created Vault tokenId`, vaultCreationResponse.data.tokenId);
+                callback(`created Vault ${tokenId}`);
             }
             return vaultCreationResponse.data;
         });
@@ -579,6 +588,50 @@ class EmblemVaultSDK {
             }
             processChunks();
             return results;
+        });
+    }
+    // ========================================================================
+    // Remote Signer Methods (EmblemVaultClient) - Multi-Chain Support
+    // ========================================================================
+    getSdkContext() {
+        return {
+            apiKey: this.apiKey,
+            baseUrl: this.baseUrl,
+            v3Url: this.v3Url,
+            sigUrl: this.sigUrl,
+            fetchMetadata: this.fetchMetadata.bind(this),
+            requestRemoteKey: this.requestRemoteKey.bind(this),
+            decryptVaultKeys: this.decryptVaultKeys.bind(this),
+        };
+    }
+    performMintChainWithClient(client_1, tokenId_1) {
+        return __awaiter(this, arguments, void 0, function* (client, tokenId, chainId = constants_1.ETHEREUM_MAINNET_CHAIN_ID, callback) {
+            (0, utils_1.genericGuard)(tokenId, "string", "tokenId");
+            (0, vault_utils_1.getChainConfig)(chainId);
+            return (0, evm_operations_1.performMintEvm)(this.getSdkContext(), client, tokenId, chainId, callback);
+        });
+    }
+    performClaimChainWithClient(client_1, tokenId_1) {
+        return __awaiter(this, arguments, void 0, function* (client, tokenId, chainId = constants_1.ETHEREUM_MAINNET_CHAIN_ID, callback) {
+            var _a, _b;
+            (0, utils_1.genericGuard)(tokenId, "string", "tokenId");
+            (0, vault_utils_1.getChainConfig)(chainId);
+            callback === null || callback === void 0 ? void 0 : callback('Fetching vault metadata...');
+            const metadata = yield this.fetchMetadata(tokenId, callback);
+            const claimIdentifier = (0, vault_utils_1.getClaimIdentifier)(metadata);
+            // Check if this is a V2 vault by checking the deployment type (matches VaultActions.vue logic)
+            // metadata[chainId]?.type?.endsWith('V2') indicates a diamond/V2 contract
+            const deploymentInfo = metadata === null || metadata === void 0 ? void 0 : metadata[chainId];
+            const vaultIsV2 = Boolean((_b = (_a = deploymentInfo === null || deploymentInfo === void 0 ? void 0 : deploymentInfo.type) === null || _a === void 0 ? void 0 : _a.endsWith) === null || _b === void 0 ? void 0 : _b.call(_a, 'V2'));
+            const needsOnChainUnvault = (0, vault_utils_1.requiresOnChainUnvault)(metadata) && vaultIsV2;
+            return (0, evm_operations_1.performClaimEvm)(this.getSdkContext(), client, tokenId, chainId, metadata, claimIdentifier, vaultIsV2, needsOnChainUnvault, callback);
+        });
+    }
+    deleteVaultWithClient(client_1, tokenId_1) {
+        return __awaiter(this, arguments, void 0, function* (client, tokenId, chainId = constants_1.ETHEREUM_MAINNET_CHAIN_ID, callback) {
+            (0, utils_1.genericGuard)(tokenId, "string", "tokenId");
+            (0, vault_utils_1.getChainConfig)(chainId);
+            return (0, evm_operations_1.deleteVaultEvm)(client, tokenId, chainId, callback);
         });
     }
     // BTC

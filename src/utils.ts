@@ -1,5 +1,5 @@
 import CryptoJS from 'crypto-js'
-import { MetaData } from "./types";
+import { MetaData, FillCreateVaultTemplateArgs } from "./types";
 import metadataJson from './curated/metadata.json';
 import darkfarmsMetadataJson from './curated/darkfarms-metadata.json';
 import dot_idMetadataJson from './curated/dot_id.json';
@@ -552,6 +552,40 @@ export function generateTemplate(record: any) {
             
             return nameAndImage
         },
+        fillCreateVaultTemplate: (args: FillCreateVaultTemplateArgs, _this: any) => {
+            const template = _this.generateCreateTemplate(_this)
+
+            if (args.fromAddress) {
+                template.fromAddress = args.fromAddress
+            } else {
+                throw new Error("fromAddress is required to create vault")
+            }
+
+            if (args.toAddress) {
+                template.toAddress = args.toAddress
+            } else {
+                throw new Error("toAddress is required to create vault")
+            }
+
+            if (args.chainId) {
+                const chainIdAsString = String(args.chainId)
+                template.targetContract = {
+                    name: template.targetContract.name,
+                    [chainIdAsString]: template.targetContract[chainIdAsString]
+                }
+                template.chainId = args.chainId
+            } else {
+                throw new Error("chainId is required to create vault")
+            }
+
+            if (args.targetAsset) {
+                Object.assign(template.targetAsset, args.targetAsset)
+            } else {
+                template.targetAsset = undefined
+            }
+
+            return template
+        },
         generateCreateTemplate: (_this: any) =>{
             let template = {
                 fromAddress: { type: "user-provided" },
@@ -914,4 +948,9 @@ export async function signPSBT(psbtBase64: any, paymentAddress: any, indexes: nu
     });
 }
 
-
+export function parseBigIntValue(value: unknown): bigint {
+    if (typeof value === 'object' && value !== null && 'hex' in value) {
+        return BigInt((value as { hex: string }).hex);
+    }
+    return BigInt(String(value));
+}

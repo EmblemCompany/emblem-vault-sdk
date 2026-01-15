@@ -1,8 +1,29 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { Collection, CuratedCollectionsResponse, MetaData, Ownership, Vault } from './types';
-import { COIN_TO_NETWORK, NFT_DATA, checkContentType, decryptKeys, evaluateFacts, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getSatsConnectAddress, getTorusKeys, metadataAllProjects, metadataObj2Arr, pad, signPSBT, templateGuard } from './utils';
-import { getAddress, BitcoinNetworkType, AddressPurpose, signTransaction } from "sats-connect";
+import type {
+    Collection,
+    CuratedCollectionsResponse,
+    MetaData,
+    Ownership,
+    Vault,
+    ProgressCallback,
+    MintResult,
+    ClaimResult,
+    EmblemVaultClient,
+    SdkContext,
+} from './types';
+import { NFT_DATA, checkContentType, decryptKeys, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getSatsConnectAddress, getTorusKeys, metadataAllProjects, metadataObj2Arr, signPSBT, templateGuard } from './utils';
 import { generateTaprootAddressFromMnemonic, getPsbtTxnSize } from './derive';
+import {
+    ETHEREUM_MAINNET_CHAIN_ID,
+} from './constants';
+import {
+    getChainConfig,
+    isV2Vault,
+    requiresOnChainUnvault,
+    getClaimIdentifier,
+} from './vault-utils';
+import { performMintEvm, performClaimEvm, deleteVaultEvm } from './evm-operations';
+
 const SDK_VERSION = '__SDK_VERSION__'; 
 
 class EmblemVaultSDK {
@@ -76,7 +97,7 @@ class EmblemVaultSDK {
                     item[key] = template[key];
                 });
                 // Return a new object that combines the properties of the item and the template
-                // return { ...item, ...template };  
+                return { ...item, ...template };  
                 return item;
             });
         return data
@@ -94,7 +115,14 @@ class EmblemVaultSDK {
         let url = `${this.baseUrl}/create-curated`;
         if (callback) { callback(`creating Vault for user`, template.toAddress)}     
         let vaultCreationResponse = await fetchData(url, this.apiKey, 'POST', template);
-        if (callback) { callback(`created Vault tokenId`, vaultCreationResponse.data.tokenId)}    
+
+        if (vaultCreationResponse?.err) {
+            if (callback) callback(`error creating Vault: ${vaultCreationResponse.msg}`)
+            return vaultCreationResponse
+        }
+
+        const { tokenId } = vaultCreationResponse.data
+        if (callback) { callback(`created Vault ${tokenId}`)}    
         return vaultCreationResponse.data
     }
 
@@ -478,6 +506,66 @@ class EmblemVaultSDK {
         }
         processChunks();
         return results;
+    }
+
+    // ========================================================================
+    // Remote Signer Methods (EmblemVaultClient) - Multi-Chain Support
+    // ========================================================================
+
+    private getSdkContext(): SdkContext {
+        return {
+            apiKey: this.apiKey,
+            baseUrl: this.baseUrl,
+            v3Url: this.v3Url,
+            sigUrl: this.sigUrl,
+            fetchMetadata: this.fetchMetadata.bind(this),
+            requestRemoteKey: this.requestRemoteKey.bind(this),
+            decryptVaultKeys: this.decryptVaultKeys.bind(this),
+        };
+    }
+
+    async performMintChainWithClient(
+        client: EmblemVaultClient,
+        tokenId: string,
+        chainId: number | 'solana' = ETHEREUM_MAINNET_CHAIN_ID,
+        callback?: ProgressCallback
+    ): Promise<MintResult> {
+        genericGuard(tokenId, "string", "tokenId");
+        getChainConfig(chainId);
+        return performMintEvm(this.getSdkContext(), client, tokenId, chainId as number, callback);
+    }
+
+    async performClaimChainWithClient(
+        client: EmblemVaultClient,
+        tokenId: string,
+        chainId: number | 'solana' = ETHEREUM_MAINNET_CHAIN_ID,
+        callback?: ProgressCallback
+    ): Promise<ClaimResult> {
+        genericGuard(tokenId, "string", "tokenId");
+        getChainConfig(chainId);
+
+        callback?.('Fetching vault metadata...');
+        const metadata = await this.fetchMetadata(tokenId, callback);
+        const claimIdentifier = getClaimIdentifier(metadata);
+        
+        // Check if this is a V2 vault by checking the deployment type (matches VaultActions.vue logic)
+        // metadata[chainId]?.type?.endsWith('V2') indicates a diamond/V2 contract
+        const deploymentInfo = (metadata as Record<string, unknown>)?.[chainId as number] as { type?: string } | undefined;
+        const vaultIsV2 = Boolean(deploymentInfo?.type?.endsWith?.('V2'));
+        const needsOnChainUnvault = requiresOnChainUnvault(metadata) && vaultIsV2;
+
+        return performClaimEvm(this.getSdkContext(), client, tokenId, chainId as number, metadata, claimIdentifier, vaultIsV2, needsOnChainUnvault, callback);
+    }
+
+    async deleteVaultWithClient(
+        client: EmblemVaultClient,
+        tokenId: string,
+        chainId: number | 'solana' = ETHEREUM_MAINNET_CHAIN_ID,
+        callback?: ProgressCallback
+    ): Promise<boolean> {
+        genericGuard(tokenId, "string", "tokenId");
+        getChainConfig(chainId);
+        return deleteVaultEvm(client, tokenId, chainId as number, callback);
     }
 
     // BTC

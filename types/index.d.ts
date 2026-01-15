@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { Collection, CuratedCollectionsResponse, MetaData, Ownership, Vault } from './types';
+import type { Collection, CuratedCollectionsResponse, MetaData, Ownership, Vault, ProgressCallback, MintResult, ClaimResult, EmblemVaultClient } from './types';
 declare class EmblemVaultSDK {
     private apiKey;
     private baseUrl;
@@ -45,6 +45,10 @@ declare class EmblemVaultSDK {
     refreshLegacyOwnership(web3: any, address: string): Promise<void>;
     checkLiveliness(tokenId: string, chainId?: number): Promise<any>;
     checkLivelinessBulk(tokenIds: string[], chainId?: number): Promise<any[]>;
+    private getSdkContext;
+    performMintChainWithClient(client: EmblemVaultClient, tokenId: string, chainId?: number | 'solana', callback?: ProgressCallback): Promise<MintResult>;
+    performClaimChainWithClient(client: EmblemVaultClient, tokenId: string, chainId?: number | 'solana', callback?: ProgressCallback): Promise<ClaimResult>;
+    deleteVaultWithClient(client: EmblemVaultClient, tokenId: string, chainId?: number | 'solana', callback?: ProgressCallback): Promise<boolean>;
     sweepVaultUsingPhrase(phrase: string, satsPerByte?: number, broadcast?: boolean): Promise<unknown>;
 }
 declare global {
