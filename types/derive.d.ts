@@ -6,7 +6,7 @@ declare global {
 export declare const generateTaprootAddressFromMnemonic: (phrase: string) => Promise<{
     p2tr: any;
     tweakedSigner: import("bip32/types/bip32").Signer;
-    pubKey: Buffer;
+    pubKey: Buffer<ArrayBuffer>;
     path: string;
     coin: string;
 }>;

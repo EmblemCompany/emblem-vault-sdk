@@ -27,6 +27,14 @@ export type Collection = {
     balanceCheckers: string[] | null;
     tokenIdScheme: string | null;
     generateVaultBody: Function;
+    /**
+     * Returns a template ready to send to the create vault API
+     *
+     * @param {FillCreateVaultTemplateArgs} args - Arguments to fill the template
+     * @param {_this: Collection} _this - The collection context
+     * @returns {Object} - Filled create vault template
+     */
+    fillCreateVaultTemplate: (args: FillCreateVaultTemplateArgs, _this: Collection) => Object;
     generateCreateTemplate: Function;
 };
 
@@ -142,3 +150,91 @@ export type Ownership = {
 }
 
 export type CuratedCollectionsResponse = Collection[];
+
+// ============================================================================
+// Remote Signer Types (for EmblemVaultClient integration)
+// ============================================================================
+
+export type ChainIdentifier = number | 'solana';
+
+export type ProgressCallback = (message: string, data?: unknown) => void;
+
+export interface MintResult {
+    txHash: string;
+    tokenId: string;
+    chainId: ChainIdentifier;
+}
+
+export interface ClaimResult {
+    phrase?: string;
+    privateKey?: string;
+}
+
+export interface RemoteMintSignature {
+    _nftAddress: string;
+    _price: { hex: string } | string | number;
+    _to: string;
+    _tokenId: { hex: string } | string | number;
+    _nonce: { hex: string } | string | number;
+    _signature: string;
+    serialNumber: string;
+    error?: string;
+}
+
+export interface RemoteUnvaultSignature {
+    success: boolean;
+    _nftAddress: string;
+    _tokenId: { hex: string } | string | number;
+    _nonce: { hex: string } | string | number;
+    _price: { hex: string } | string | number;
+    _timestamp: { hex: string } | string | number;
+    _signature: string;
+    msg?: string;
+    err?: string;
+}
+
+// ============================================================================
+// EVM Signer Interface (matches emblem-vault-ai-signers EmblemEthersWallet)
+// ============================================================================
+
+export interface EvmSigner {
+    getAddress(): Promise<string>;
+    signMessage(message: string | Uint8Array): Promise<string>;
+    sendTransaction(tx: unknown): Promise<{ hash: string; wait(): Promise<unknown> }>;
+    setChainId?(chainId: number): void;
+}
+
+// ============================================================================
+// EmblemVaultClient Interface - matches emblem-vault-ai-signers
+// ============================================================================
+
+export interface EmblemVaultClient {
+    toEthersWallet(provider?: unknown): Promise<EvmSigner>;
+}
+
+// ============================================================================
+// SDK Context for operations modules
+// ============================================================================
+
+export interface SdkContext {
+    apiKey: string;
+    baseUrl: string;
+    v3Url: string;
+    sigUrl: string;
+    fetchMetadata: (tokenId: string, callback?: ProgressCallback) => Promise<MetaData>;
+    requestRemoteKey: (tokenId: string, jwt: unknown, callback?: ProgressCallback) => Promise<unknown>;
+    decryptVaultKeys: (tokenId: string, dkeys: unknown, callback?: ProgressCallback) => Promise<ClaimResult>;
+}
+
+export interface FillCreateVaultTemplateArgs {
+    fromAddress: string,
+    toAddress: string,
+    targetAsset: {
+        name: string,
+        image: string,
+        description?: string,
+        ownedImage?: string,
+        projectName?: string
+    },
+    chainId: number,
+}

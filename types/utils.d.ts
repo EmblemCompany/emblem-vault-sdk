@@ -40,4 +40,5 @@ interface SatsConnectAddress {
 }
 export declare function getSatsConnectAddress(): Promise<SatsConnectAddress>;
 export declare function signPSBT(psbtBase64: any, paymentAddress: any, indexes: number[], broadcast?: boolean): Promise<unknown>;
+export declare function parseBigIntValue(value: unknown): bigint;
 export {};

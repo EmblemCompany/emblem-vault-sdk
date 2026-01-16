@@ -26,6 +26,7 @@ exports.getTorusKeys = getTorusKeys;
 exports.decryptKeys = decryptKeys;
 exports.getSatsConnectAddress = getSatsConnectAddress;
 exports.signPSBT = signPSBT;
+exports.parseBigIntValue = parseBigIntValue;
 const crypto_js_1 = __importDefault(require("crypto-js"));
 const metadata_json_1 = __importDefault(require("./curated/metadata.json"));
 const darkfarms_metadata_json_1 = __importDefault(require("./curated/darkfarms-metadata.json"));
@@ -596,6 +597,39 @@ function generateTemplate(record) {
             nameAndImage.description = nameAndImage.description + viewOnEmblemFinanceLink;
             return nameAndImage;
         },
+        fillCreateVaultTemplate: (args, _this) => {
+            const template = _this.generateCreateTemplate(_this);
+            if (args.fromAddress) {
+                template.fromAddress = args.fromAddress;
+            }
+            else {
+                throw new Error("fromAddress is required to create vault");
+            }
+            if (args.toAddress) {
+                template.toAddress = args.toAddress;
+            }
+            else {
+                throw new Error("toAddress is required to create vault");
+            }
+            if (args.chainId) {
+                const chainIdAsString = String(args.chainId);
+                template.targetContract = {
+                    name: template.targetContract.name,
+                    [chainIdAsString]: template.targetContract[chainIdAsString]
+                };
+                template.chainId = args.chainId;
+            }
+            else {
+                throw new Error("chainId is required to create vault");
+            }
+            if (args.targetAsset) {
+                Object.assign(template.targetAsset, args.targetAsset);
+            }
+            else {
+                template.targetAsset = undefined;
+            }
+            return template;
+        },
         generateCreateTemplate: (_this) => {
             let template = {
                 fromAddress: { type: "user-provided" },
@@ -951,4 +985,10 @@ function signPSBT(psbtBase64_1, paymentAddress_1, indexes_1) {
             });
         });
     });
+}
+function parseBigIntValue(value) {
+    if (typeof value === 'object' && value !== null && 'hex' in value) {
+        return BigInt(value.hex);
+    }
+    return BigInt(String(value));
 }
