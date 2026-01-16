@@ -122,7 +122,8 @@
             let contract = window.curatedContracts[index];
             let template = contract.generateCreateTemplate(contract)
             template.chainId = 1
-            template.toAddress = document.getElementById('ethAddress').value;
+            let toAddr = document.getElementById('toAddress').value;
+            template.toAddress = toAddr ? toAddr : document.getElementById('ethAddress').value;
             template.fromAddress = document.getElementById('ethAddress').value;
             window.contract = contract;
             window.template = template;
@@ -204,6 +205,8 @@
     </script>
     <input type="text" id="ethAddress" placeholder="Enter ETH Address" oninput="localStorage.setItem('ethAddress', this.value)" value="">
 
+    <input type="text" id="toAddress" placeholder="To Address (optional)" oninput="localStorage.setItem('toAddress', this.value)" value="">
+
     <input type="checkbox" id="hideNotMintableCheckbox" checked onchange="generateDropdown(window.curatedContracts)">
     <label for="hideNotMintableCheckbox">Hide Not Mintable</label>
 
@@ -243,6 +246,9 @@
         <a href="steps.html" target="_blank">Full Create / Mint : Demo</a>
     </div>
     
-    <script>document.getElementById('ethAddress').value = localStorage.getItem('ethAddress');</script>
+    <script>
+        document.getElementById('ethAddress').value = localStorage.getItem('ethAddress');
+        document.getElementById('toAddress').value = localStorage.getItem('toAddress');
+    </script>
 </body>
 </html>

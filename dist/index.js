@@ -48,7 +48,7 @@ const derive_1 = require("./derive");
 const constants_1 = require("./constants");
 const vault_utils_1 = require("./vault-utils");
 const evm_operations_1 = require("./evm-operations");
-const SDK_VERSION = '2.9.1';
+const SDK_VERSION = '2.9.2';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl, v3Url, sigUrl) {
         this.apiKey = apiKey;
