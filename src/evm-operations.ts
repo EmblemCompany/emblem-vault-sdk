@@ -183,8 +183,13 @@ async function requestRemoteMintSignature(
         }
     );
 
-    if (remoteMintResponse.error) {
-        throw new Error(remoteMintResponse.error);
+    // Handle both 'error' and 'err' fields (API inconsistency)
+    const errorMsg = remoteMintResponse.error || remoteMintResponse.err;
+    if (errorMsg) {
+        const message = typeof errorMsg === 'string'
+            ? errorMsg
+            : errorMsg.msg || errorMsg.message || JSON.stringify(errorMsg);
+        throw new Error(message);
     }
 
     return remoteMintResponse as RemoteMintSignature;
