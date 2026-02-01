@@ -8,6 +8,7 @@ The Emblem Vault SDK is a JavaScript library that provides functionality for int
 - [Fetching Curated Contracts](#fetching-curated-contracts)
 - [Creating a Vault](#creating-a-vault)
 - [Refreshing Vault Balance](#refreshing-vault-balance)
+- [Fetching Vaults by Type](#fetching-vaults-by-type)
 - [Validating Mintability](#validating-mintability)
 - [Performing a Mint](#performing-a-mint)
 - [Utility Functions](#utility-functions)
@@ -88,6 +89,37 @@ To refresh the balance of a vault, use the refreshBalance method:
 ```javascript
 vaultBalance = await sdk.refreshBalance(vaultData.tokenId, updateLogCallback);
 ```
+
+## Fetching Vaults by Type
+To fetch vaults owned by an address, use the `fetchVaultsOfType` method:
+
+```javascript
+// Fetch all vaults (returns full array)
+const vaults = await sdk.fetchVaultsOfType('created', '0xYourAddress');
+
+// Vault types: "vaulted", "unvaulted", "created"
+```
+
+### Pagination Support
+For large collections, use pagination to fetch vaults in pages:
+
+```javascript
+// Fetch a specific page (returns { data, pagination } object)
+const result = await sdk.fetchVaultsOfType('created', '0xYourAddress', { page: 1, limit: 100 });
+
+console.log(result.data);       // Array of vaults for this page
+console.log(result.pagination); // { page: 1, limit: 100, total: 500, totalPages: 5 }
+```
+
+### Fetching All Vaults with Progress
+To automatically fetch all pages with progress tracking:
+
+```javascript
+const allVaults = await sdk.fetchAllVaultsOfType('created', '0xYourAddress', (page, totalPages, total) => {
+    console.log(`Fetched page ${page}/${totalPages} (${total} total vaults)`);
+});
+```
+
 ## Validating Mintability
 To validate if a vault is mintable, use the allowed method of the curated contract object:
 

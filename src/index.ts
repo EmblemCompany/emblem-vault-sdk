@@ -160,12 +160,65 @@ class EmblemVaultSDK {
         return balance?.balances || [];
     }
 
-    async fetchVaultsOfType(vaultType: string, address: string): Promise<any> {
+    /**
+     * Fetch vaults of a specific type for an address.
+     * @param vaultType - The vault type: "vaulted", "unvaulted", or "created"
+     * @param address - The wallet address to fetch vaults for
+     * @param options - Optional pagination options
+     * @param options.page - Page number (1-indexed). If provided, returns paginated response.
+     * @param options.limit - Number of results per page (default: 100)
+     * @returns Array of vaults (unpaginated) or { data, pagination } object (paginated)
+     */
+    async fetchVaultsOfType(vaultType: string, address: string, options?: { page?: number; limit?: number }): Promise<any> {
         genericGuard(vaultType, "string", "vaultType");
         genericGuard(address, "string", "address");
         let url = `${this.baseUrl}/myvaults/${address}?vaultType=${vaultType}`;
+
+        // Add pagination params if provided
+        if (options?.page !== undefined || options?.limit !== undefined) {
+            if (options.page !== undefined) url += `&page=${options.page}`;
+            if (options.limit !== undefined) url += `&limit=${options.limit}`;
+        }
+
         let vaults = await fetchData(url, this.apiKey);
         return vaults;
+    }
+
+    /**
+     * Fetch all vaults of a specific type, automatically handling pagination.
+     * @param vaultType - The vault type: "vaulted", "unvaulted", or "created"
+     * @param address - The wallet address to fetch vaults for
+     * @param onProgress - Optional callback for progress updates (page, totalPages, total)
+     * @returns Array of all vaults
+     */
+    async fetchAllVaultsOfType(vaultType: string, address: string, onProgress?: (page: number, totalPages: number, total: number) => void): Promise<any[]> {
+        genericGuard(vaultType, "string", "vaultType");
+        genericGuard(address, "string", "address");
+
+        const allVaults: any[] = [];
+        let page = 1;
+        let totalPages = 1;
+        const limit = 100;
+
+        while (page <= totalPages) {
+            const result = await this.fetchVaultsOfType(vaultType, address, { page, limit });
+
+            if (result.pagination) {
+                // Paginated response
+                allVaults.push(...result.data);
+                totalPages = result.pagination.totalPages;
+                if (onProgress) {
+                    onProgress(page, totalPages, result.pagination.total);
+                }
+            } else {
+                // Legacy non-paginated response (shouldn't happen with updated API)
+                return Array.isArray(result) ? result : [];
+            }
+
+            page++;
+        }
+
+        return allVaults;
     }
 
     async generateJumpReport(address: string, hideUnMintable: boolean = false) {

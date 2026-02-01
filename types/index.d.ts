@@ -20,7 +20,27 @@ declare class EmblemVaultSDK {
     refreshOwnershipForAccount(account: string, callback?: any): Promise<Ownership[]>;
     fetchMetadata(tokenId: string, callback?: any): Promise<MetaData>;
     refreshBalance(tokenId: string, callback?: any): Promise<MetaData>;
-    fetchVaultsOfType(vaultType: string, address: string): Promise<any>;
+    /**
+     * Fetch vaults of a specific type for an address.
+     * @param vaultType - The vault type: "vaulted", "unvaulted", or "created"
+     * @param address - The wallet address to fetch vaults for
+     * @param options - Optional pagination options
+     * @param options.page - Page number (1-indexed). If provided, returns paginated response.
+     * @param options.limit - Number of results per page (default: 100)
+     * @returns Array of vaults (unpaginated) or { data, pagination } object (paginated)
+     */
+    fetchVaultsOfType(vaultType: string, address: string, options?: {
+        page?: number;
+        limit?: number;
+    }): Promise<any>;
+    /**
+     * Fetch all vaults of a specific type, automatically handling pagination.
+     * @param vaultType - The vault type: "vaulted", "unvaulted", or "created"
+     * @param address - The wallet address to fetch vaults for
+     * @param onProgress - Optional callback for progress updates (page, totalPages, total)
+     * @returns Array of all vaults
+     */
+    fetchAllVaultsOfType(vaultType: string, address: string, onProgress?: (page: number, totalPages: number, total: number) => void): Promise<any[]>;
     generateJumpReport(address: string, hideUnMintable?: boolean): Promise<unknown>;
     generateMintReport(address: string, hideUnMintable?: boolean): Promise<unknown>;
     generateMigrateReport(address: string, hideUnMintable?: boolean): Promise<unknown>;
