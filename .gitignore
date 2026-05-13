@@ -1,7 +1,6 @@
 .vercel
 app/node_modules
 node_modules
-package-lock.json
 .vscode
 .env
 build
