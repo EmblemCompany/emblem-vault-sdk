@@ -162,11 +162,26 @@ function requestRemoteMintSignature(ctx, tokenId, signature, chainId) {
                 : errorMsg.msg || errorMsg.message || JSON.stringify(errorMsg);
             throw new Error(message);
         }
-        // Some failure paths (e.g. underfunded vault, missing deposit) return a
-        // 200 with neither `error` nor `err` but also without the on-chain
-        // signature fields. Downstream `parseBigIntValue(undefined)` then throws
-        // a cryptic "Cannot convert undefined to a BigInt" with no context.
-        // Catch that here so callers get an actionable message.
+        // Some failure paths return a 200 with neither `error` nor `err`
+        // (so the guard above doesn't fire) but also without the on-chain
+        // signature fields. Downstream `parseBigIntValue(undefined)` then
+        // throws a cryptic "Cannot convert undefined to a BigInt" with no
+        // context. Catch that here.
+        //
+        // Known concrete shapes observed in the wild:
+        //   { success: false, signedByCreator: false } — case-mismatch on
+        //     the server's signer-vs-`metadata.to` check (the recovered
+        //     address is checksum, `metadata.to` is lowercase, server uses
+        //     `==`). Reproducible against `v2.emblemvault.io/mint-curated`
+        //     with a valid signature.
+        //   { err: true, ..., msg: 'Mint methods do not match' } — caught
+        //     by the `error || err` guard above.
+        //   underfunded / non-mintable vault — typically lands in the `err`
+        //     envelope; this branch covers the silent-fallthrough case only.
+        //
+        // We don't try to label the cause here — the server is the
+        // authority. Surface the response shape verbatim so the caller can
+        // diagnose without grepping through the SDK.
         const requiredFields = [
             '_nftAddress',
             '_price',
@@ -177,14 +192,15 @@ function requestRemoteMintSignature(ctx, tokenId, signature, chainId) {
             'serialNumber',
         ];
         const response = remoteMintResponse;
-        // Use == null to cover both undefined (key absent) and null (key emitted
-        // but value missing). Either form ends up as `BigInt(String(x))` ->
-        // "Cannot convert null/undefined to a BigInt" downstream.
+        // Use == null to cover both undefined (key absent) and null (key
+        // emitted but value missing). Either form ends up as
+        // `BigInt(String(x))` -> "Cannot convert null/undefined to a BigInt"
+        // downstream.
         const missing = requiredFields.filter((k) => response[k] == null);
         if (missing.length > 0) {
-            throw new Error(`mint-curated returned incomplete signature payload — missing: ${missing.join(', ')}. ` +
-                `Common cause: vault is not funded enough for the mint price. ` +
-                `Raw response: ${truncate(JSON.stringify(remoteMintResponse), 300)}`);
+            throw new Error(`mint-curated returned an incomplete signature payload. ` +
+                `Missing required fields: ${missing.join(', ')}. ` +
+                `Server response: ${truncate(JSON.stringify(remoteMintResponse), 300)}`);
         }
         return remoteMintResponse;
     });
