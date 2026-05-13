@@ -207,7 +207,10 @@ async function requestRemoteMintSignature(
         'serialNumber',
     ];
     const response = remoteMintResponse as Partial<RemoteMintSignature>;
-    const missing = requiredFields.filter((k) => response[k] === undefined);
+    // Use == null to cover both undefined (key absent) and null (key emitted
+    // but value missing). Either form ends up as `BigInt(String(x))` ->
+    // "Cannot convert null/undefined to a BigInt" downstream.
+    const missing = requiredFields.filter((k) => response[k] == null);
     if (missing.length > 0) {
         throw new Error(
             `mint-curated returned incomplete signature payload — missing: ${missing.join(', ')}. ` +
