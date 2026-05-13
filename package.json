@@ -24,11 +24,10 @@
     "@types/crypto-js": "4.2.2",
     "@types/jest": "29.5.14",
     "browserify": "17.0.1",
-    "esmify": "2.1.1",
     "jest": "29.7.0",
     "jest-environment-jsdom": "29.7.0",
     "jest-puppeteer": "9.0.2",
-    "puppeteer": "21.11.0",
+    "puppeteer": "24.42.0",
     "ts-jest": "29.4.9",
     "tsify": "5.0.4",
     "typescript": "5.9.3"
@@ -46,11 +45,8 @@
     "crypto-js": "4.2.0",
     "ethereumjs-util": "7.1.5",
     "ethers": "5.8.0",
-    "install": "0.13.0",
-    "npm": "10.9.8",
     "sats-connect": "1.4.1",
     "tiny-secp256k1": "2.2.4",
-    "uninstall": "0.0.0",
     "web3": "4.16.0"
   },
   "engines": {
