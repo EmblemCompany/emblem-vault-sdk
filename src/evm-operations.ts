@@ -192,7 +192,35 @@ async function requestRemoteMintSignature(
         throw new Error(message);
     }
 
+    // Some failure paths (e.g. underfunded vault, missing deposit) return a
+    // 200 with neither `error` nor `err` but also without the on-chain
+    // signature fields. Downstream `parseBigIntValue(undefined)` then throws
+    // a cryptic "Cannot convert undefined to a BigInt" with no context.
+    // Catch that here so callers get an actionable message.
+    const requiredFields: ReadonlyArray<keyof RemoteMintSignature> = [
+        '_nftAddress',
+        '_price',
+        '_to',
+        '_tokenId',
+        '_nonce',
+        '_signature',
+        'serialNumber',
+    ];
+    const response = remoteMintResponse as Partial<RemoteMintSignature>;
+    const missing = requiredFields.filter((k) => response[k] === undefined);
+    if (missing.length > 0) {
+        throw new Error(
+            `mint-curated returned incomplete signature payload — missing: ${missing.join(', ')}. ` +
+            `Common cause: vault is not funded enough for the mint price. ` +
+            `Raw response: ${truncate(JSON.stringify(remoteMintResponse), 300)}`,
+        );
+    }
+
     return remoteMintResponse as RemoteMintSignature;
+}
+
+function truncate(s: string, max: number): string {
+    return s.length > max ? `${s.slice(0, max)}…` : s;
 }
 
 async function submitMintTransaction(
