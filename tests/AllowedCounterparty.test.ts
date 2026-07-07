@@ -25,10 +25,18 @@ describe('Allowed Function for Counterparty', () => {
             expect(curatedContract.allowed(balanceValues, curatedContract)).toBeFalsy()
         })
 
-        it('Allows any native coin', async () => {
+        it('Allows the collection-chain native coin', async () => {
+            // Counterparty is a "protocol" collection: allowed() qualifies on the
+            // asset's coin matching collectionChain (xcp), case-insensitively —
+            // not on every entry in nativeAssets. (nativeAssets also lists BTC /
+            // Bitcoin, which are used elsewhere, e.g. address filtering.)
             const curatedContract: any = await sdk.fetchCuratedContractByName('Counterparty')
-            const balanceValues = JSON.parse(fs.readFileSync("tests/fixtures/counterparty/balance.json"))
-            for (var nativeAsset of curatedContract.nativeAssets) {
+            const nativeCoins = curatedContract.nativeAssets.filter(
+                (coin: string) => coin.toLowerCase() === curatedContract.collectionChain.toLowerCase()
+            )
+            expect(nativeCoins.length).toBeGreaterThan(0)
+            for (var nativeAsset of nativeCoins) {
+                const balanceValues = JSON.parse(fs.readFileSync("tests/fixtures/counterparty/balance.json"))
                 balanceValues[0].coin = nativeAsset
                 expect(curatedContract.allowed(balanceValues, curatedContract)).toBeTruthy()
             }
