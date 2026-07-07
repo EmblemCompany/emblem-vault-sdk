@@ -238,3 +238,35 @@ export interface FillCreateVaultTemplateArgs {
     },
     chainId: number,
 }
+
+// ============================================================================
+// Bulk Mint
+// ============================================================================
+
+export interface BulkMintRequest {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vaults: Array<any>;
+    contractAddress: string;
+    contractName: string;
+    chainId: number;
+    userSignature: string;
+    message: string;
+}
+
+export interface BulkMintResponse {
+    success: boolean;
+    signature: string;
+    hash: string;
+    data: {
+        payment: string;
+        price: string;
+        recipients: string[];
+        tokenIds: string[];
+        amounts: number[];
+        serialNumbers: string[];
+        nonce: string;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        value?: any;
+        chainId: number;
+    };
+}
