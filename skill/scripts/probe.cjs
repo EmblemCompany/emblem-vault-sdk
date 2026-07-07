@@ -140,6 +140,31 @@ const PROBES = {
       log('no funded vault found in the first', ok.length, 'minted vaults (raise the cap to check more).');
     }
   },
+
+  // Bulk mint (v2.11.0+): show the batch message + the sig-request shape, read-only.
+  // Pass comma-separated tokenIds; no signer, so it stops at the server sig-request.
+  async bulk(ids) {
+    if (typeof sdk.generateBulkMintMessage !== 'function') {
+      log('bulk mint not present — installed SDK is', require('emblem-vault-sdk/package.json').version, '(need >= 2.11.0)');
+      return;
+    }
+    const tokenIds = (ids || '').split(',').map(s => s.trim()).filter(Boolean);
+    if (!tokenIds.length) { log('usage: probe.cjs bulk <id1,id2,...>'); return; }
+    const message = sdk.generateBulkMintMessage(tokenIds);
+    log('input tokenIds:', tokenIds.join(', '));
+    log('generateBulkMintMessage() ->', JSON.stringify(message), '(note: ids are SORTED)');
+    log('requestBulkMintSignature validates a REAL wallet signature over that message;');
+    log('with a placeholder it should be rejected — demonstrating the auth gate:');
+    try {
+      const r = await sdk.requestBulkMintSignature({
+        vaults: tokenIds.map(tokenId => ({ tokenId })),
+        contractAddress: '0x0000000000000000000000000000000000000000',
+        contractName: 'probe', chainId: 1, userSignature: '0xPLACEHOLDER', message,
+      });
+      log('  result:', JSON.stringify(r).slice(0, 200));
+    } catch (e) { log('  rejected (expected):', e.message); }
+    log('next step (needs signer): performBulkMint(web3, contractAddress, bulkResponse) -> one buyWithSignedPriceBulk tx');
+  },
 };
 
 async function main() {

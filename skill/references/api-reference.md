@@ -57,6 +57,20 @@ Bundled source is `NFT_DATA`; the `getRemote*` variants fetch the live equivalen
 
 Manual mint primitives: `getQuote(web3, amount, cb?)` → `requestLocalMintSignature` / `requestRemoteMintSignature` → `performMint(web3, quote, remoteMintSig, cb?)`. Pricing helper: `getQuoteContractObject(web3)` then `quoteExternalPrice(account, usdPrice)`.
 
+### Bulk mint (v2.11.0+) — mint many vaults in one tx (web3-only)
+
+| Method | Signature | Returns |
+|---|---|---|
+| `generateBulkMintMessage` | `(tokenIds: string[])` | `string` — `"Curated Minting: <sorted,joined ids>"` (sorts the ids; sign exactly this) |
+| `requestBulkMintSignature` | `(request: BulkMintRequest, callback?)` | `Promise<BulkMintResponse>` |
+| `performBulkMint` | `(web3, nftAddress, bulkMintResponse, callback?)` | `Promise<any>` — one on-chain `buyWithSignedPriceBulk` tx |
+| `isV2Contract` | `(metadata, chainId)` | `boolean` — collection is a V2 contract on that chain |
+
+`BulkMintRequest = { vaults: any[], contractAddress, contractName, chainId, userSignature, message }`
+`BulkMintResponse = { success, signature, hash, data: { payment, price, recipients, tokenIds, amounts, serialNumbers, nonce, value?, chainId } }`
+
+No bulk-*create* method — create vaults in a loop (`createCuratedVault`); only minting is batched. No `*WithClient` variant yet — bulk mint is injected-web3 only.
+
 `MintResult = { txHash, tokenId, chainId }`
 
 ## Stage 4 — Claim (unvault)

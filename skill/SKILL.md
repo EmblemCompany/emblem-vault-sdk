@@ -210,6 +210,45 @@ const depositAddr = vaultData.addresses.find(a => a.coin === 'TAP').address;
 
    *Deprecated:* the injected-web3 path `sdk.performMintChain(web3, vaultData.tokenId, collection.name, callback)` (and the granular `getQuote`/`requestRemoteMintSignature`/`performMint` primitives in `references/api-reference.md`) still work but require you to construct and wire an external web3 library. Prefer the client path.
 
+### Bulk minting (many vaults, one transaction)
+
+*(Added in SDK v2.11.0.)* When you've created a batch of vaults in the same collection (e.g. via the loop below) and want to mint them all at once, use the bulk path — it mints the whole set in a **single on-chain transaction** (`buyWithSignedPriceBulk`) instead of one tx per vault. This is what `Emblem-Collab/bulk-vault` does.
+
+There is **no bulk-*create* method** — you create vaults one at a time (`createCuratedVault` in a loop); only *minting* is batched:
+
+```javascript
+// 1) create the batch (loop — this IS "bulk create")
+const tokenIds = [];
+for (const asset of chosenAssets) {                 // e.g. picked from a select allow-list
+  const t = collection.generateCreateTemplate(collection);
+  t.chainId = 1; t.fromAddress = owner; t.toAddress = owner;
+  t.targetAsset.name = asset.assetName; t.targetAsset.image = asset.image;
+  const v = await sdk.createCuratedVault(t);
+  tokenIds.push(String(v.tokenId));
+}
+// (fund each deposit address + poll metadata.values as in Stage 3, before minting)
+
+// 2) build the batch message and have the user sign it once
+const message   = sdk.generateBulkMintMessage(tokenIds);   // "Curated Minting: <sorted,comma,joined,ids>"
+const signature = await userSigner.signMessage(message);   // one wallet signature for the whole batch
+
+// 3) get the bulk mint signature from the server, then mint on-chain
+const contractAddress = collection.contracts['1'];         // the curated collection's contract
+const bulk = await sdk.requestBulkMintSignature({
+  vaults: tokenIds.map(tokenId => ({ tokenId })),
+  contractAddress, contractName: collection.name, chainId: 1,
+  userSignature: signature, message,
+});
+await sdk.performBulkMint(web3, contractAddress, bulk, callback);   // one tx: buyWithSignedPriceBulk
+```
+
+Notes, verified by probing the live SDK (v2.11.0):
+- `generateBulkMintMessage` **sorts** the tokenIds before joining — so the message is order-independent; sign exactly what it returns.
+- `requestBulkMintSignature` returns `{ success, signature, hash, data: { payment, price, recipients, tokenIds, amounts, serialNumbers, nonce, chainId } }` — you hand the whole object to `performBulkMint`.
+- The server **validates the user's real signature** over `message`; a bogus signature is rejected (`"Failed to get bulk mint signature"`). So step 2's real wallet signature is the auth gate — the apiKey plays no part.
+- In `performBulkMint`, payment `0x000…000` (native) means the price is sent as `msg.value`; an ERC-20 payment token means `value: 0` (paid via allowance).
+- **Bulk mint is web3-only** — there is no `*WithClient` variant yet. It uses the injected-`web3` path (like the single-mint primitives). If you're on the client/remote-signer path elsewhere, bulk mint still needs a web3 instance; watch for a client variant in a future SDK version.
+
 ## Stage 4 — Claim (unvault): a *two-step* ceremony
 
 This is the most misunderstood part of the lifecycle, so understand the shape before the call. **Ending a vault's life is two distinct operations**, and whether the first one runs depends on the vault's state.
@@ -328,7 +367,7 @@ In your snippet: `sdk` (the instance), `EmblemVaultSDK` (the class), and `requir
 
 ### `scripts/probe.cjs` — canned examples built on the same idea
 
-A small menu of ready-made read-only checks, handy when you want a labeled answer without writing a snippet: `loadtypes`, `select`, `surface`, `metadata <tokenId>`, `balance <tokenId>`, `holdings <address>`, `funded <address> [max]`. Each prints live output next to the claim it validates.
+A small menu of ready-made read-only checks, handy when you want a labeled answer without writing a snippet: `loadtypes`, `select`, `surface`, `metadata <tokenId>`, `balance <tokenId>`, `holdings <address>`, `funded <address> [max]`, `bulk <id1,id2,...>` (bulk-mint message + sig-request shape). Each prints live output next to the claim it validates.
 
 ```bash
 NODE_PATH="$(npm root -g)" node scripts/probe.cjs holdings 0xYourAddress
