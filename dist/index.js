@@ -48,7 +48,7 @@ const derive_1 = require("./derive");
 const constants_1 = require("./constants");
 const vault_utils_1 = require("./vault-utils");
 const evm_operations_1 = require("./evm-operations");
-const SDK_VERSION = '2.9.2';
+const SDK_VERSION = '2.11.0';
 class EmblemVaultSDK {
     constructor(apiKey, baseUrl, v3Url, sigUrl) {
         this.apiKey = apiKey;
@@ -453,6 +453,97 @@ class EmblemVaultSDK {
                 callback(`remote Mint signature`, remoteMintResponse);
             }
             return remoteMintResponse;
+        });
+    }
+    // ** Bulk Mint **
+    //
+    // Builds the deterministic message a user signs to authorize a bulk curated
+    // mint. Must match the message the bulk signer verifies against, so tokenIds
+    // are sorted to be order-independent.
+    generateBulkMintMessage(tokenIds) {
+        const sortedTokenIds = [...tokenIds].sort();
+        return `Curated Minting: ${sortedTokenIds.join(',')}`;
+    }
+    // Returns true when the collection metadata indicates a V2 contract for the
+    // given chain (its type ends with "V2").
+    isV2Contract(metadata, chainId) {
+        var _a, _b;
+        return ((_b = (_a = metadata === null || metadata === void 0 ? void 0 : metadata[chainId]) === null || _a === void 0 ? void 0 : _a.type) === null || _b === void 0 ? void 0 : _b.endsWith('V2')) || false;
+    }
+    // Requests a bulk mint signature from the curated bulk signer. The caller
+    // supplies the user's signature over `generateBulkMintMessage(tokenIds)`; the
+    // signer returns the on-chain args (price, recipients, tokenIds, nonce,
+    // serialNumbers, signature) for `performBulkMint`.
+    requestBulkMintSignature(request_1) {
+        return __awaiter(this, arguments, void 0, function* (request, callback = null) {
+            if (callback) {
+                callback('requesting Bulk Mint signature');
+            }
+            let url = `${this.baseUrl}/mint-curated-bulk`;
+            let bulkMintResponse = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', request, { "Content-Type": "application/json" });
+            if (bulkMintResponse === null || bulkMintResponse === void 0 ? void 0 : bulkMintResponse.error) {
+                throw new Error(bulkMintResponse.error);
+            }
+            if (bulkMintResponse && bulkMintResponse.success === false) {
+                throw new Error('Failed to get bulk mint signature');
+            }
+            if (callback) {
+                callback(`bulk Mint signature`, bulkMintResponse);
+            }
+            return bulkMintResponse;
+        });
+    }
+    // Executes the on-chain bulk mint using the signer response from
+    // `requestBulkMintSignature`. Mirrors `performMint` (web3.js) but calls
+    // `buyWithSignedPriceBulk` on the handler with array args. `nftAddress` is
+    // the curated collection's contract address (the same value passed as
+    // `contractAddress` to `requestBulkMintSignature`).
+    performBulkMint(web3_1, nftAddress_1, bulkMintResponse_1) {
+        return __awaiter(this, arguments, void 0, function* (web3, nftAddress, bulkMintResponse, callback = null) {
+            if (callback) {
+                callback('performing Bulk Mint');
+            }
+            const accounts = yield web3.eth.getAccounts();
+            let handlerContract = yield (0, utils_1.getHandlerContract)(web3);
+            const { payment, price, recipients, tokenIds, nonce, serialNumbers, amounts } = bulkMintResponse.data;
+            // Native payment (zero address) => the price is sent as msg.value; an
+            // ERC20 payment token means value is 0 (paid via allowance).
+            const isNativePayment = payment === '0x0000000000000000000000000000000000000000';
+            const value = isNativePayment ? price : 0;
+            const gasPrice = yield web3.eth.getGasPrice();
+            // Args match the buyWithSignedPriceBulk ABI order.
+            let createdTxObject = handlerContract.methods.buyWithSignedPriceBulk(nftAddress, // _nftAddress
+            payment, // _payment
+            price, // _price
+            recipients, // to[]
+            tokenIds, // tokenIds[]
+            nonce, // _nonce
+            bulkMintResponse.signature, // _signature
+            serialNumbers, // serialNumbers[]
+            (amounts && amounts[0]) || 1 // _amount
+            );
+            const gasLimit = yield createdTxObject.estimateGas({ from: accounts[0], value });
+            let mintResponse = yield createdTxObject.send({
+                from: accounts[0],
+                value,
+                gasPrice,
+                gas: gasLimit
+            }).on('transactionHash', (hash) => {
+                if (callback)
+                    callback(`Transaction submitted. Hash`, hash);
+            })
+                .on('confirmation', (confirmationNumber, receipt) => {
+                if (callback)
+                    callback(`Bulk Mint Complete. Confirmation Number`, confirmationNumber);
+            })
+                .on('error', (error) => {
+                if (callback)
+                    callback(`Transaction Error`, error.message);
+            });
+            if (callback) {
+                callback('Bulk Mint Complete');
+            }
+            return mintResponse;
         });
     }
     requestRemoteClaimToken(web3_1, tokenId_1, signature_1) {

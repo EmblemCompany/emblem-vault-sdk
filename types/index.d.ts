@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import type { Collection, CuratedCollectionsResponse, MetaData, Ownership, Vault, ProgressCallback, MintResult, ClaimResult, EmblemVaultClient } from './types';
+import type { Collection, CuratedCollectionsResponse, MetaData, Ownership, Vault, ProgressCallback, MintResult, ClaimResult, EmblemVaultClient, BulkMintRequest, BulkMintResponse } from './types';
 declare class EmblemVaultSDK {
     private apiKey;
     private baseUrl;
@@ -52,6 +52,10 @@ declare class EmblemVaultSDK {
     requestLocalMintSignature(web3: any, tokenId: string, callback?: any): Promise<any>;
     requestLocalClaimSignature(web3: any, tokenId: string, serialNumber: any, callback?: any): Promise<any>;
     requestRemoteMintSignature(web3: any, tokenId: string, signature: string, callback?: any): Promise<any>;
+    generateBulkMintMessage(tokenIds: string[]): string;
+    isV2Contract(metadata: any, chainId: number): boolean;
+    requestBulkMintSignature(request: BulkMintRequest, callback?: any): Promise<BulkMintResponse>;
+    performBulkMint(web3: any, nftAddress: string, bulkMintResponse: BulkMintResponse, callback?: any): Promise<any>;
     requestRemoteClaimToken(web3: any, tokenId: string, signature: string, callback?: any): Promise<any>;
     requestRemoteKey(tokenId: string, jwt: any, callback?: any): Promise<{
         privateKey: any;

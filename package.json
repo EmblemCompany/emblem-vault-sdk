@@ -1,8 +1,13 @@
 {
   "name": "emblem-vault-sdk",
-  "version": "2.10.0",
+  "version": "2.11.0",
   "description": "Emblem Vault Software Development Kit",
   "main": "dist/index.js",
+  "files": [
+    "dist",
+    "types",
+    "src"
+  ],
   "scripts": {
     "bump:major": "node ./script/bump.js major",
     "bump:minor": "node ./script/bump.js minor",

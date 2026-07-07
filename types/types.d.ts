@@ -220,3 +220,27 @@ export interface FillCreateVaultTemplateArgs {
     };
     chainId: number;
 }
+export interface BulkMintRequest {
+    vaults: Array<any>;
+    contractAddress: string;
+    contractName: string;
+    chainId: number;
+    userSignature: string;
+    message: string;
+}
+export interface BulkMintResponse {
+    success: boolean;
+    signature: string;
+    hash: string;
+    data: {
+        payment: string;
+        price: string;
+        recipients: string[];
+        tokenIds: string[];
+        amounts: number[];
+        serialNumbers: string[];
+        nonce: string;
+        value?: any;
+        chainId: number;
+    };
+}
