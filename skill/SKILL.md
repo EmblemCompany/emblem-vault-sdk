@@ -253,7 +253,9 @@ Notes, verified by probing the live SDK (v2.11.0):
 
 This is the most misunderstood part of the lifecycle, so understand the shape before the call. **Ending a vault's life is two distinct operations**, and whether the first one runs depends on the vault's state.
 
-**Step 1 — On-chain claim/unvault (may cost gas).** While the vault is `live`, the NFT is transferable, so the keys can't be revealed yet — that would let someone sell a vault whose keys are already exposed. So first the NFT must be spent on-chain: this burns/unlocks it and flips `metadata.status` to `claimed`. This step is skipped entirely if the vault is already claimed (or was never minted).
+**Step 1 — On-chain claim/unvault (costs a fee + gas).** While the vault is `live`, the NFT is transferable, so the keys can't be revealed yet — that would let someone sell a vault whose keys are already exposed. So first the NFT must be spent on-chain: this burns/unlocks it and flips `metadata.status` to `claimed`. This step is skipped entirely if the vault is already claimed (or was never minted).
+
+> **The on-chain claim is now priced and witness-signed.** The old free `claim(address,uint256)` was retired; the handler exposes **`claimWithSignedPrice(nftAddress, tokenId, payment, price, nonce, signature)`** (payable). The claim `price` comes from the same **supply-tier engine as minting** (see the pricing model): a card's edition supply picks a tier (e.g. 1–10 → $100, >10,000 → $5), collection/subscription modifiers can adjust it, and it's converted USD→ETH. So **claiming a `live` vault charges that fee in ETH** (`msg.value`), not just gas. The SDK handles it: it signs `"Claim: <tokenId>"`, calls the server's `/claim-curated` to get the witness-signed `price`/`nonce`/`signature` + the correct on-chain tokenId (the contract derives serial/internal ids per ERC1155/721/721a), then submits `claimWithSignedPrice` with the price as value. A price of 0 (server-signed) means a free claim.
 
 **Step 2 — Off-chain key reveal (no gas, repeatable).** Only after the vault is claimed does the SDK decrypt `ciphertextV2` and hand back the seed phrase / private keys. This is a pure off-chain decryption — no transaction. Because it doesn't change chain state, an owner of an already-claimed vault can perform *just this step* again to re-reveal the keys.
 
@@ -265,11 +267,13 @@ const claim = await sdk.performClaimChainWithClient(client, tokenId, chainId, ca
 ```
 
 What this means for you as an integrator:
-- **Claiming a `live` vault costs gas** (Step 1 is a real transaction — the signer's `sendTransaction` fires). **Claiming an already-`claimed` vault is free** (Step 2 only). Branch your UX/messaging on `metadata.status` so the user isn't surprised by a wallet prompt — or its absence.
-- The user will be asked to **sign** in both steps (an authorization message; in Step 1 that signature is also what authorizes the on-chain spend). Use the `callback` to narrate ("signing…", "submitting on-chain unvault…", "decrypting keys…") so the two-phase nature is visible.
+- **Claiming a `live` vault costs a fee (in ETH) + gas** (Step 1 is a real, payable transaction). The fee is the supply-tier price for that asset — quote it up front so the user isn't surprised (the server returns `priceUSD`/`_price`). **Claiming an already-`claimed` vault is free** (Step 2 only). Branch your UX/messaging on `metadata.status`.
+- The user will be asked to **sign** in both steps (an authorization message; in Step 1 that `"Claim: <tokenId>"` signature is what the server verifies to witness-sign the priced claim). Use the `callback` to narrate ("signing…", "fetching claim price…", "submitting on-chain claim…", "decrypting keys…").
 - **Re-revealing keys** on a vault that's already claimed is expected and gas-free — don't force a fresh burn.
 
-*Deprecated variant:* `sdk.performClaimChain(web3, tokenId, serialNumber, callback)` (injected-web3, EVM-only) skips Step 1 and does **only** the off-chain reveal — it assumes an already-claimed / non-`live` vault. Prefer the client path, which handles both steps and the state gate for you.
+**Batch claim (burn many vaults in one tx).** For claiming several vaults at once, the SDK offers `performBatchBurn(web3, tokenIds[])` (web3 path): the user signs one message `"Claim: <sorted tokenIds joined by ','>"`, the server (`/claim-curated-bulk`) returns one witness signature + one nonce + the **summed** supply-tier price for the whole batch, and the SDK submits **`batchClaimWithSignedPrice(nftAddresses[], tokenIds[], payment, price, nonce, signature)`** with the total as `msg.value`. Ownership is checked per vault server-side. This only performs Step 1 (the on-chain burns) for the batch; reveal each vault's keys with the normal Step 2 afterward.
+
+*Deprecated variant:* `sdk.performClaimChain(web3, tokenId, serialNumber, callback)` (injected-web3, EVM-only) skips Step 1 and does **only** the off-chain reveal — it assumes an already-claimed / non-`live` vault. Prefer the client path, which handles both steps and the state gate for you. The lower-level web3 `performBurn(web3, tokenId)` now runs the priced `claimWithSignedPrice` flow described above.
 
 After claiming a BTC-family vault you can sweep the recovered funds with `sweepVaultUsingPhrase(phrase, satsPerByte?, broadcast?)`.
 

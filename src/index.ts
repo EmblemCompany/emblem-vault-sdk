@@ -621,7 +621,70 @@ class EmblemVaultSDK {
         if (callback) { callback('Burn Complete')}
         return burnResponse;
     }
-    
+
+    // Wallet signature authorizing a batch claim. Must match the server's expected
+    // message: "Claim: <sorted tokenIds joined by ','>" (order-independent).
+    async requestLocalBatchClaimSignature(web3: any, tokenIds: string[], callback: any = null) {
+        if (callback) { callback('requesting User Batch Claim Signature') }
+        const sorted = [...tokenIds.map(String)].sort().join(',');
+        const message = `Claim: ${sorted}`;
+        const accounts = await web3.eth.getAccounts();
+        const signature = await web3.eth.personal.sign(message, accounts[0], '');
+        return signature;
+    }
+
+    // Fetch the batch witness signature + summed supply-tier price for several vaults.
+    async requestRemoteBatchClaimSignature(web3: any, tokenIds: string[], signature: string, callback: any = null) {
+        if (callback) { callback('requesting Remote Batch Claim signature') }
+        const chainId = await web3.eth.getChainId();
+        let url = `${this.baseUrl}/claim-curated-bulk`;
+        let remote = await fetchData(url, this.apiKey, 'POST', { tokenIds, signature, chainId: chainId.toString() });
+        if (remote.error || remote.err || remote.success === false) {
+            throw new Error(remote.error || remote.msg || 'Failed to get batch claim signature');
+        }
+        return remote;
+    }
+
+    // Burn several vaults in one tx via batchClaimWithSignedPrice. One wallet
+    // signature + one witness signature + summed supply-tier price for the batch.
+    async performBatchBurn(web3: any, tokenIds: string[], callback: any = null) {
+        if (callback) { callback('performing Batch Burn') }
+        const accounts = await web3.eth.getAccounts();
+        let handlerContract = await getHandlerContract(web3);
+
+        const claimSig = await this.requestLocalBatchClaimSignature(web3, tokenIds, callback);
+        const remote = await this.requestRemoteBatchClaimSignature(web3, tokenIds, claimSig, callback);
+
+        const price = remote._price;
+        const isEth = remote._payment === '0x0000000000000000000000000000000000000000';
+        const value = isEth ? price : '0';
+
+        const gasPrice = await web3.eth.getGasPrice();
+        let createdTxObject = handlerContract.methods.batchClaimWithSignedPrice(
+            remote._nftAddresses,
+            remote._tokenIds,
+            remote._payment,
+            price,
+            remote._nonce,
+            remote._signature
+        );
+        const gas = await createdTxObject.estimateGas({ from: accounts[0], value });
+
+        let burnResponse = await createdTxObject.send({ from: accounts[0], value, gasPrice, gas })
+        .on('transactionHash', (hash: any) => {
+            if (callback) callback(`Transaction submitted. Hash`, hash);
+        })
+        .on('confirmation', (confirmationNumber: any, receipt: any) => {
+            if (callback) callback(`Batch Burn Complete. Confirmation Number`, confirmationNumber);
+        })
+        .on('error', (error: { message: any; }) => {
+            if (callback) callback(`Transaction Error`, error.message);
+        });
+
+        if (callback) { callback('Batch Burn Complete') }
+        return burnResponse;
+    }
+
 
     async contentTypeReport(url: string) {
         return await checkContentType(url)

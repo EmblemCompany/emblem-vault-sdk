@@ -52,6 +52,7 @@ declare class EmblemVaultSDK {
     requestLocalMintSignature(web3: any, tokenId: string, callback?: any): Promise<any>;
     requestLocalClaimSignature(web3: any, tokenId: string, serialNumber: any, callback?: any): Promise<any>;
     requestRemoteMintSignature(web3: any, tokenId: string, signature: string, callback?: any): Promise<any>;
+    requestRemoteClaimSignature(web3: any, tokenId: string, signature: string, callback?: any): Promise<any>;
     generateBulkMintMessage(tokenIds: string[]): string;
     isV2Contract(metadata: any, chainId: number): boolean;
     requestBulkMintSignature(request: BulkMintRequest, callback?: any): Promise<BulkMintResponse>;
@@ -64,6 +65,9 @@ declare class EmblemVaultSDK {
     getQuote(web3: any, amount: number, callback?: any): Promise<BigNumber>;
     performMint(web3: any, quote: any, remoteMintSig: any, callback?: any): Promise<any>;
     performBurn(web3: any, tokenId: any, callback?: any): Promise<any>;
+    requestLocalBatchClaimSignature(web3: any, tokenIds: string[], callback?: any): Promise<any>;
+    requestRemoteBatchClaimSignature(web3: any, tokenIds: string[], signature: string, callback?: any): Promise<any>;
+    performBatchBurn(web3: any, tokenIds: string[], callback?: any): Promise<any>;
     contentTypeReport(url: string): Promise<unknown>;
     legacyBalanceFromContractByAddress(web3: any, address: string): Promise<number[]>;
     refreshLegacyOwnership(web3: any, address: string): Promise<void>;
