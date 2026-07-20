@@ -45,6 +45,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.performMintEvm = performMintEvm;
 exports.performClaimEvm = performClaimEvm;
 exports.deleteVaultEvm = deleteVaultEvm;
+exports.performBatchClaimEvm = performBatchClaimEvm;
 const constants_1 = require("./constants");
 const signing_messages_1 = require("./signing-messages");
 const vault_utils_1 = require("./vault-utils");
@@ -261,6 +262,65 @@ function requestRemoteClaimSignature(ctx, tokenId, signature, chainId) {
             throw new Error((remote === null || remote === void 0 ? void 0 : remote.msg) || (remote === null || remote === void 0 ? void 0 : remote.error) || 'Failed to get claim signature');
         }
         return remote;
+    });
+}
+// Batch witness signature + summed supply-tier price for several vaults.
+function requestRemoteBatchClaimSignature(ctx, tokenIds, signature, chainId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const response = yield fetch(`${ctx.baseUrl}/claim-curated-bulk`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tokenIds, signature, chainId: chainId.toString() }),
+        });
+        const remote = yield response.json();
+        if (!(remote === null || remote === void 0 ? void 0 : remote.success)) {
+            throw new Error((remote === null || remote === void 0 ? void 0 : remote.msg) || (remote === null || remote === void 0 ? void 0 : remote.error) || 'Failed to get batch claim signature');
+        }
+        return remote;
+    });
+}
+// Client path: burn several vaults in one tx via batchClaimWithSignedPrice. Only
+// performs the on-chain claim (Step 1) for the batch; reveal each vault's keys
+// with performClaimChainWithClient afterward (which will skip Step 1 as claimed).
+function performBatchClaimEvm(ctx, client, tokenIds, chainId, callback) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var _a;
+        callback === null || callback === void 0 ? void 0 : callback('Initializing EVM signer...');
+        const { ethers } = yield Promise.resolve().then(() => __importStar(require('ethers')));
+        const provider = new ethers.providers.JsonRpcProvider(getEvmRpcUrl(chainId));
+        const wallet = yield client.toEthersWallet(provider);
+        (_a = wallet.setChainId) === null || _a === void 0 ? void 0 : _a.call(wallet, chainId);
+        // One wallet signature over the sorted, comma-joined ids (order-independent).
+        const sorted = [...tokenIds.map(String)].sort().join(',');
+        callback === null || callback === void 0 ? void 0 : callback('Signing batch claim authorization...');
+        const signature = yield wallet.signMessage(`Claim: ${sorted}`);
+        callback === null || callback === void 0 ? void 0 : callback('Requesting batch claim price...');
+        const remote = yield requestRemoteBatchClaimSignature(ctx, tokenIds, signature, chainId);
+        const HANDLER_BATCH_ABI = [
+            'function batchClaimWithSignedPrice(address[] nftAddresses, uint256[] tokenIds, address _payment, uint256 _price, uint256 _nonce, bytes _signature) external payable'
+        ];
+        const handlerAddress = (0, vault_utils_1.getHandlerContractAddress)(chainId);
+        const iface = new ethers.utils.Interface(HANDLER_BATCH_ABI);
+        const price = ethers.BigNumber.from(remote._price);
+        const isEth = remote._payment === constants_1.ZERO_ADDRESS;
+        const data = iface.encodeFunctionData('batchClaimWithSignedPrice', [
+            remote._nftAddresses,
+            remote._tokenIds.map((t) => ethers.BigNumber.from(t)),
+            remote._payment,
+            price,
+            ethers.BigNumber.from(remote._nonce),
+            remote._signature,
+        ]);
+        callback === null || callback === void 0 ? void 0 : callback('Submitting batch claim transaction...');
+        const tx = yield wallet.sendTransaction({
+            to: handlerAddress,
+            data,
+            value: isEth ? price : ethers.constants.Zero,
+        });
+        callback === null || callback === void 0 ? void 0 : callback('Waiting for batch claim confirmation...', { txHash: tx.hash });
+        yield tx.wait();
+        callback === null || callback === void 0 ? void 0 : callback('On-chain batch claim complete!');
+        return { txHash: tx.hash };
     });
 }
 function requestRemoteUnvaultSignature(ctx, tokenId, signature, chainId) {

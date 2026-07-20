@@ -853,6 +853,14 @@ class EmblemVaultSDK {
             return (0, evm_operations_1.performClaimEvm)(this.getSdkContext(), client, tokenId, chainId, metadata, claimIdentifier, vaultIsV2, needsOnChainUnvault, callback);
         });
     }
+    // Client-path batch claim: burn several vaults in one tx (Step 1 only). Reveal
+    // each vault's keys afterward with performClaimChainWithClient (skips Step 1).
+    performBatchBurnWithClient(client_1, tokenIds_1) {
+        return __awaiter(this, arguments, void 0, function* (client, tokenIds, chainId = constants_1.ETHEREUM_MAINNET_CHAIN_ID, callback) {
+            (0, vault_utils_1.getChainConfig)(chainId);
+            return (0, evm_operations_1.performBatchClaimEvm)(this.getSdkContext(), client, tokenIds, chainId, callback);
+        });
+    }
     deleteVaultWithClient(client_1, tokenId_1) {
         return __awaiter(this, arguments, void 0, function* (client, tokenId, chainId = constants_1.ETHEREUM_MAINNET_CHAIN_ID, callback) {
             (0, utils_1.genericGuard)(tokenId, "string", "tokenId");

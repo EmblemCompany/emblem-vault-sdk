@@ -24,7 +24,7 @@ import {
     requiresOnChainUnvault,
     getClaimIdentifier,
 } from './vault-utils';
-import { performMintEvm, performClaimEvm, deleteVaultEvm } from './evm-operations';
+import { performMintEvm, performClaimEvm, performBatchClaimEvm, deleteVaultEvm } from './evm-operations';
 
 const SDK_VERSION = '__SDK_VERSION__'; 
 
@@ -783,6 +783,18 @@ class EmblemVaultSDK {
         const needsOnChainUnvault = requiresOnChainUnvault(metadata) && vaultIsV2;
 
         return performClaimEvm(this.getSdkContext(), client, tokenId, chainId as number, metadata, claimIdentifier, vaultIsV2, needsOnChainUnvault, callback);
+    }
+
+    // Client-path batch claim: burn several vaults in one tx (Step 1 only). Reveal
+    // each vault's keys afterward with performClaimChainWithClient (skips Step 1).
+    async performBatchBurnWithClient(
+        client: EmblemVaultClient,
+        tokenIds: string[],
+        chainId: number | 'solana' = ETHEREUM_MAINNET_CHAIN_ID,
+        callback?: ProgressCallback
+    ): Promise<{ txHash: string }> {
+        getChainConfig(chainId);
+        return performBatchClaimEvm(this.getSdkContext(), client, tokenIds, chainId as number, callback);
     }
 
     async deleteVaultWithClient(

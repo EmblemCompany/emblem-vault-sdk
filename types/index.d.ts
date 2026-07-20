@@ -76,6 +76,9 @@ declare class EmblemVaultSDK {
     private getSdkContext;
     performMintChainWithClient(client: EmblemVaultClient, tokenId: string, chainId?: number | 'solana', callback?: ProgressCallback): Promise<MintResult>;
     performClaimChainWithClient(client: EmblemVaultClient, tokenId: string, chainId?: number | 'solana', callback?: ProgressCallback): Promise<ClaimResult>;
+    performBatchBurnWithClient(client: EmblemVaultClient, tokenIds: string[], chainId?: number | 'solana', callback?: ProgressCallback): Promise<{
+        txHash: string;
+    }>;
     deleteVaultWithClient(client: EmblemVaultClient, tokenId: string, chainId?: number | 'solana', callback?: ProgressCallback): Promise<boolean>;
     sweepVaultUsingPhrase(phrase: string, satsPerByte?: number, broadcast?: boolean): Promise<unknown>;
 }

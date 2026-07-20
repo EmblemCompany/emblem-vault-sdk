@@ -331,6 +331,80 @@ async function requestRemoteClaimSignature(
     return remote;
 }
 
+// Batch witness signature + summed supply-tier price for several vaults.
+async function requestRemoteBatchClaimSignature(
+    ctx: SdkContext,
+    tokenIds: string[],
+    signature: string,
+    chainId: number
+): Promise<any> {
+    const response = await fetch(`${ctx.baseUrl}/claim-curated-bulk`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tokenIds, signature, chainId: chainId.toString() }),
+    });
+    const remote = await response.json();
+    if (!remote?.success) {
+        throw new Error(remote?.msg || remote?.error || 'Failed to get batch claim signature');
+    }
+    return remote;
+}
+
+// Client path: burn several vaults in one tx via batchClaimWithSignedPrice. Only
+// performs the on-chain claim (Step 1) for the batch; reveal each vault's keys
+// with performClaimChainWithClient afterward (which will skip Step 1 as claimed).
+export async function performBatchClaimEvm(
+    ctx: SdkContext,
+    client: EmblemVaultClient,
+    tokenIds: string[],
+    chainId: number,
+    callback?: ProgressCallback
+): Promise<{ txHash: string }> {
+    callback?.('Initializing EVM signer...');
+    const { ethers } = await import('ethers');
+    const provider = new ethers.providers.JsonRpcProvider(getEvmRpcUrl(chainId));
+    const wallet = await client.toEthersWallet(provider);
+    wallet.setChainId?.(chainId);
+
+    // One wallet signature over the sorted, comma-joined ids (order-independent).
+    const sorted = [...tokenIds.map(String)].sort().join(',');
+    callback?.('Signing batch claim authorization...');
+    const signature = await wallet.signMessage(`Claim: ${sorted}`);
+
+    callback?.('Requesting batch claim price...');
+    const remote = await requestRemoteBatchClaimSignature(ctx, tokenIds, signature, chainId);
+
+    const HANDLER_BATCH_ABI = [
+        'function batchClaimWithSignedPrice(address[] nftAddresses, uint256[] tokenIds, address _payment, uint256 _price, uint256 _nonce, bytes _signature) external payable'
+    ];
+    const handlerAddress = getHandlerContractAddress(chainId);
+    const iface = new ethers.utils.Interface(HANDLER_BATCH_ABI);
+
+    const price = ethers.BigNumber.from(remote._price);
+    const isEth = remote._payment === ZERO_ADDRESS;
+
+    const data = iface.encodeFunctionData('batchClaimWithSignedPrice', [
+        remote._nftAddresses,
+        remote._tokenIds.map((t: string) => ethers.BigNumber.from(t)),
+        remote._payment,
+        price,
+        ethers.BigNumber.from(remote._nonce),
+        remote._signature,
+    ]);
+
+    callback?.('Submitting batch claim transaction...');
+    const tx = await wallet.sendTransaction({
+        to: handlerAddress,
+        data,
+        value: isEth ? price : ethers.constants.Zero,
+    });
+
+    callback?.('Waiting for batch claim confirmation...', { txHash: tx.hash });
+    await tx.wait();
+    callback?.('On-chain batch claim complete!');
+    return { txHash: tx.hash };
+}
+
 async function requestRemoteUnvaultSignature(
     ctx: SdkContext,
     tokenId: string,
