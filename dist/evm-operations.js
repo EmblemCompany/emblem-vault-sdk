@@ -97,7 +97,7 @@ function performClaimEvm(ctx, client, tokenId, chainId, metadata, claimIdentifie
                 const targetContractAddress = ((_b = metadata.targetContract) === null || _b === void 0 ? void 0 : _b[chainId]) || metadata.collectionAddress;
                 if (targetContractAddress) {
                     callback === null || callback === void 0 ? void 0 : callback('Performing on-chain claim...');
-                    yield performLegacyClaim(wallet, targetContractAddress, claimIdentifier, chainId, callback);
+                    yield performLegacyClaim(ctx, wallet, targetContractAddress, claimIdentifier, chainId, callback);
                 }
             }
         }
@@ -211,27 +211,56 @@ function performOnChainUnvault(ctx, wallet, tokenId, claimIdentifier, nftAddress
  * Perform legacy claim by calling the handler contract's claim function
  * This is for non-V2 vaults that don't use signed price unvaulting
  */
-function performLegacyClaim(wallet, targetContractAddress, tokenId, chainId, callback) {
+function performLegacyClaim(ctx, wallet, targetContractAddress, tokenId, chainId, callback) {
     return __awaiter(this, void 0, void 0, function* () {
         const { ethers } = yield Promise.resolve().then(() => __importStar(require('ethers')));
-        // Handler contract ABI for claim function
+        // The handler's free claim(address,uint256) was retired; claiming requires a
+        // witness-signed price via claimWithSignedPrice. Sign "Claim: <tokenId>", get
+        // the server-signed price for this asset (supply tier), then call the contract
+        // with the server-derived on-chain tokenId + payment.
+        callback === null || callback === void 0 ? void 0 : callback('Signing claim authorization...');
+        const claimSig = yield wallet.signMessage(`Claim: ${tokenId}`);
+        callback === null || callback === void 0 ? void 0 : callback('Requesting claim price...');
+        const remote = yield requestRemoteClaimSignature(ctx, tokenId, claimSig, chainId);
         const HANDLER_CLAIM_ABI = [
-            'function claim(address _nftAddress, uint256 _tokenId) external'
+            'function claimWithSignedPrice(address _nftAddress, uint256 tokenId, address _payment, uint256 _price, uint256 _nonce, bytes _signature) external payable'
         ];
         const handlerAddress = (0, vault_utils_1.getHandlerContractAddress)(chainId);
         const iface = new ethers.utils.Interface(HANDLER_CLAIM_ABI);
-        const data = iface.encodeFunctionData('claim', [
-            targetContractAddress,
-            BigInt(tokenId),
+        const price = ethers.BigNumber.from(remote._price);
+        const isEth = remote._payment === '0x0000000000000000000000000000000000000000';
+        const data = iface.encodeFunctionData('claimWithSignedPrice', [
+            remote._nftAddress,
+            ethers.BigNumber.from(remote._tokenId),
+            remote._payment,
+            price,
+            ethers.BigNumber.from(remote._nonce),
+            remote._signature,
         ]);
         callback === null || callback === void 0 ? void 0 : callback('Submitting claim transaction...');
         const tx = yield wallet.sendTransaction({
             to: handlerAddress,
             data,
+            value: isEth ? price : ethers.constants.Zero,
         });
         callback === null || callback === void 0 ? void 0 : callback('Waiting for claim confirmation...', { txHash: tx.hash });
         yield tx.wait();
         callback === null || callback === void 0 ? void 0 : callback('On-chain claim complete!');
+    });
+}
+// Witness signature + supply-tier price for a legacy (non-diamond) claim.
+function requestRemoteClaimSignature(ctx, tokenId, signature, chainId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const response = yield fetch(`${ctx.baseUrl}/claim-curated`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tokenId, signature, chainId: chainId.toString() }),
+        });
+        const remote = yield response.json();
+        if (!(remote === null || remote === void 0 ? void 0 : remote.success)) {
+            throw new Error((remote === null || remote === void 0 ? void 0 : remote.msg) || (remote === null || remote === void 0 ? void 0 : remote.error) || 'Failed to get claim signature');
+        }
+        return remote;
     });
 }
 function requestRemoteUnvaultSignature(ctx, tokenId, signature, chainId) {

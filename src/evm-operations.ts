@@ -105,7 +105,7 @@ export async function performClaimEvm(
             const targetContractAddress = metadata.targetContract?.[chainId] || metadata.collectionAddress;
             if (targetContractAddress) {
                 callback?.('Performing on-chain claim...');
-                await performLegacyClaim(wallet, targetContractAddress, claimIdentifier, chainId, callback);
+                await performLegacyClaim(ctx, wallet, targetContractAddress, claimIdentifier, chainId, callback);
             }
         }
     }
@@ -262,6 +262,7 @@ async function performOnChainUnvault(
  * This is for non-V2 vaults that don't use signed price unvaulting
  */
 async function performLegacyClaim(
+    ctx: SdkContext,
     wallet: EvmSigner,
     targetContractAddress: string,
     tokenId: string,
@@ -269,30 +270,65 @@ async function performLegacyClaim(
     callback?: ProgressCallback
 ): Promise<void> {
     const { ethers } = await import('ethers');
-    
-    // Handler contract ABI for claim function
+
+    // The handler's free claim(address,uint256) was retired; claiming requires a
+    // witness-signed price via claimWithSignedPrice. Sign "Claim: <tokenId>", get
+    // the server-signed price for this asset (supply tier), then call the contract
+    // with the server-derived on-chain tokenId + payment.
+    callback?.('Signing claim authorization...');
+    const claimSig = await wallet.signMessage(`Claim: ${tokenId}`);
+
+    callback?.('Requesting claim price...');
+    const remote = await requestRemoteClaimSignature(ctx, tokenId, claimSig, chainId);
+
     const HANDLER_CLAIM_ABI = [
-        'function claim(address _nftAddress, uint256 _tokenId) external'
+        'function claimWithSignedPrice(address _nftAddress, uint256 tokenId, address _payment, uint256 _price, uint256 _nonce, bytes _signature) external payable'
     ];
-    
     const handlerAddress = getHandlerContractAddress(chainId);
     const iface = new ethers.utils.Interface(HANDLER_CLAIM_ABI);
-    
-    const data = iface.encodeFunctionData('claim', [
-        targetContractAddress,
-        BigInt(tokenId),
+
+    const price = ethers.BigNumber.from(remote._price);
+    const isEth = remote._payment === '0x0000000000000000000000000000000000000000';
+
+    const data = iface.encodeFunctionData('claimWithSignedPrice', [
+        remote._nftAddress,
+        ethers.BigNumber.from(remote._tokenId),
+        remote._payment,
+        price,
+        ethers.BigNumber.from(remote._nonce),
+        remote._signature,
     ]);
 
     callback?.('Submitting claim transaction...');
     const tx = await wallet.sendTransaction({
         to: handlerAddress,
         data,
+        value: isEth ? price : ethers.constants.Zero,
     });
 
     callback?.('Waiting for claim confirmation...', { txHash: tx.hash });
     await tx.wait();
-    
+
     callback?.('On-chain claim complete!');
+}
+
+// Witness signature + supply-tier price for a legacy (non-diamond) claim.
+async function requestRemoteClaimSignature(
+    ctx: SdkContext,
+    tokenId: string,
+    signature: string,
+    chainId: number
+): Promise<any> {
+    const response = await fetch(`${ctx.baseUrl}/claim-curated`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tokenId, signature, chainId: chainId.toString() }),
+    });
+    const remote = await response.json();
+    if (!remote?.success) {
+        throw new Error(remote?.msg || remote?.error || 'Failed to get claim signature');
+    }
+    return remote;
 }
 
 async function requestRemoteUnvaultSignature(

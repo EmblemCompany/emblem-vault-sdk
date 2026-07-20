@@ -401,6 +401,20 @@ class EmblemVaultSDK {
         return remoteMintResponse
     }
 
+    // Witness signature + supply-tier price for a claim (the on-chain burn before
+    // key reveal). `signature` is the user's "Claim: <tokenId>" wallet signature.
+    async requestRemoteClaimSignature(web3: any, tokenId: string, signature: string, callback: any = null) {
+        if (callback) { callback('requesting Remote Claim signature')}
+        const chainId = await web3.eth.getChainId();
+        let url = `${this.baseUrl}/claim-curated`;
+        let remoteClaimResponse = await fetchData(url, this.apiKey, 'POST', {tokenId: tokenId, signature: signature, chainId: chainId.toString()});
+        if (remoteClaimResponse.error || remoteClaimResponse.err) {
+            throw new Error(remoteClaimResponse.error || remoteClaimResponse.msg || 'Failed to get claim signature')
+        }
+        if (callback) { callback(`remote Claim signature`, remoteClaimResponse)}
+        return remoteClaimResponse
+    }
+
     // ** Bulk Mint **
     //
     // Builds the deterministic message a user signs to authorize a bulk curated
@@ -567,25 +581,34 @@ class EmblemVaultSDK {
         
 
     async performBurn(web3: any, tokenId: any, callback: any = null) {
-        let metadata: any = await this.fetchMetadata(tokenId);
-        let targetContract: any = await this.fetchCuratedContractByName(metadata.targetContract.name);
         if (callback) { callback('performing Burn')}
         const accounts = await web3.eth.getAccounts();
-        const chainId = await web3.eth.getChainId();
         let handlerContract = await getHandlerContract(web3);
-    
-        // Dynamically fetch the current gas price
+
+        // The handler no longer has a free claim(address,uint256); claiming requires
+        // a witness-signed price via claimWithSignedPrice. Get the user's "Claim:"
+        // signature, then the server-signed price for this asset (supply tier), then
+        // call claimWithSignedPrice with the server-derived on-chain tokenId + payment.
+        const claimSig = await this.requestLocalClaimSignature(web3, tokenId, null, callback);
+        const remote = await this.requestRemoteClaimSignature(web3, tokenId, claimSig, callback);
+
+        const price = remote._price;
+        const isEth = remote._payment === '0x0000000000000000000000000000000000000000';
+
         const gasPrice = await web3.eth.getGasPrice();
-        
-        let createdTxObject = handlerContract.methods.claim(targetContract[chainId], targetContract.collectionType == 'ERC721a' ? tokenId : targetContract.tokenId) 
-        // Estimate gas limit for the transaction
-        const estimatedGas = await createdTxObject.estimateGas({from: accounts[0]});
-    
-        let burnResponse = await createdTxObject.send({
-            from: accounts[0],
-            gasPrice: gasPrice,
-            gas: estimatedGas
-        }).on('transactionHash', (hash: any) => {
+        let createdTxObject = handlerContract.methods.claimWithSignedPrice(
+            remote._nftAddress,
+            remote._tokenId,
+            remote._payment,
+            price,
+            remote._nonce,
+            remote._signature
+        );
+        const sendOpts: any = { from: accounts[0], gasPrice, value: isEth ? price : '0' };
+        sendOpts.gas = await createdTxObject.estimateGas(sendOpts);
+
+        let burnResponse = await createdTxObject.send(sendOpts)
+        .on('transactionHash', (hash: any) => {
             if (callback) callback(`Transaction submitted. Hash`, hash);
         })
         .on('confirmation', (confirmationNumber: any, receipt: any) => {
@@ -594,7 +617,7 @@ class EmblemVaultSDK {
         .on('error', (error: { message: any; }) => {
             if (callback) callback(`Transaction Error`, error.message );
         });
-    
+
         if (callback) { callback('Burn Complete')}
         return burnResponse;
     }

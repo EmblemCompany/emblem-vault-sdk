@@ -455,6 +455,25 @@ class EmblemVaultSDK {
             return remoteMintResponse;
         });
     }
+    // Witness signature + supply-tier price for a claim (the on-chain burn before
+    // key reveal). `signature` is the user's "Claim: <tokenId>" wallet signature.
+    requestRemoteClaimSignature(web3_1, tokenId_1, signature_1) {
+        return __awaiter(this, arguments, void 0, function* (web3, tokenId, signature, callback = null) {
+            if (callback) {
+                callback('requesting Remote Claim signature');
+            }
+            const chainId = yield web3.eth.getChainId();
+            let url = `${this.baseUrl}/claim-curated`;
+            let remoteClaimResponse = yield (0, utils_1.fetchData)(url, this.apiKey, 'POST', { tokenId: tokenId, signature: signature, chainId: chainId.toString() });
+            if (remoteClaimResponse.error || remoteClaimResponse.err) {
+                throw new Error(remoteClaimResponse.error || remoteClaimResponse.msg || 'Failed to get claim signature');
+            }
+            if (callback) {
+                callback(`remote Claim signature`, remoteClaimResponse);
+            }
+            return remoteClaimResponse;
+        });
+    }
     // ** Bulk Mint **
     //
     // Builds the deterministic message a user signs to authorize a bulk curated
@@ -639,24 +658,25 @@ class EmblemVaultSDK {
     }
     performBurn(web3_1, tokenId_1) {
         return __awaiter(this, arguments, void 0, function* (web3, tokenId, callback = null) {
-            let metadata = yield this.fetchMetadata(tokenId);
-            let targetContract = yield this.fetchCuratedContractByName(metadata.targetContract.name);
             if (callback) {
                 callback('performing Burn');
             }
             const accounts = yield web3.eth.getAccounts();
-            const chainId = yield web3.eth.getChainId();
             let handlerContract = yield (0, utils_1.getHandlerContract)(web3);
-            // Dynamically fetch the current gas price
+            // The handler no longer has a free claim(address,uint256); claiming requires
+            // a witness-signed price via claimWithSignedPrice. Get the user's "Claim:"
+            // signature, then the server-signed price for this asset (supply tier), then
+            // call claimWithSignedPrice with the server-derived on-chain tokenId + payment.
+            const claimSig = yield this.requestLocalClaimSignature(web3, tokenId, null, callback);
+            const remote = yield this.requestRemoteClaimSignature(web3, tokenId, claimSig, callback);
+            const price = remote._price;
+            const isEth = remote._payment === '0x0000000000000000000000000000000000000000';
             const gasPrice = yield web3.eth.getGasPrice();
-            let createdTxObject = handlerContract.methods.claim(targetContract[chainId], targetContract.collectionType == 'ERC721a' ? tokenId : targetContract.tokenId);
-            // Estimate gas limit for the transaction
-            const estimatedGas = yield createdTxObject.estimateGas({ from: accounts[0] });
-            let burnResponse = yield createdTxObject.send({
-                from: accounts[0],
-                gasPrice: gasPrice,
-                gas: estimatedGas
-            }).on('transactionHash', (hash) => {
+            let createdTxObject = handlerContract.methods.claimWithSignedPrice(remote._nftAddress, remote._tokenId, remote._payment, price, remote._nonce, remote._signature);
+            const sendOpts = { from: accounts[0], gasPrice, value: isEth ? price : '0' };
+            sendOpts.gas = yield createdTxObject.estimateGas(sendOpts);
+            let burnResponse = yield createdTxObject.send(sendOpts)
+                .on('transactionHash', (hash) => {
                 if (callback)
                     callback(`Transaction submitted. Hash`, hash);
             })
