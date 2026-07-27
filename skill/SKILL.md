@@ -277,6 +277,12 @@ What this means for you as an integrator:
 
 After claiming a BTC-family vault you can sweep the recovered funds with `sweepVaultUsingPhrase(phrase, satsPerByte?, broadcast?)`.
 
+**Per-coin key derivation from the revealed phrase.** Step 2 hands back the vault's seed `phrase`; from it you can derive the concrete per-coin keys the user needs to import into a wallet. These are **post-claim** helpers (they take a phrase the user already owns — the SDK never touches a raw key during mint):
+- **Solana:** `sdk.deriveSolanaKeys(phrase)` → `{ address, secretKey, path, coin: 'SOL' }`. `secretKey` is the base58 64-byte secret, directly importable into Phantom/Solflare. Derivation is ed25519 SLIP-0010 on `m/44'/501'/0'/0'` (Solana can't use the secp256k1/bitcoinjs path the other coins use), matching the serverless creation-side byte-for-byte so it re-derives to the vault's stored SOL address. *(Added in SDK v2.13.0.)*
+- **BTC (Taproot):** `sweepVaultUsingPhrase(phrase, ...)` above derives the taproot key internally to move funds; there's no standalone public "derive BTC key" export — the other coins' keys come out of the reveal payload / are derived client-side by the consumer app.
+
+Treat `secretKey`/`phrase` as secrets (never log/persist) — same rule as the reveal output.
+
 > **Security:** Step 2 returns real private keys / seed phrases (`ClaimResult.phrase` / `.privateKey`). Handle as secrets — never log or persist them in plaintext (treat them like the EMBLEM keypair files). Confirm intent with the user before running a claim, since Step 1 is irreversible.
 
 ## Navigating a user's vault holdings

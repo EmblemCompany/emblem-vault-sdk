@@ -86,8 +86,9 @@ No bulk-*create* method — create vaults in a loop (`createCuratedVault`); only
 | `performBurn` | `(web3, tokenId, callback?)` | `Promise<any>` |
 | `deleteVaultWithClient` | `(client, tokenId, chainId?, callback?)` | `Promise<boolean>` |
 | `sweepVaultUsingPhrase` | `(phrase, satsPerByte?, broadcast?)` | `Promise<unknown>` |
+| `deriveSolanaKeys` (v2.13.0+) | `(phrase)` | `{ address, secretKey, path, coin: 'SOL' }` — post-claim; base58 secretKey imports into Phantom/Solflare |
 
-`ClaimResult = { phrase?, privateKey? }` — **secrets. Never log/persist in plaintext.**
+`ClaimResult = { phrase?, privateKey? }` — **secrets. Never log/persist in plaintext.** (`deriveSolanaKeys().secretKey` is likewise a secret.)
 
 ## Listing / ownership
 
