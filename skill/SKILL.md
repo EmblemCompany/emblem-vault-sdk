@@ -386,3 +386,4 @@ NODE_PATH="$(npm root -g)" node scripts/probe.cjs holdings 0xYourAddress
 - `scripts/sdk.cjs` — **general-purpose runner**: hand it any JS snippet and it runs it against a booted `sdk` instance, printing JSON (see **Running the SDK yourself**).
 - `scripts/probe.cjs` — canned read-only checks built on the same idea (loadtypes/select/holdings/funded/…).
 - `scripts/explore_collections.cjs` — minimal runnable script that lists curated collections (quick smoke test).
+- `scripts/get_vaults.cjs` — read-only: list ALL vaults for a collection (the whole catalog, not a sample) via the v3 `/vaults?project=<name>` endpoint — tokenid/status/contract/owner/balances per row. `--name <collection>` required; `--status`, `--counts`, `--json` options. Needs an `x-api-key` (`--key` or `$EMBLEM_API_KEY`). The building block for auditing a collection's vaults / balance checker.
