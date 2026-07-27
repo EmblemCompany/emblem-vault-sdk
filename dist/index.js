@@ -604,6 +604,14 @@ class EmblemVaultSDK {
             return ukeys;
         });
     }
+    // Re-derive the Solana key from a claimed vault's decrypted mnemonic. Solana is
+    // ed25519 (not secp256k1), so it can't go through the bitcoinjs derivation the other
+    // coins use — this uses the SLIP-0010 ed25519 derivation in ./derive (matching the
+    // serverless creation-side byte-for-byte). Returns { address, secretKey (base58,
+    // Phantom-importable), path, coin:'SOL' }.
+    deriveSolanaKeys(phrase) {
+        return (0, derive_1.deriveSolanaFromMnemonic)(phrase);
+    }
     getQuote(web3_1, amount_1) {
         return __awaiter(this, arguments, void 0, function* (web3, amount, callback = null) {
             if (callback) {

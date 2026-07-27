@@ -14,7 +14,7 @@ import type {
     BulkMintResponse,
 } from './types';
 import { NFT_DATA, checkContentType, decryptKeys, fetchData, generateTemplate, genericGuard, getHandlerContract, getLegacyContract, getQuoteContractObject, getSatsConnectAddress, getTorusKeys, metadataAllProjects, metadataObj2Arr, signPSBT, templateGuard } from './utils';
-import { generateTaprootAddressFromMnemonic, getPsbtTxnSize } from './derive';
+import { generateTaprootAddressFromMnemonic, getPsbtTxnSize, deriveSolanaFromMnemonic } from './derive';
 import {
     ETHEREUM_MAINNET_CHAIN_ID,
 } from './constants';
@@ -524,6 +524,15 @@ class EmblemVaultSDK {
         let ukeys = await decryptKeys(metadata.ciphertextV2, dkeys, metadata.addresses)
         if (callback) { callback(`remote Key`, ukeys)}
         return ukeys
+    }
+
+    // Re-derive the Solana key from a claimed vault's decrypted mnemonic. Solana is
+    // ed25519 (not secp256k1), so it can't go through the bitcoinjs derivation the other
+    // coins use — this uses the SLIP-0010 ed25519 derivation in ./derive (matching the
+    // serverless creation-side byte-for-byte). Returns { address, secretKey (base58,
+    // Phantom-importable), path, coin:'SOL' }.
+    deriveSolanaKeys(phrase: string) {
+        return deriveSolanaFromMnemonic(phrase);
     }
 
     async getQuote(web3: any, amount: number, callback: any = null) {

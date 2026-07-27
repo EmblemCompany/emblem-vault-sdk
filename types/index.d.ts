@@ -62,6 +62,12 @@ declare class EmblemVaultSDK {
         privateKey: any;
     }>;
     decryptVaultKeys(tokenId: string, dkeys: any, callback?: any): Promise<any>;
+    deriveSolanaKeys(phrase: string): {
+        address: string;
+        secretKey: string;
+        path: string;
+        coin: string;
+    };
     getQuote(web3: any, amount: number, callback?: any): Promise<BigNumber>;
     performMint(web3: any, quote: any, remoteMintSig: any, callback?: any): Promise<any>;
     performBurn(web3: any, tokenId: any, callback?: any): Promise<any>;

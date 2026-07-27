@@ -42,12 +42,62 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPsbtTxnSize = exports.generateTaprootAddressFromMnemonic = void 0;
+exports.getPsbtTxnSize = exports.generateTaprootAddressFromMnemonic = exports.deriveSolanaFromMnemonic = void 0;
 const bip32_1 = require("bip32");
 const bip39 = __importStar(require("bip39"));
 // import bitcoin from "bitcoinjs-lib";
 const ecc = __importStar(require("@bitcoin-js/tiny-secp256k1-asmjs"));
+const hmac_1 = require("@noble/hashes/hmac");
+const sha512_1 = require("@noble/hashes/sha512");
+const ed25519_1 = require("@noble/curves/ed25519");
+// bs58@4 ships no type declarations; require it (CJS) to avoid TS7016.
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const bs58 = require("bs58");
 const bip32 = (0, bip32_1.BIP32Factory)(ecc);
+// --- Solana (ed25519 SLIP-0010) HD derivation ---
+// Solana uses ed25519, NOT secp256k1, so bip32/bitcoinjs can't derive it. We do the
+// SLIP-0010 ed25519 derivation via @noble (browser-safe, already a dependency; NOT
+// @solana/web3.js — that heavy dep is the conflict that got SOL derivation disabled).
+// Path m/44'/501'/0'/0' (all hardened) is the Phantom/Solflare standard. This matches
+// the serverless vault-creation derivation byte-for-byte, so a claimed vault's SOL key
+// re-derives to the stored address.
+const SOLANA_PATH = "m/44'/501'/0'/0'";
+function slip10DeriveEd25519Seed(pathStr, seed) {
+    let I = (0, hmac_1.hmac)(sha512_1.sha512, new TextEncoder().encode("ed25519 seed"), seed);
+    let key = I.slice(0, 32);
+    let chain = I.slice(32);
+    for (const seg of pathStr.split("/").slice(1)) {
+        const idx = ((parseInt(seg, 10) | 0x80000000) >>> 0); // all segments hardened
+        const data = new Uint8Array(1 + 32 + 4);
+        data[0] = 0;
+        data.set(key, 1);
+        data[33] = (idx >>> 24) & 255;
+        data[34] = (idx >>> 16) & 255;
+        data[35] = (idx >>> 8) & 255;
+        data[36] = idx & 255;
+        I = (0, hmac_1.hmac)(sha512_1.sha512, chain, data);
+        key = I.slice(0, 32);
+        chain = I.slice(32);
+    }
+    return key; // 32-byte ed25519 seed
+}
+// Derive the Solana address + Phantom-importable secret key from a vault mnemonic.
+// Returns { address (base58 pubkey), secretKey (base58 of the 64-byte secret), path, coin }.
+const deriveSolanaFromMnemonic = (phrase) => {
+    const seed = bip39.mnemonicToSeedSync(phrase);
+    const priv = slip10DeriveEd25519Seed(SOLANA_PATH, new Uint8Array(seed));
+    const pub = ed25519_1.ed25519.getPublicKey(priv);
+    const secret = new Uint8Array(64);
+    secret.set(priv, 0);
+    secret.set(pub, 32);
+    return {
+        address: bs58.encode(pub),
+        secretKey: bs58.encode(secret), // 64-byte secret, base58 — import into Phantom/Solflare
+        path: SOLANA_PATH,
+        coin: "SOL",
+    };
+};
+exports.deriveSolanaFromMnemonic = deriveSolanaFromMnemonic;
 const generateTaprootAddressFromMnemonic = (phrase) => __awaiter(void 0, void 0, void 0, function* () {
     let bitcoin = window.bitcoin;
     let mainnet = bitcoin.networks.mainnet;

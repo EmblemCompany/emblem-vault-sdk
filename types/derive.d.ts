@@ -1,3 +1,9 @@
+export declare const deriveSolanaFromMnemonic: (phrase: string) => {
+    address: string;
+    secretKey: string;
+    path: string;
+    coin: string;
+};
 declare global {
     interface Window {
         bitcoin: any;
